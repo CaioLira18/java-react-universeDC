@@ -1,0 +1,139 @@
+.slideCharacter {
+  width: 100%;
+  background-color: #1a1a1a;
+}
+
+.slideCharacterCard {
+  position: relative;
+  width: 100%;
+  height: 700px;
+  overflow: hidden;
+}
+
+.slideCharacterCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+
+.slideCharacterOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.55) 30%, rgba(0, 0, 0, 0) 65%);
+  pointer-events: none;
+}
+
+.slideArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  z-index: 2;
+}
+
+.slideArrow:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.slideArrowLeft {
+  left: 24px;
+}
+
+.slideArrowRight {
+  right: 24px;
+}
+
+.slideDots {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.slideDot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.slideDot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.slideDotActive {
+  background: #fff;
+  transform: scale(1.2);
+}
+
+/* agora fica sobreposto a imagem, ancorado embaixo a esquerda */
+.informationsCharacters {
+  position: absolute;
+  left: 0;
+  bottom: 64px;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  padding: 0 64px;
+  color: #fff;
+}
+
+.informationsCharacters h2 {
+  margin: 0 0 16px;
+  font-size: 44px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.informationsCharacters p {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
+.buttonCharacter {
+  padding: 12px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.buttonCharacter:hover {
+  background: #fff;
+  color: #1a1a1a;
+  border-color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
