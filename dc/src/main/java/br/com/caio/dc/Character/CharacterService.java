@@ -32,6 +32,12 @@ public class CharacterService {
     existing.setName(character.getName());
     existing.setDescription(character.getDescription());
     existing.setBackground(character.getBackground());
+    existing.setLogo(character.getLogo());
+    existing.setTrue_name(character.getTrue_name());
+    existing.setPowers(character.getPowers());
+    existing.setPlanet(character.getPlanet());
+    existing.setFirst_appearance(character.getFirst_appearance());
+    existing.setFirst_appearance_year(character.getFirst_appearance_year());
     return characterRepository.save(existing);
   }
 

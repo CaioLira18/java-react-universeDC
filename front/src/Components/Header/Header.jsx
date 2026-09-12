@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './Header.css'
 
 export const Header = () => {
@@ -14,10 +14,12 @@ export const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const navigate = useNavigate()
+
   return (
     <div className={`header ${scrolled ? 'header--scrolled' : ''}`}>
       <div className="headerContainer">
-        <div className="logoHeader">
+        <div className="logoHeader" onClick={() => navigate('/')}>
           <img
             src="https://dc-universe-bucket.s3.us-east-1.amazonaws.com/DCUniverse.png"
             alt="Logo"

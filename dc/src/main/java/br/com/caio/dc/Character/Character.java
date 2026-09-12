@@ -26,6 +26,15 @@ public class Character {
   private String description;
   private String background;
 
+  {/* Novas Informações */}
+  private String true_name;
+  private String powers;
+  private String planet;
+  private String first_appearance;
+  private String first_appearance_year;
+  private String logo;
+  private String verticalmage;
+
   @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CharacterAppearance> appearances;
 }

@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, {useEffect, useState } from 'react'
 import './SlideCharacter.css'
+import { useNavigate } from 'react-router-dom';
+
 
 export const SlideCharacter = () => {
 
   const [characters, setCharacters] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const navigate = useNavigate();
   const API_URL = 'http://localhost:8080';
 
   useEffect(() => {
@@ -37,6 +40,7 @@ export const SlideCharacter = () => {
     setActiveIndex((prev) => (prev + 1) % characters.length);
   };
 
+
   return (
     <div className="slideCharacter">
       <div className="slideCharacterCard">
@@ -50,7 +54,9 @@ export const SlideCharacter = () => {
         <div className="informationsCharacters">
           <h2>{activeCharacter.name}</h2>
           <p>{activeCharacter.description}</p>
-          <button className="buttonCharacter">Ver mais</button>
+          <button className="buttonCharacter" onClick={() => navigate(`/characters/${activeCharacter.id}`)}>
+            Ver mais
+          </button>
         </div>
 
         <button
