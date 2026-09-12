@@ -23,7 +23,7 @@ public class PlanetSeeder implements CommandLineRunner {
         "#e05fc4",
         "Sistema Vega",
         "Zamarons, Star Sapphire (Carol Ferris)",
-        62.0, 38.0, 1.1
+        12.0, 3.0, -4.0, 1.15
     ));
 
     planetRepository.save(planet(
@@ -32,7 +32,7 @@ public class PlanetSeeder implements CommandLineRunner {
         "#3ddc72",
         "Centro do Universo",
         "Guardiões do Universo, Corpo dos Lanternas Verdes",
-        30.0, 22.0, 1.2
+        -8.0, 5.0, -10.0, 1.3
     ));
 
     planetRepository.save(planet(
@@ -41,7 +41,7 @@ public class PlanetSeeder implements CommandLineRunner {
         "#ff5b3d",
         "Sistema Novos Deuses",
         "Darkseid, Parademônios, Novos Deuses do Mal",
-        78.0, 62.0, 1.3
+        16.0, -7.0, -22.0, 1.4
     ));
 
     planetRepository.save(planet(
@@ -50,7 +50,7 @@ public class PlanetSeeder implements CommandLineRunner {
         "#7fe8d4",
         "Sistema Novos Deuses",
         "Alto-Pai, Novos Deuses do Bem, Orion",
-        68.0, 20.0, 1.15
+        6.0, 10.0, -26.0, 1.2
     ));
 
     planetRepository.save(planet(
@@ -59,7 +59,7 @@ public class PlanetSeeder implements CommandLineRunner {
         "#4fd1ff",
         "Setor Krypton",
         "Kryptonianos, Casa de El",
-        18.0, 55.0, 1.0
+        -16.0, -4.0, -6.0, 1.0
     ));
 
     planetRepository.save(planet(
@@ -68,12 +68,13 @@ public class PlanetSeeder implements CommandLineRunner {
         "#e8b34d",
         "Sistema Polaris",
         "Thanagarianos, Gavião Negro, Mulher-Gavião",
-        45.0, 72.0, 1.0
+        -4.0, -9.0, -16.0, 1.05
     ));
   }
 
   private Planet planet(String name, String description, String color, String sector,
-                         String notableResidents, Double positionX, Double positionY, Double size) {
+                         String notableResidents, Double positionX, Double positionY,
+                         Double positionZ, Double size) {
     Planet planet = new Planet();
     planet.setName(name);
     planet.setDescription(description);
@@ -82,6 +83,7 @@ public class PlanetSeeder implements CommandLineRunner {
     planet.setNotableResidents(notableResidents);
     planet.setPositionX(positionX);
     planet.setPositionY(positionY);
+    planet.setPositionZ(positionZ);
     planet.setSize(size);
     return planet;
   }

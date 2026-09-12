@@ -31,10 +31,11 @@ public class Planet {
   // ex.: "Zamarons, Corpo Zafira Estelar"
   private String notableResidents;
 
-  // posicao no mapa em porcentagem (0 a 100), pra desenhar sem depender de coordenadas reais
+  // coordenadas no espaco 3D do mapa estelar (unidades livres, ex.: -20 a 20)
   private Double positionX;
   private Double positionY;
+  private Double positionZ;
 
-  // multiplicador de tamanho do ponto no mapa (1.0 = padrao)
+  // raio da esfera do planeta no mapa (ex.: 0.8 a 1.6)
   private Double size;
 }
