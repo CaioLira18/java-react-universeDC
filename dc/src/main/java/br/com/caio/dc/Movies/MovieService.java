@@ -31,6 +31,10 @@ public class MovieService {
     Movie existing = findById(id);
     existing.setTitle(movie.getTitle());
     existing.setMovieLogo(movie.getMovieLogo());
+    existing.setVerticalImage(movie.getVerticalImage());
+    existing.setYear(movie.getYear());
+    existing.setDuration(movie.getDuration());
+    existing.setDescription(movie.getDescription());
     return movieRepository.save(existing);
   }
 
