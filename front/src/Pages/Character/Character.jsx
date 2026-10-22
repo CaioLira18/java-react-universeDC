@@ -7,9 +7,11 @@ export const Character = () => {
   const { id } = useParams();
   const [character, setCharacter] = useState(null);
   const [selectedAppearanceId, setSelectedAppearanceId] = useState('');
+  const [error, setError] = useState(false);
   const API_URL = 'http://localhost:8080';
 
   useEffect(() => {
+    setError(false);
     fetch(`${API_URL}/characters/${id}`)
       .then(r => r.json())
       .then(data => {
@@ -18,10 +20,29 @@ export const Character = () => {
           setSelectedAppearanceId(data.appearances[0].id);
         }
       })
-      .catch(console.error);
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, [id]);
 
-  if (!character) return null;
+  if (error) {
+    return (
+      <div className="characterPage characterPage--empty">
+        <p className="characterMessage">
+          Não foi possível carregar este personagem. Verifique se a API está rodando em {API_URL}.
+        </p>
+      </div>
+    );
+  }
+
+  if (!character) {
+    return (
+      <div className="characterPage characterPage--empty" aria-busy="true">
+        <p className="characterMessage">Carregando herói...</p>
+      </div>
+    );
+  }
 
   const appearances = character.appearances || [];
   const selectedAppearance = appearances.find(
@@ -70,7 +91,7 @@ export const Character = () => {
           <div className="flexCharacter">
             <div className="characterInfo">
               <h1>{character.name}</h1>
-              <p>{character.description}</p>
+              <p className="characterNarration">{character.description}</p>
             </div>
           </div>
 
