@@ -1,61 +1,186 @@
+/* o header aparece em todas as páginas, então carrega as fontes aqui
+   (pode remover o @import do Home.css) */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Barlow:wght@400;500;600;700&display=swap');
+
 .header {
+  --ink: #0a0c1c;
+  --hero-yellow: #ffd400;
+  --hero-red: #e8212e;
+  --hero-blue: #0a6cf0;
+  --paper: #fff6dc;
+  --font-comic: 'Bangers', 'Impact', sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
   background: transparent;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  border-bottom: 3px solid transparent;
+  font-family: var(--font-body);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* fica solido/escurecido quando o usuario rola a pagina */
+/* ao rolar: barra de tinta com filete amarelo e sombra dura */
 .header--scrolled {
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(10, 12, 28, 0.94);
+  border-bottom-color: var(--hero-yellow);
+  box-shadow: 0 5px 0 var(--ink);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .headerContainer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 12px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
+}
+
+/* ---------- Logo ---------- */
+.logoHeader {
+  display: flex;
+  flex: 0 0 auto;
+  border-radius: 4px;
 }
 
 .logoHeader img {
-  height: 40px;
+  height: 44px;
   width: auto;
+  display: block;
+  filter: drop-shadow(2px 2px 0 var(--ink));
+  transition: transform 0.15s ease;
 }
 
+.logoHeader:hover img { transform: rotate(-6deg) scale(1.08); }
+
+/* ---------- Navegação ---------- */
 .navHeader ul {
   display: flex;
-  gap: 32px;
+  gap: 14px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .navHeader a {
+  display: inline-block;
+  padding: 4px 16px;
   color: #fff;
+  font-family: var(--font-comic);
+  font-size: 22px;
+  letter-spacing: 0.06em;
   text-decoration: none;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: color 0.2s ease;
+  text-shadow: 2px 2px 0 var(--ink);
+  border: 3px solid transparent;
+  transform: skewX(-8deg);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
+.navHeader a:hover {
+  background: var(--hero-yellow);
+  color: var(--ink);
+  text-shadow: none;
+  border-color: var(--ink);
+  transform: skewX(-8deg) translateY(-2px);
+}
+
+/* página atual */
+.navHeader a.active {
+  background: var(--hero-red);
+  color: #fff;
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* ---------- Login ---------- */
 .loginButton {
-  border: 1px solid #fff;
-  padding: 8px 26px;
-  border-radius: 24px;
-  color: white;
+  padding: 6px 24px;
+  background: var(--hero-red);
+  color: #fff;
+  font-family: var(--font-comic);
+  font-size: 21px;
+  letter-spacing: 0.06em;
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--ink);
+  cursor: pointer;
+  transform: skewX(-8deg);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
 .loginButton:hover {
-  background-color: black;
-  color: rgb(255, 254, 254);
-  transition: all 0.3s ease;
+  background: var(--hero-blue);
+  transform: skewX(-8deg) translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.loginButton:active {
+  transform: skewX(-8deg) translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+/* ---------- Foco visível ---------- */
+.navHeader a:focus-visible,
+.loginButton:focus-visible,
+.menuToggle:focus-visible,
+.logoHeader:focus-visible {
+  outline: 3px solid var(--hero-yellow);
+  outline-offset: 3px;
+}
+
+/* botão do menu: só aparece no celular */
+.menuToggle {
+  display: none;
+  padding: 4px 16px;
+  background: var(--hero-yellow);
+  color: var(--ink);
+  font-family: var(--font-comic);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  border: 3px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
   cursor: pointer;
+  transform: skewX(-8deg);
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 800px) {
+  .headerContainer {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px 16px;
+  }
+
+  .logoHeader { margin-right: auto; }
+  .login { order: 2; }
+  .menuToggle { display: block; order: 3; }
+
+  .navHeader {
+    display: none;
+    order: 4;
+    flex-basis: 100%;
+  }
+
+  .navHeader--open { display: block; }
+
+  .navHeader ul {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0 14px;
+  }
+
+  .loginButton { padding: 4px 16px; font-size: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .logoHeader img,
+  .navHeader a,
+  .loginButton { transition: none; }
 }
