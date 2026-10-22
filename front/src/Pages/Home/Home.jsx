@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { SlideCharacter } from '../../Components/Slides/Character/SlideCharacter'
 import './Home.css'
 import { CharacterSection } from '../../Components/Character/CharacterSection';
+import { MovieSecction } from '../../Components/Movie/MovieSecction';
 
 export const Home = () => {
 
@@ -39,26 +40,7 @@ export const Home = () => {
         <CharacterSection />
       </div>
 
-      {/*
-      <div className="slideCharacter">
-        <SlideCharacter />
-      </div>
-      */}
-
-      {/*
-      <section className="movie__section">
-        <h2 className="movie__section-title">Filmes</h2>
-        <div className="movie__section-cards">
-          {movies.map((movie) => (
-            <div key={movie.id} className="movie__card">
-              <img src={movie.verticalImage} alt={movie.title} />
-              <span className="movieTag">Filme</span>
-              <h3>{movie.title}</h3>
-            </div>
-          ))}
-        </div>
-      </section>
-      */}
+      <MovieSecction />
 
       <div className="space"></div>
     </div>
