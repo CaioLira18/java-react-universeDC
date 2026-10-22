@@ -4,6 +4,8 @@ import { Home } from '../Pages/Home/Home'
 import { Header } from '../Components/Header/Header'
 import { Character } from '../Pages/Character/Character'
 import { StarMap } from '../Components/StarMap/StarMap'
+import { CharactersPage } from '../Pages/Characters/CharactersPage'
+import Admin from '../Pages/Admin/Admin'
 
 export const AppRoutes = () => {
   return (
@@ -12,7 +14,9 @@ export const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/characters/:id" element={<Character />} />
+        <Route path="/characters" element={<CharactersPage />} />
         <Route path="/planets" element={<StarMap />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </div>
   )
