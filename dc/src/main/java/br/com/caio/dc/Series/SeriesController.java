@@ -1,6 +1,7 @@
 package br.com.caio.dc.Series;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/series")
@@ -42,6 +45,13 @@ public class SeriesController {
   @PutMapping("/{id}")
   public ResponseEntity<Series> update(@PathVariable String id, @RequestBody Series series) {
     return ResponseEntity.ok(seriesService.update(id, series));
+  }
+
+  @PostMapping("/{id}/media")
+  public ResponseEntity<Map<String, String>> uploadMedia(
+      @PathVariable String id,
+      @RequestParam("file") MultipartFile file) {
+    return ResponseEntity.ok(Map.of("url", seriesService.uploadMedia(id, file)));
   }
 
   @DeleteMapping("/{id}")

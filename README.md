@@ -26,6 +26,12 @@ Com o arquivo enviado no campo `file`.
 No painel administrativo, cadastre jogos na aba **Jogos**. O logo ou capa enviado no formulário é salvo no S3 em `games/{gameId}/`. Ao editar um personagem, associe um jogo e informe a URL da imagem daquela aparição ou envie o arquivo pelo painel; as imagens enviadas para a aparição são salvas em `games/{gameId}/Personagens/{characterId}/`. As artes relacionadas são exibidas na página pública do personagem.
 
 O envio do logo ou capa do jogo usa `POST /games/{id}/media`. A imagem de um personagem em um jogo usa `POST /games/{gameId}/characters/{characterId}/media`. Ambos recebem o arquivo no campo `file` e exigem autenticação JWT.
+
+No CRUD de séries, o logo pode ser enviado como arquivo e é armazenado no S3 em `series/{seriesId}/`. O upload autenticado usa `POST /series/{id}/media`, com o arquivo no campo `file`.
+
+No CRUD de filmes, o pôster enviado é armazenado no S3 em `movies/{movieId}/`. O upload autenticado usa `POST /movies/{id}/media`, com o arquivo no campo `file`. A página do filme exibe somente o pôster, sem logo.
+
+Jogos, filmes e séries têm descrição, um banner estático e uma galeria de imagens. Envie o banner e várias imagens pelos campos de mídia do painel; os arquivos são armazenados na pasta S3 do respectivo item (`games/{id}/`, `movies/{id}/` ou `series/{id}/`). Os URLs da galeria ficam persistidos nas entidades e são exibidos nas páginas individuais. Hibernate atualiza o esquema para incluir os campos e tabelas das galerias.
 O backend aceita arquivos de até 25 MB por upload; o limite da requisição multipart é 26 MB.
 
 No CRUD de personagens, também é possível relacionar o personagem a filmes e séries cadastrados e enviar uma imagem específica para cada aparição. Os arquivos são salvos em `movies/{movieId}/{characterId}/` ou `series/{seriesId}/{characterId}/`. O upload autenticado usa `POST /character-appearances/media?characterId={characterId}&contentId={contentId}`, com o arquivo no campo `file`; a relação é criada em seguida por `POST /character-appearances`.

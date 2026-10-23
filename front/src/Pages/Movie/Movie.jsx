@@ -49,7 +49,7 @@ export const Movie = () => {
     { label: 'Classificação', value: movie.rating },
   ].filter((detail) => detail.value);
 
-  const heroImage = movie.background || movie.horizontalImage;
+  const heroImage = movie.banner;
   const backdrop = heroImage || movie.verticalImage;
 
   return (
@@ -80,10 +80,6 @@ export const Movie = () => {
           )}
 
           <div className="moviepage__info">
-            {movie.movieLogo && (
-              <img className="moviepage__logo" src={movie.movieLogo} alt="" />
-            )}
-
             <h1 className="moviepage__title">{movie.title}</h1>
 
             {movie.description && (
@@ -102,6 +98,16 @@ export const Movie = () => {
             )}
           </div>
         </div>
+        {movie.images?.length > 0 && (
+          <section className="moviepage__gallery" aria-label={`Imagens de ${movie.title}`}>
+            <h2 className="moviepage__gallery-title">Galeria</h2>
+            <div className="moviepage__gallery-grid">
+              {movie.images.map((image, index) => (
+                <img key={`${image}-${index}`} src={image} alt={`${movie.title} — imagem ${index + 1}`} loading="lazy" />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )

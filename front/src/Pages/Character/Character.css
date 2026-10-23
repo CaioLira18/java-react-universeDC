@@ -106,10 +106,10 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 650px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 780px);
   align-items: center;
   gap: 48px;
-  max-width: 1280px;
+  max-width: 1440px;
   box-sizing: border-box;
   margin: 0 auto;
   padding: 0 24px 96px;
@@ -293,7 +293,7 @@
   grid-column: 2;
   grid-row: 1;
   min-width: 0;
-  max-width: 650px;
+  max-width: 780px;
   display: flex;
   justify-content: center;
   animation: slideUp 0.75s ease;
@@ -302,7 +302,7 @@
 
 .imageVerticalCharacter img {
   width: 100%;
-  max-width: 650px;
+  max-width: 780px;
   height: auto;
   display: block;
   filter: drop-shadow(8px 10px 0 rgba(10, 12, 28, 0.85));

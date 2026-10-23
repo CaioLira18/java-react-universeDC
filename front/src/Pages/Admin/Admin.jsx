@@ -34,8 +34,7 @@ const RESOURCES = {
     imageField: 'verticalImage',
     fields: [
       { name: 'title', label: 'Título', type: 'text', required: true },
-      { name: 'verticalImage', label: 'Pôster vertical (URL)', type: 'url' },
-      { name: 'movieLogo', label: 'Logo do filme (URL)', type: 'url' },
+      { name: 'description', label: 'Descrição', type: 'textarea', required: true },
     ],
   },
   series: {
@@ -46,7 +45,7 @@ const RESOURCES = {
     imageField: 'serieLogo',
     fields: [
       { name: 'title', label: 'Título', type: 'text', required: true },
-      { name: 'serieLogo', label: 'Logo da série (URL)', type: 'url' },
+      { name: 'description', label: 'Descrição', type: 'textarea', required: true },
     ],
   },
   games: {
@@ -57,7 +56,7 @@ const RESOURCES = {
     imageField: 'gameLogo',
     fields: [
       { name: 'title', label: 'Nome do jogo', type: 'text', required: true },
-      { name: 'description', label: 'Descrição', type: 'textarea' },
+      { name: 'description', label: 'Descrição', type: 'textarea', required: true },
     ],
   },
 };
@@ -123,6 +122,10 @@ const uploadMedia = async (path, file) => {
 }
 
 const uploadGameMedia = (gameId, file) => uploadMedia(`/games/${gameId}/media`, file)
+const uploadMovieMedia = (movieId, file) => uploadMedia(`/movies/${movieId}/media`, file)
+const uploadSeriesMedia = (seriesId, file) => uploadMedia(`/series/${seriesId}/media`, file)
+const uploadCatalogMedia = (resourceKey, itemId, file) =>
+  uploadMedia(`/${resourceKey}/${itemId}/media`, file)
 
 const uploadGameCharacterMedia = (gameId, characterId, file) =>
   uploadMedia(`/games/${gameId}/characters/${characterId}/media`, file)
@@ -155,6 +158,11 @@ export const Admin = () => {
   const [gameCharacterImage, setGameCharacterImage] = useState('')
   const [gameCharacterImageFile, setGameCharacterImageFile] = useState(null)
   const [gameMediaFile, setGameMediaFile] = useState(null)
+  const [movieMediaFile, setMovieMediaFile] = useState(null)
+  const [seriesMediaFile, setSeriesMediaFile] = useState(null)
+  const [bannerMediaFile, setBannerMediaFile] = useState(null)
+  const [galleryMediaFiles, setGalleryMediaFiles] = useState([])
+  const [galleryImagesToRemove, setGalleryImagesToRemove] = useState([])
   const [characterBackgroundFile, setCharacterBackgroundFile] = useState(null)
   const [characterVerticalFile, setCharacterVerticalFile] = useState(null)
   const [linkingGame, setLinkingGame] = useState(false)
@@ -223,6 +231,11 @@ export const Admin = () => {
   const startEdit = (item) => {
     setEditing(item);
     setGameMediaFile(null)
+    setMovieMediaFile(null)
+    setSeriesMediaFile(null)
+    setBannerMediaFile(null)
+    setGalleryMediaFiles([])
+    setGalleryImagesToRemove([])
     setGameCharacterImageFile(null)
     setCharacterBackgroundFile(null)
     setCharacterVerticalFile(null)
@@ -237,6 +250,11 @@ export const Admin = () => {
     setEditing(null);
     setForm(emptyForm(resource.fields));
     setGameMediaFile(null)
+    setMovieMediaFile(null)
+    setSeriesMediaFile(null)
+    setBannerMediaFile(null)
+    setGalleryMediaFiles([])
+    setGalleryImagesToRemove([])
     setGameCharacterImageFile(null)
     setGameCharacterImage('')
     setCharacterBackgroundFile(null)
@@ -264,6 +282,10 @@ export const Admin = () => {
       notify('error', 'Selecione a imagem de fundo do personagem.')
       return
     }
+    if (['games', 'movies', 'series'].includes(resourceKey) && !editing && !bannerMediaFile) {
+      notify('error', 'Selecione o banner estático.')
+      return
+    }
     setSaving(true);
 
     // campos vazios viram null; números viram number
@@ -277,8 +299,39 @@ export const Admin = () => {
     let savedItem = null
     try {
       if (editing) {
-        // mantém os campos que o formulário não mostra (ex.: appearances)
-        savedItem = await request('PUT', `${resource.path}/${editing.id}`, { ...editing, ...clean });
+        const updatePayload = resourceKey === 'characters'
+          ? {
+              ...clean,
+              background: editing.background,
+              logo: editing.logo,
+              verticalmage: editing.verticalmage,
+            }
+          : resourceKey === 'series'
+            ? {
+                ...clean,
+                serieLogo: editing.serieLogo,
+                banner: editing.banner,
+                images: editing.images || [],
+              }
+          : resourceKey === 'movies'
+            ? {
+                ...clean,
+                verticalImage: editing.verticalImage,
+                movieLogo: null,
+                year: editing.year,
+                duration: editing.duration,
+                banner: editing.banner,
+                images: editing.images || [],
+              }
+          : resourceKey === 'games'
+            ? {
+                ...clean,
+                gameLogo: editing.gameLogo,
+                banner: editing.banner,
+                images: editing.images || [],
+              }
+          : { ...editing, ...clean }
+        savedItem = await request('PUT', `${resource.path}/${editing.id}`, updatePayload);
       } else {
         savedItem = await request('POST', resource.path, clean);
       }
@@ -288,6 +341,43 @@ export const Admin = () => {
         savedItem = await request('PUT', `/games/${savedItem.id}`, {
           ...savedItem,
           gameLogo: url,
+        })
+      }
+
+      if (resourceKey === 'movies' && movieMediaFile) {
+        const { url } = await uploadMovieMedia(savedItem.id, movieMediaFile)
+        savedItem = await request('PUT', `/movies/${savedItem.id}`, {
+          ...savedItem,
+          verticalImage: url,
+          movieLogo: null,
+        })
+      }
+
+      if (resourceKey === 'series' && seriesMediaFile) {
+        const { url } = await uploadSeriesMedia(savedItem.id, seriesMediaFile)
+        savedItem = await request('PUT', `/series/${savedItem.id}`, {
+          ...savedItem,
+          serieLogo: url,
+        })
+      }
+
+      if (
+        ['games', 'movies', 'series'].includes(resourceKey) &&
+        (bannerMediaFile || galleryMediaFiles.length > 0 || galleryImagesToRemove.length > 0)
+      ) {
+        const banner = bannerMediaFile
+          ? await uploadCatalogMedia(resourceKey, savedItem.id, bannerMediaFile).then(({ url }) => url)
+          : savedItem.banner || editing?.banner || null
+        const images = (savedItem.images || editing?.images || [])
+          .filter((image) => !galleryImagesToRemove.includes(image))
+        for (const file of galleryMediaFiles) {
+          const { url } = await uploadCatalogMedia(resourceKey, savedItem.id, file)
+          images.push(url)
+        }
+        savedItem = await request('PUT', `${resource.path}/${savedItem.id}`, {
+          ...savedItem,
+          banner,
+          images,
         })
       }
 
@@ -302,7 +392,7 @@ export const Admin = () => {
       cancelEdit();
       loadItems();
     } catch (err) {
-      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'characters')) {
+      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'characters')) {
         setEditing(savedItem)
         if (!editing) {
           const values = {}
@@ -444,6 +534,11 @@ export const Admin = () => {
               onClick={() => {
                 setResourceKey(key)
                 setGameMediaFile(null)
+                setMovieMediaFile(null)
+                setSeriesMediaFile(null)
+                setBannerMediaFile(null)
+                setGalleryMediaFiles([])
+                setGalleryImagesToRemove([])
                 setGameCharacterImageFile(null)
                 setGameCharacterImage('')
               }}
@@ -557,6 +652,105 @@ export const Admin = () => {
             </label>
           )}
 
+          {resourceKey === 'series' && (
+            <label className="admin__field">
+              <span className="admin__label">Logo da série (opcional)</span>
+              <input
+                key={seriesMediaFile?.name || 'series-media-empty'}
+                type="file"
+                accept="image/*"
+                onChange={(event) => setSeriesMediaFile(event.target.files?.[0] || null)}
+              />
+              <span className="admin__file-name">
+                {seriesMediaFile
+                  ? `${seriesMediaFile.name} (${(seriesMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                  : editing?.serieLogo
+                    ? 'Imagem atual mantida se nenhum arquivo for escolhido'
+                    : 'Nenhum arquivo selecionado — limite de 25 MB'}
+              </span>
+            </label>
+          )}
+
+          {resourceKey === 'movies' && (
+            <label className="admin__field">
+              <span className="admin__label">Pôster do filme (opcional)</span>
+              <input
+                key={movieMediaFile?.name || 'movie-media-empty'}
+                type="file"
+                accept="image/*"
+                onChange={(event) => setMovieMediaFile(event.target.files?.[0] || null)}
+              />
+              <span className="admin__file-name">
+                {movieMediaFile
+                  ? `${movieMediaFile.name} (${(movieMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                  : editing?.verticalImage
+                    ? 'Pôster atual mantido se nenhum arquivo for escolhido'
+                    : 'Nenhum arquivo selecionado — limite de 25 MB'}
+              </span>
+            </label>
+          )}
+
+          {['games', 'movies', 'series'].includes(resourceKey) && (
+            <>
+              <label className="admin__field">
+                <span className="admin__label">Banner estático{!editing && ' *'}</span>
+                <input
+                  key={bannerMediaFile?.name || 'catalog-banner-empty'}
+                  type="file"
+                  accept="image/*"
+                  required={!editing && !bannerMediaFile}
+                  onChange={(event) => setBannerMediaFile(event.target.files?.[0] || null)}
+                />
+                <span className="admin__file-name">
+                  {bannerMediaFile
+                    ? `${bannerMediaFile.name} (${(bannerMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                    : editing?.banner
+                      ? 'Banner atual mantido se nenhum arquivo for escolhido'
+                      : 'Nenhum arquivo selecionado — limite de 25 MB'}
+                </span>
+              </label>
+              <label className="admin__field">
+                <span className="admin__label">Imagens da galeria (opcional)</span>
+                <input
+                  key={galleryMediaFiles.map((file) => file.name).join('|') || 'catalog-gallery-empty'}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(event) => setGalleryMediaFiles(Array.from(event.target.files || []))}
+                />
+                <span className="admin__file-name">
+                  {galleryMediaFiles.length > 0
+                    ? `${galleryMediaFiles.length} imagem(ns) selecionada(s)`
+                    : `Imagens atuais: ${editing?.images?.length || 0} — arquivos de até 25 MB cada`}
+                </span>
+              </label>
+              {editing?.images?.length > 0 && (
+                <ul className="admin__game-links" aria-label="Imagens atuais da galeria">
+                  {editing.images.map((image) => {
+                    const markedForRemoval = galleryImagesToRemove.includes(image)
+                    return (
+                      <li className="admin__game-link-row" key={image}>
+                        <img src={image} alt="" />
+                        <span>{markedForRemoval ? 'Será removida ao salvar' : 'Imagem da galeria'}</span>
+                        <button
+                          type="button"
+                          className={`admin__btn admin__btn--small${markedForRemoval ? '' : ' admin__btn--danger'}`}
+                          onClick={() => setGalleryImagesToRemove((current) => (
+                            markedForRemoval
+                              ? current.filter((url) => url !== image)
+                              : [...current, image]
+                          ))}
+                        >
+                          {markedForRemoval ? 'Manter' : 'Remover'}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </>
+          )}
+
           {resourceKey === 'characters' && editing && (
             <>
             <section className="admin__game-link">
@@ -586,7 +780,6 @@ export const Admin = () => {
                   <span className="admin__label">Jogo</span>
                   <select
                     value={selectedGameId}
-                    required
                     onChange={(event) => setSelectedGameId(event.target.value)}
                   >
                     <option value="" disabled>Selecione um jogo</option>
@@ -674,7 +867,6 @@ export const Admin = () => {
                   <select
                     value={selectedContentId}
                     onChange={(event) => setSelectedContentId(event.target.value)}
-                    required
                   >
                     <option value="" disabled>Selecione um título</option>
                     {contentOptions.map((content) => (
@@ -688,7 +880,6 @@ export const Admin = () => {
                     key={appearanceImageFile?.name || 'appearance-image-empty'}
                     type="file"
                     accept="image/*"
-                    required
                     onChange={(event) => setAppearanceImageFile(event.target.files?.[0] || null)}
                   />
                   <span className="admin__file-name">

@@ -174,13 +174,6 @@
   min-width: 0;
 }
 
-.moviepage__logo {
-  max-width: 260px;
-  max-height: 90px;
-  object-fit: contain;
-  filter: drop-shadow(3px 3px 0 var(--ink));
-}
-
 .moviepage__title {
   margin: 0;
   font-family: var(--font-comic);
@@ -236,6 +229,39 @@
 }
 
 .moviepage__detail dd { margin: 0; font-size: 16px; line-height: 1.5; }
+
+.moviepage__gallery {
+  margin-top: 72px;
+}
+
+.moviepage__gallery-title {
+  display: inline-block;
+  margin: 0 0 28px;
+  padding: 8px 22px;
+  color: var(--ink);
+  background: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 400;
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--hero-red);
+  transform: rotate(-1deg) skewX(-5deg);
+}
+
+.moviepage__gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.moviepage__gallery-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 4px solid var(--ink);
+  box-shadow: 7px 7px 0 var(--hero-red);
+}
 
 @keyframes moviepageSlam {
   from { opacity: 0; transform: rotate(-2deg) scale(1.4); }

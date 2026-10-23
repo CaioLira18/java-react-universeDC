@@ -45,6 +45,11 @@ public class GameService {
     existing.setTitle(game.getTitle());
     existing.setGameLogo(game.getGameLogo());
     existing.setDescription(game.getDescription());
+    existing.setBanner(game.getBanner());
+    existing.getImages().clear();
+    if (game.getImages() != null) {
+      existing.getImages().addAll(game.getImages());
+    }
     return gameRepository.save(existing);
   }
 

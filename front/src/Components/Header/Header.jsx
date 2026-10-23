@@ -7,8 +7,7 @@ const API_URL = 'http://localhost:8080'
 
 const NAV_LINKS = [
   { to: '/characters', label: 'Characters' },
-  { to: '/movies', label: 'Movies' },
-  { to: '/series', label: 'Series' },
+  { to: '/catalog', label: 'Catalog' },
   { to: '/planets', label: 'Planets' },
 ]
 

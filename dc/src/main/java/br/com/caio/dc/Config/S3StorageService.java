@@ -38,6 +38,14 @@ public class S3StorageService {
     return uploadMedia("games/" + gameId, file);
   }
 
+  public String uploadSeriesMedia(String seriesId, MultipartFile file) {
+    return uploadMedia("series/" + seriesId, file);
+  }
+
+  public String uploadMovieMedia(String movieId, MultipartFile file) {
+    return uploadMedia("movies/" + movieId, file);
+  }
+
   public String uploadGameCharacterMedia(String gameId, String characterId, MultipartFile file) {
     return uploadMedia("games/" + gameId + "/Personagens/" + characterId, file);
   }
