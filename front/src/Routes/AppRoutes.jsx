@@ -7,6 +7,8 @@ import { StarMap } from '../Components/StarMap/StarMap'
 import { CharactersPage } from '../Pages/Characters/CharactersPage'
 import Admin from '../Pages/Admin/Admin'
 import Movie from '../Pages/Movie/Movie'
+import Login from '../Pages/Login/Login'
+import Register from '../Pages/Register/Register'
 
 export const AppRoutes = () => {
   return (
@@ -19,6 +21,8 @@ export const AppRoutes = () => {
         <Route path="/planets" element={<StarMap />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/movies/:id" element={<Movie />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </div>
   )

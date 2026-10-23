@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { AUTH_CHANGED_EVENT, AUTH_KEY, notifyAuthChanged } from '../../auth'
 import './Header.css'
+
+const API_URL = 'http://localhost:8080'
 
 const NAV_LINKS = [
   { to: '/characters', label: 'Characters' },
@@ -9,9 +12,23 @@ const NAV_LINKS = [
   { to: '/planets', label: 'Planets' },
 ]
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null')
+  } catch (error) {
+    console.error('Não foi possível ler os dados de autenticação salvos.', error)
+    return null
+  }
+}
+
 export const Header = () => {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [user, setUser] = useState(getStoredUser)
+  const [profileImageFailed, setProfileImageFailed] = useState(false)
+  const authToken = user?.token
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -28,7 +45,79 @@ export const Header = () => {
     return () => window.removeEventListener('keydown', handleKey)
   }, [menuOpen])
 
+  useEffect(() => {
+    const syncUser = () => {
+      setUser(getStoredUser())
+      setProfileImageFailed(false)
+    }
+
+    window.addEventListener(AUTH_CHANGED_EVENT, syncUser)
+    window.addEventListener('storage', syncUser)
+    return () => {
+      window.removeEventListener(AUTH_CHANGED_EVENT, syncUser)
+      window.removeEventListener('storage', syncUser)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!authToken) return undefined
+
+    let cancelled = false
+    const loadProfile = async () => {
+      try {
+        const response = await fetch(`${API_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        })
+
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status} ao carregar o perfil`)
+        }
+
+        const profile = await response.json()
+        const currentUser = getStoredUser()
+        if (cancelled || currentUser?.token !== authToken) return
+
+        const updatedUser = {
+          ...currentUser,
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          imageUrl: profile.imageUrl,
+          role: profile.role,
+        }
+        localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser))
+        setUser(updatedUser)
+        setProfileImageFailed(false)
+        console.info('Perfil carregado da API:', {
+          id: profile.id,
+          imageUrl: profile.imageUrl,
+        })
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Não foi possível atualizar os dados do perfil.', error)
+        }
+      }
+    }
+
+    loadProfile()
+    return () => {
+      cancelled = true
+    }
+  }, [authToken])
+
   const closeMenu = () => setMenuOpen(false)
+
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_KEY)
+    setUser(null)
+    setProfileImageFailed(false)
+    notifyAuthChanged()
+    closeMenu()
+    navigate('/')
+  }
+
+  const profileInitial = user?.name?.trim().charAt(0).toUpperCase() || '?'
+  const profileImageUrl = typeof user?.imageUrl === 'string' ? user.imageUrl.trim() : ''
 
   return (
     <header
@@ -63,7 +152,31 @@ export const Header = () => {
         </nav>
 
         <div className="login">
-          <button type="button" className="loginButton">Faça Login</button>
+          {user ? (
+            <div className="headerProfile">
+              <div className="headerProfile__identity">
+                {profileImageUrl && !profileImageFailed ? (
+                  <img
+                    className="headerProfile__image"
+                    src={profileImageUrl}
+                    alt=""
+                    onError={() => {
+                      console.error('Não foi possível carregar a imagem de perfil:', profileImageUrl)
+                      setProfileImageFailed(true)
+                    }}
+                  />
+                ) : (
+                  <span className="headerProfile__fallback" aria-hidden="true">
+                    {profileInitial}
+                  </span>
+                )}
+                <span className="headerProfile__name">{user.name || user.email}</span>
+              </div>
+              <button onClick={handleLogout} type="button" className="loginButton">Sair</button>
+            </div>
+          ) : (
+            <button onClick={() => navigate('/login')} type="button" className="loginButton">Faça Login</button>
+          )}
         </div>
 
         <button

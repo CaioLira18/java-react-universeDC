@@ -124,6 +124,46 @@
   box-shadow: 1px 1px 0 var(--ink);
 }
 
+.headerProfile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.headerProfile__identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #fff;
+  font-weight: 700;
+}
+
+.headerProfile__image,
+.headerProfile__fallback {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  border: 3px solid var(--hero-yellow);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.headerProfile__fallback {
+  display: grid;
+  place-items: center;
+  background: var(--hero-red);
+  font-family: var(--font-comic);
+  font-size: 44px;
+}
+
+.headerProfile__name {
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---------- Foco visível ---------- */
 .navHeader a:focus-visible,
 .loginButton:focus-visible,
@@ -159,6 +199,14 @@
   .logoHeader { margin-right: auto; }
   .login { order: 2; }
   .menuToggle { display: block; order: 3; }
+  .headerProfile { gap: 8px; }
+  .headerProfile__name { max-width: 90px; }
+  .headerProfile__image,
+  .headerProfile__fallback {
+    width: 64px;
+    height: 64px;
+    flex-basis: 64px;
+  }
 
   .navHeader {
     display: none;
