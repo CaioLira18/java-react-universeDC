@@ -9,6 +9,7 @@ import Admin from '../Pages/Admin/Admin'
 import Movie from '../Pages/Movie/Movie'
 import Login from '../Pages/Login/Login'
 import Register from '../Pages/Register/Register'
+import UserPage from '../Pages/Users/UserPage'
 
 export const AppRoutes = () => {
   return (
@@ -23,6 +24,7 @@ export const AppRoutes = () => {
         <Route path="/movies/:id" element={<Movie />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<UserPage />} />
       </Routes>
     </div>
   )

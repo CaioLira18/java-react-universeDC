@@ -139,6 +139,20 @@
   font-weight: 700;
 }
 
+.headerProfile__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.headerProfile__link:focus-visible {
+  outline: 3px solid var(--hero-yellow);
+  outline-offset: 3px;
+}
+
 .headerProfile__image,
 .headerProfile__fallback {
   width: 88px;

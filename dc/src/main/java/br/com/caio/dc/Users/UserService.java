@@ -45,6 +45,39 @@ public class UserService implements UserDetailsService {
     return UserProfileResponse.from(user);
   }
 
+  public AuthResponse updateProfile(String currentEmail, ProfileUpdateRequest request) {
+    User user = userRepository.findByEmail(currentEmail)
+        .orElseThrow(() -> new NoSuchElementException("User not found with email: " + currentEmail));
+
+    if (request.getName() == null || request.getName().isBlank()) {
+      throw new IllegalArgumentException("Name is required");
+    }
+
+    if (request.getEmail() == null || request.getEmail().isBlank()) {
+      throw new IllegalArgumentException("Email is required");
+    }
+
+    String updatedEmail = request.getEmail().trim();
+    if (!updatedEmail.equalsIgnoreCase(user.getEmail())
+        && userRepository.existsByEmail(updatedEmail)) {
+      throw new IllegalArgumentException("Email already registered");
+    }
+
+    if (request.getPassword() != null && !request.getPassword().isBlank()) {
+      if (request.getPassword().length() < 6) {
+        throw new IllegalArgumentException("Password must have at least 6 characters");
+      }
+      user.setPassword(passwordEncoder.encode(request.getPassword()));
+    }
+
+    user.setName(request.getName().trim());
+    user.setEmail(updatedEmail);
+    User updatedUser = userRepository.save(user);
+    String token = jwtService.generateToken(updatedUser.getEmail());
+    return new AuthResponse(token, updatedUser.getId(), updatedUser.getEmail(), updatedUser.getName(),
+        updatedUser.getRole().name(), updatedUser.getImageUrl());
+  }
+
   public User create(RegisterRequest request) {
     if (request.getName() == null || request.getName().isBlank()) {
       throw new IllegalArgumentException("Name is required");
@@ -118,6 +151,17 @@ public class UserService implements UserDetailsService {
     String mediaUrl = s3StorageService.uploadUserMedia(userId, file);
     user.setImageUrl(mediaUrl);
     return userRepository.save(user);
+  }
+
+  public AuthResponse uploadCurrentUserMedia(String email, MultipartFile file) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new NoSuchElementException("User not found with email: " + email));
+    String mediaUrl = s3StorageService.uploadUserMedia(user.getId(), file);
+    user.setImageUrl(mediaUrl);
+    User updatedUser = userRepository.save(user);
+    String token = jwtService.generateToken(updatedUser.getEmail());
+    return new AuthResponse(token, updatedUser.getId(), updatedUser.getEmail(), updatedUser.getName(),
+        updatedUser.getRole().name(), updatedUser.getImageUrl());
   }
 
   public void delete(String id) {

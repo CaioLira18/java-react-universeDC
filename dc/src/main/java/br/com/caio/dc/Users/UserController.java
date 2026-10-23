@@ -43,6 +43,20 @@ public class UserController {
     return ResponseEntity.ok(userService.findProfileByEmail(userDetails.getUsername()));
   }
 
+  @PutMapping("/me")
+  public ResponseEntity<AuthResponse> updateCurrentProfile(
+      @AuthenticationPrincipal UserDetails userDetails,
+      @RequestBody ProfileUpdateRequest request) {
+    return ResponseEntity.ok(userService.updateProfile(userDetails.getUsername(), request));
+  }
+
+  @PostMapping("/me/media")
+  public ResponseEntity<AuthResponse> uploadCurrentProfileMedia(
+      @AuthenticationPrincipal UserDetails userDetails,
+      @RequestParam("file") MultipartFile file) {
+    return ResponseEntity.ok(userService.uploadCurrentUserMedia(userDetails.getUsername(), file));
+  }
+
   @PostMapping("/register")
   public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
     User created = userService.create(request);

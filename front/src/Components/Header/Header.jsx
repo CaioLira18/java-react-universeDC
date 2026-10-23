@@ -155,22 +155,24 @@ export const Header = () => {
           {user ? (
             <div className="headerProfile">
               <div className="headerProfile__identity">
-                {profileImageUrl && !profileImageFailed ? (
-                  <img
-                    className="headerProfile__image"
-                    src={profileImageUrl}
-                    alt=""
-                    onError={() => {
-                      console.error('Não foi possível carregar a imagem de perfil:', profileImageUrl)
-                      setProfileImageFailed(true)
-                    }}
-                  />
-                ) : (
-                  <span className="headerProfile__fallback" aria-hidden="true">
-                    {profileInitial}
-                  </span>
-                )}
-                <span className="headerProfile__name">{user.name || user.email}</span>
+                <Link to="/profile" className="headerProfile__link" onClick={closeMenu} aria-label="Abrir meu perfil">
+                  {profileImageUrl && !profileImageFailed ? (
+                    <img
+                      className="headerProfile__image"
+                      src={profileImageUrl}
+                      alt=""
+                      onError={() => {
+                        console.error('Não foi possível carregar a imagem de perfil:', profileImageUrl)
+                        setProfileImageFailed(true)
+                      }}
+                    />
+                  ) : (
+                    <span className="headerProfile__fallback" aria-hidden="true">
+                      {profileInitial}
+                    </span>
+                  )}
+                  <span className="headerProfile__name">{user.name || user.email}</span>
+                </Link>
               </div>
               <button onClick={handleLogout} type="button" className="loginButton">Sair</button>
             </div>
