@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import './Admin.css'
+import { AUTH_KEY } from '../../auth'
 
 const API_URL = 'http://localhost:8080';
 
@@ -23,8 +24,6 @@ const RESOURCES = {
       { name: 'planet', label: 'Planeta', type: 'text' },
       { name: 'first_appearance', label: 'Primeira aparição', type: 'text' },
       { name: 'first_appearance_year', label: 'Ano da primeira aparição', type: 'number' },
-      { name: 'background', label: 'Imagem de fundo (URL)', type: 'url', required: true },
-      { name: 'verticalmage', label: 'Imagem das polaroids (URL)', type: 'url' },
     ],
   },
   movies: {
@@ -50,20 +49,93 @@ const RESOURCES = {
       { name: 'serieLogo', label: 'Logo da série (URL)', type: 'url' },
     ],
   },
+  games: {
+    label: 'Jogos',
+    singular: 'jogo',
+    path: '/games',
+    titleField: 'title',
+    imageField: 'gameLogo',
+    fields: [
+      { name: 'title', label: 'Nome do jogo', type: 'text', required: true },
+      { name: 'description', label: 'Descrição', type: 'textarea' },
+    ],
+  },
 };
 
 const emptyForm = (fields) =>
   Object.fromEntries(fields.map((f) => [f.name, '']));
 
+const SUPERGIRL_PRESET = {
+  name: 'Supergirl',
+  true_name: 'Kara Zor-El',
+  description: 'Heroína kryptoniana e prima do Superman, enviada à Terra para sobreviver à destruição de Krypton.',
+  powers: 'Voo, superforça, supervelocidade, visão de calor, sopro congelante e invulnerabilidade.',
+  planet: 'Krypton',
+  first_appearance: 'Action Comics #252',
+  first_appearance_year: '1959',
+}
+
 const request = async (method, path, body) => {
+  let auth = null
+  try {
+    auth = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null')
+  } catch (error) {
+    console.error('Não foi possível ler a sessão para a chamada administrativa.', error)
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: {
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+    },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`Erro ${res.status} ao falar com a API`);
+  if (!res.ok) {
+    const responseText = await res.text()
+    throw new Error(responseText || `Erro ${res.status} ao falar com a API`)
+  }
   return res.status === 204 ? null : res.json();
 };
+
+const uploadMedia = async (path, file) => {
+  let auth = null
+  try {
+    auth = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null')
+  } catch (error) {
+    console.error('Não foi possível ler a sessão para o envio da mídia.', error)
+  }
+
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}),
+    },
+    body: formData,
+  })
+  if (!res.ok) {
+    const responseText = await res.text()
+    throw new Error(responseText || `Erro ${res.status} ao enviar a mídia`)
+  }
+  return res.json()
+}
+
+const uploadGameMedia = (gameId, file) => uploadMedia(`/games/${gameId}/media`, file)
+
+const uploadGameCharacterMedia = (gameId, characterId, file) =>
+  uploadMedia(`/games/${gameId}/characters/${characterId}/media`, file)
+
+const uploadCharacterMedia = (characterId, field, file) => {
+  const query = new URLSearchParams({ field })
+  return uploadMedia(`/characters/${characterId}/media?${query}`, file)
+}
+
+const uploadAppearanceMedia = (characterId, contentId, file) => {
+  const query = new URLSearchParams({ characterId, contentId })
+  return uploadMedia(`/character-appearances/media?${query}`, file)
+}
 
 export const Admin = () => {
 
@@ -76,6 +148,20 @@ export const Admin = () => {
   const [form, setForm] = useState(emptyForm(resource.fields));
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState('');
+  const [games, setGames] = useState([])
+  const [movies, setMovies] = useState([])
+  const [series, setSeries] = useState([])
+  const [selectedGameId, setSelectedGameId] = useState('')
+  const [gameCharacterImage, setGameCharacterImage] = useState('')
+  const [gameCharacterImageFile, setGameCharacterImageFile] = useState(null)
+  const [gameMediaFile, setGameMediaFile] = useState(null)
+  const [characterBackgroundFile, setCharacterBackgroundFile] = useState(null)
+  const [characterVerticalFile, setCharacterVerticalFile] = useState(null)
+  const [linkingGame, setLinkingGame] = useState(false)
+  const [appearanceType, setAppearanceType] = useState('movie')
+  const [selectedContentId, setSelectedContentId] = useState('')
+  const [appearanceImageFile, setAppearanceImageFile] = useState(null)
+  const [linkingAppearance, setLinkingAppearance] = useState(false)
   const [toast, setToast] = useState(null); // { type: 'ok' | 'error', text }
 
   const notify = (type, text) => {
@@ -94,6 +180,24 @@ export const Admin = () => {
       .finally(() => setLoading(false));
   }, [resource.path]);
 
+  useEffect(() => {
+    request('GET', '/games')
+      .then((data) => {
+        setGames(data)
+        setSelectedGameId((current) => current || data[0]?.id || '')
+      })
+      .catch((err) => notify('error', `Não foi possível carregar os jogos: ${err.message}`))
+  }, []);
+
+  useEffect(() => {
+    Promise.all([request('GET', '/movies'), request('GET', '/series')])
+      .then(([movieItems, seriesItems]) => {
+        setMovies(movieItems)
+        setSeries(seriesItems)
+      })
+      .catch((err) => notify('error', `Não foi possível carregar filmes e séries: ${err.message}`))
+  }, []);
+
   // trocou de aba: limpa o formulário e recarrega a lista
   useEffect(() => {
     setEditing(null);
@@ -102,8 +206,27 @@ export const Admin = () => {
     loadItems();
   }, [resourceKey, loadItems]);
 
+  useEffect(() => {
+    if (resourceKey !== 'characters' || !editing) return
+
+    const linkedGameIds = new Set(
+      (editing.gameAppearances || []).map((appearance) => appearance.game?.id)
+    )
+    const currentGameIsAvailable = games.some(
+      (game) => game.id === selectedGameId && !linkedGameIds.has(game.id)
+    )
+    if (!currentGameIsAvailable) {
+      setSelectedGameId(games.find((game) => !linkedGameIds.has(game.id))?.id || '')
+    }
+  }, [resourceKey, editing, games, selectedGameId])
+
   const startEdit = (item) => {
     setEditing(item);
+    setGameMediaFile(null)
+    setGameCharacterImageFile(null)
+    setCharacterBackgroundFile(null)
+    setCharacterVerticalFile(null)
+    setAppearanceImageFile(null)
     const values = {};
     resource.fields.forEach((f) => { values[f.name] = item[f.name] ?? ''; });
     setForm(values);
@@ -113,13 +236,34 @@ export const Admin = () => {
   const cancelEdit = () => {
     setEditing(null);
     setForm(emptyForm(resource.fields));
+    setGameMediaFile(null)
+    setGameCharacterImageFile(null)
+    setGameCharacterImage('')
+    setCharacterBackgroundFile(null)
+    setCharacterVerticalFile(null)
+    setAppearanceImageFile(null)
+    setCharacterBackgroundFile(null)
+    setCharacterVerticalFile(null)
+    setAppearanceImageFile(null)
   };
 
   const handleChange = (name, value) =>
     setForm((prev) => ({ ...prev, [name]: value }));
 
+  const fillSupergirlPreset = () => {
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...SUPERGIRL_PRESET })
+    setCharacterBackgroundFile(null)
+    setCharacterVerticalFile(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (resourceKey === 'characters' && !editing && !characterBackgroundFile) {
+      notify('error', 'Selecione a imagem de fundo do personagem.')
+      return
+    }
     setSaving(true);
 
     // campos vazios viram null; números viram number
@@ -130,19 +274,46 @@ export const Admin = () => {
       else clean[f.name] = f.type === 'number' ? Number(v) : v;
     });
 
+    let savedItem = null
     try {
       if (editing) {
         // mantém os campos que o formulário não mostra (ex.: appearances)
-        await request('PUT', `${resource.path}/${editing.id}`, { ...editing, ...clean });
-        notify('ok', `${resource.singular} atualizado!`);
+        savedItem = await request('PUT', `${resource.path}/${editing.id}`, { ...editing, ...clean });
       } else {
-        await request('POST', resource.path, clean);
-        notify('ok', `${resource.singular} cadastrado!`);
+        savedItem = await request('POST', resource.path, clean);
       }
+
+      if (resourceKey === 'games' && gameMediaFile) {
+        const { url } = await uploadGameMedia(savedItem.id, gameMediaFile)
+        savedItem = await request('PUT', `/games/${savedItem.id}`, {
+          ...savedItem,
+          gameLogo: url,
+        })
+      }
+
+      if (resourceKey === 'characters' && characterBackgroundFile) {
+        savedItem = await uploadCharacterMedia(savedItem.id, 'background', characterBackgroundFile)
+      }
+      if (resourceKey === 'characters' && characterVerticalFile) {
+        savedItem = await uploadCharacterMedia(savedItem.id, 'verticalmage', characterVerticalFile)
+      }
+
+      notify('ok', `${resource.singular} ${editing ? 'atualizado' : 'cadastrado'}!`);
       cancelEdit();
       loadItems();
     } catch (err) {
-      notify('error', err.message);
+      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'characters')) {
+        setEditing(savedItem)
+        if (!editing) {
+          const values = {}
+          resource.fields.forEach((field) => { values[field.name] = savedItem[field.name] ?? '' })
+          setForm(values)
+        }
+        loadItems()
+        notify('error', `O ${resource.singular} foi salvo, mas não foi possível concluir o envio da mídia: ${err.message}`)
+      } else {
+        notify('error', err.message);
+      }
     } finally {
       setSaving(false);
     }
@@ -161,13 +332,104 @@ export const Admin = () => {
     }
   };
 
+  const linkGameToCharacter = async () => {
+    if (!editing || !selectedGameId || (!gameCharacterImage.trim() && !gameCharacterImageFile)) {
+      notify('error', 'Selecione um jogo e informe uma URL ou selecione a imagem do personagem.')
+      return
+    }
+
+    setLinkingGame(true)
+    try {
+      const characterImage = gameCharacterImageFile
+        ? (await uploadGameCharacterMedia(selectedGameId, editing.id, gameCharacterImageFile)).url
+        : gameCharacterImage.trim()
+      await request('POST', '/character-game-appearances', {
+        characterId: editing.id,
+        gameId: selectedGameId,
+        characterImage,
+      })
+      const updatedCharacter = await request('GET', `/characters/${editing.id}`)
+      setEditing(updatedCharacter)
+      setGameCharacterImage('')
+      setGameCharacterImageFile(null)
+      loadItems()
+      notify('ok', 'Jogo relacionado ao personagem!')
+    } catch (err) {
+      notify('error', err.message)
+    } finally {
+      setLinkingGame(false)
+    }
+  }
+
+  const unlinkGameFromCharacter = async (appearance) => {
+    try {
+      await request('DELETE', `/character-game-appearances/${appearance.id}`)
+      const updatedCharacter = await request('GET', `/characters/${editing.id}`)
+      setEditing(updatedCharacter)
+      loadItems()
+      notify('ok', 'Relação com o jogo removida.')
+    } catch (err) {
+      notify('error', err.message)
+    }
+  }
+
+  const linkContentToCharacter = async () => {
+    if (!editing || !selectedContentId || !appearanceImageFile) {
+      notify('error', 'Selecione um filme ou série e envie a imagem do personagem.')
+      return
+    }
+
+    setLinkingAppearance(true)
+    try {
+      const { url: characterImage } = await uploadAppearanceMedia(
+        editing.id,
+        selectedContentId,
+        appearanceImageFile
+      )
+      await request('POST', '/character-appearances', {
+        characterId: editing.id,
+        contentId: selectedContentId,
+        characterImage,
+      })
+      const updatedCharacter = await request('GET', `/characters/${editing.id}`)
+      setEditing(updatedCharacter)
+      setAppearanceImageFile(null)
+      setSelectedContentId('')
+      loadItems()
+      notify('ok', 'Filme ou série relacionado ao personagem!')
+    } catch (err) {
+      notify('error', err.message)
+    } finally {
+      setLinkingAppearance(false)
+    }
+  }
+
+  const unlinkContentFromCharacter = async (appearance) => {
+    try {
+      await request('DELETE', `/character-appearances/${appearance.id}`)
+      const updatedCharacter = await request('GET', `/characters/${editing.id}`)
+      setEditing(updatedCharacter)
+      loadItems()
+      notify('ok', 'Relação com filme ou série removida.')
+    } catch (err) {
+      notify('error', err.message)
+    }
+  }
+
   const visibleItems = items.filter((item) =>
     String(item[resource.titleField] || '')
       .toLowerCase()
       .includes(filter.toLowerCase())
   );
 
-  const previewUrl = form[resource.imageField];
+  const previewUrl = form[resource.imageField] || editing?.[resource.imageField];
+  const linkedGameIds = new Set(
+    (editing?.gameAppearances || []).map((appearance) => appearance.game?.id)
+  )
+  const availableGames = games.filter((game) => !linkedGameIds.has(game.id))
+  const contentOptions = (appearanceType === 'movie' ? movies : series).filter(
+    (content) => !(editing?.appearances || []).some((appearance) => appearance.content?.id === content.id)
+  )
 
   return (
     <div className="admin">
@@ -179,7 +441,12 @@ export const Admin = () => {
               key={key}
               type="button"
               className={`admin__tab${key === resourceKey ? ' active' : ''}`}
-              onClick={() => setResourceKey(key)}
+              onClick={() => {
+                setResourceKey(key)
+                setGameMediaFile(null)
+                setGameCharacterImageFile(null)
+                setGameCharacterImage('')
+              }}
               aria-pressed={key === resourceKey}
             >
               {r.label}
@@ -202,6 +469,16 @@ export const Admin = () => {
             {editing ? `Editar ${resource.singular}` : `Novo ${resource.singular}`}
           </h2>
 
+          {resourceKey === 'characters' && !editing && (
+            <button
+              type="button"
+              className="admin__btn admin__btn--preset"
+              onClick={fillSupergirlPreset}
+            >
+              Preencher dados da Supergirl
+            </button>
+          )}
+
           {resource.fields.map((f) => (
             <label key={f.name} className="admin__field">
               <span className="admin__label">
@@ -210,20 +487,233 @@ export const Admin = () => {
               {f.type === 'textarea' ? (
                 <textarea
                   rows={3}
-                  value={form[f.name]}
+                  value={form[f.name] ?? ''}
                   required={f.required}
                   onChange={(e) => handleChange(f.name, e.target.value)}
                 />
               ) : (
                 <input
                   type={f.type}
-                  value={form[f.name]}
+                  value={form[f.name] ?? ''}
                   required={f.required}
                   onChange={(e) => handleChange(f.name, e.target.value)}
                 />
               )}
             </label>
           ))}
+
+          {resourceKey === 'characters' && (
+            <>
+              <label className="admin__field">
+                <span className="admin__label">Imagem de fundo do personagem{!editing && ' *'}</span>
+                <input
+                  key={characterBackgroundFile?.name || 'character-background-empty'}
+                  type="file"
+                  accept="image/*"
+                  required={!editing && !characterBackgroundFile}
+                  onChange={(event) => setCharacterBackgroundFile(event.target.files?.[0] || null)}
+                />
+                <span className="admin__file-name">
+                  {characterBackgroundFile
+                    ? `${characterBackgroundFile.name} (${(characterBackgroundFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                    : editing?.background
+                      ? 'Imagem atual mantida se nenhum arquivo for escolhido'
+                      : 'Obrigatória no cadastro — limite de 25 MB'}
+                </span>
+              </label>
+              <label className="admin__field">
+                <span className="admin__label">Imagem das polaroids (opcional)</span>
+                <input
+                  key={characterVerticalFile?.name || 'character-vertical-empty'}
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setCharacterVerticalFile(event.target.files?.[0] || null)}
+                />
+                <span className="admin__file-name">
+                  {characterVerticalFile
+                    ? `${characterVerticalFile.name} (${(characterVerticalFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                    : editing?.verticalmage
+                      ? 'Imagem atual mantida se nenhum arquivo for escolhido'
+                      : 'Limite de 25 MB'}
+                </span>
+              </label>
+            </>
+          )}
+
+          {resourceKey === 'games' && (
+            <label className="admin__field">
+              <span className="admin__label">Enviar logo ou capa para o armazenamento do jogo</span>
+              <input
+                key={gameMediaFile?.name || 'game-media-empty'}
+                type="file"
+                accept="image/*"
+                onChange={(event) => setGameMediaFile(event.target.files?.[0] || null)}
+              />
+              <span className="admin__file-name">
+                {gameMediaFile
+                  ? `${gameMediaFile.name} (${(gameMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                  : 'Nenhum arquivo selecionado — limite de 25 MB'}
+              </span>
+            </label>
+          )}
+
+          {resourceKey === 'characters' && editing && (
+            <>
+            <section className="admin__game-link">
+              <h3 className="admin__game-link-title">Aparições em jogos</h3>
+              {editing.gameAppearances?.length > 0 ? (
+                <ul className="admin__game-links">
+                  {editing.gameAppearances.map((appearance) => (
+                    <li key={appearance.id} className="admin__game-link-row">
+                      <img src={appearance.characterImage} alt="" />
+                      <span>{appearance.game?.title || 'Jogo'}</span>
+                      <button
+                        type="button"
+                        className="admin__btn admin__btn--small admin__btn--danger"
+                        onClick={() => unlinkGameFromCharacter(appearance)}
+                      >
+                        Remover
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="admin__empty">Nenhum jogo relacionado.</p>
+              )}
+
+              <div className="admin__game-link-form">
+                <label className="admin__field">
+                  <span className="admin__label">Jogo</span>
+                  <select
+                    value={selectedGameId}
+                    required
+                    onChange={(event) => setSelectedGameId(event.target.value)}
+                  >
+                    <option value="" disabled>Selecione um jogo</option>
+                    {availableGames.map((game) => (
+                      <option key={game.id} value={game.id}>{game.title}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="admin__field">
+                  <span className="admin__label">Imagem do personagem nesse jogo (URL opcional)</span>
+                  <input
+                    type="url"
+                    value={gameCharacterImage}
+                    onChange={(event) => setGameCharacterImage(event.target.value)}
+                    placeholder="https://..."
+                  />
+                </label>
+                <label className="admin__field">
+                  <span className="admin__label">Ou enviar imagem para a pasta deste jogo</span>
+                  <input
+                    key={gameCharacterImageFile?.name || 'character-image-empty'}
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => setGameCharacterImageFile(event.target.files?.[0] || null)}
+                  />
+                  <span className="admin__file-name">
+                    {gameCharacterImageFile
+                      ? `${gameCharacterImageFile.name} (${(gameCharacterImageFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                      : 'Nenhum arquivo selecionado — limite de 25 MB'}
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  className="admin__btn admin__btn--primary"
+                  disabled={linkingGame || availableGames.length === 0}
+                  onClick={linkGameToCharacter}
+                >
+                  {linkingGame ? 'Relacionando...' : 'Relacionar jogo'}
+                </button>
+              </div>
+            </section>
+            <section className="admin__game-link">
+              <h3 className="admin__game-link-title">Aparições em filmes e séries</h3>
+              {editing.appearances?.length > 0 ? (
+                <ul className="admin__game-links">
+                  {editing.appearances.map((appearance) => (
+                    <li key={appearance.id} className="admin__game-link-row">
+                      <img src={appearance.characterImage} alt="" />
+                      <span>
+                        {appearance.content?.title || 'Conteúdo'}
+                        {' · '}
+                        {appearance.content?.movieLogo !== undefined ? 'Filme' : 'Série'}
+                      </span>
+                      <button
+                        type="button"
+                        className="admin__btn admin__btn--small admin__btn--danger"
+                        onClick={() => unlinkContentFromCharacter(appearance)}
+                      >
+                        Remover
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="admin__empty">Nenhum filme ou série relacionado.</p>
+              )}
+
+              <div className="admin__game-link-form">
+                <label className="admin__field">
+                  <span className="admin__label">Tipo</span>
+                  <select
+                    value={appearanceType}
+                    onChange={(event) => {
+                      setAppearanceType(event.target.value)
+                      setSelectedContentId('')
+                      setAppearanceImageFile(null)
+                    }}
+                  >
+                    <option value="movie">Filme</option>
+                    <option value="series">Série</option>
+                  </select>
+                </label>
+                <label className="admin__field">
+                  <span className="admin__label">Filme ou série</span>
+                  <select
+                    value={selectedContentId}
+                    onChange={(event) => setSelectedContentId(event.target.value)}
+                    required
+                  >
+                    <option value="" disabled>Selecione um título</option>
+                    {contentOptions.map((content) => (
+                      <option key={content.id} value={content.id}>{content.title}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="admin__field">
+                  <span className="admin__label">Imagem do personagem neste conteúdo</span>
+                  <input
+                    key={appearanceImageFile?.name || 'appearance-image-empty'}
+                    type="file"
+                    accept="image/*"
+                    required
+                    onChange={(event) => setAppearanceImageFile(event.target.files?.[0] || null)}
+                  />
+                  <span className="admin__file-name">
+                    {appearanceImageFile
+                      ? `${appearanceImageFile.name} (${(appearanceImageFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                      : 'Obrigatória — limite de 25 MB'}
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  className="admin__btn admin__btn--primary"
+                  disabled={linkingAppearance || contentOptions.length === 0 || !appearanceImageFile}
+                  onClick={linkContentToCharacter}
+                >
+                  {linkingAppearance ? 'Relacionando...' : 'Relacionar filme/série'}
+                </button>
+                {contentOptions.length === 0 && (
+                  <p className="admin__empty">
+                    Não há {appearanceType === 'movie' ? 'filmes' : 'séries'} disponíveis para relacionar.
+                  </p>
+                )}
+              </div>
+            </section>
+            </>
+          )}
 
           {previewUrl && (
             <div className="admin__preview">

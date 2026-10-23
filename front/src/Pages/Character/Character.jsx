@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import './Character.css'
 
@@ -6,8 +6,9 @@ export const Character = () => {
 
   const { id } = useParams();
   const [character, setCharacter] = useState(null);
-  const [selectedAppearanceId, setSelectedAppearanceId] = useState('');
   const [error, setError] = useState(false);
+  const appearanceSectionRef = useRef(null)
+  const gameSectionRef = useRef(null)
   const API_URL = 'http://localhost:8080';
 
   useEffect(() => {
@@ -16,15 +17,30 @@ export const Character = () => {
       .then(r => r.json())
       .then(data => {
         setCharacter(data);
-        if (data.appearances && data.appearances.length > 0) {
-          setSelectedAppearanceId(data.appearances[0].id);
-        }
       })
       .catch(err => {
         console.error(err);
         setError(true);
       });
   }, [id]);
+
+  useEffect(() => {
+    if (!character || !('IntersectionObserver' in window)) return undefined
+
+    const sections = [appearanceSectionRef.current, gameSectionRef.current].filter(Boolean)
+    if (sections.length === 0) return undefined
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        entry.target.classList.add('characterGames--visible')
+        observer.unobserve(entry.target)
+      })
+    }, { threshold: 0.12 })
+
+    sections.forEach((section) => observer.observe(section))
+    return () => observer.disconnect()
+  }, [character])
 
   if (error) {
     return (
@@ -45,22 +61,7 @@ export const Character = () => {
   }
 
   const appearances = character.appearances || [];
-  const selectedAppearance = appearances.find(
-    (appearance) => appearance.id === selectedAppearanceId
-  );
-
-  // se nao tiver nenhuma aparicao cadastrada, cai pro background padrao do personagem
-  const displayImage = selectedAppearance
-    ? selectedAppearance.characterImage
-    : character.background;
-
-  // Movie tem "movieLogo", Series tem "serieLogo" - usamos isso pra rotular a opcao
-  const getContentLabel = (content) => {
-    const type = content.movieLogo !== undefined ? 'Filme' : 'Série';
-    return `${content.title} (${type})`;
-  };
-
-  const getContentLogo = (content) => content.movieLogo || content.serieLogo;
+  const gameAppearances = character.gameAppearances || [];
 
   const details = [
     { label: 'Nome verdadeiro', value: character.true_name },
@@ -82,7 +83,7 @@ export const Character = () => {
       <div className="characterBackdrop" />
 
       <div className="characterHero">
-        <img key={displayImage} src={displayImage} alt={character.name} />
+        <img src={character.background} alt={character.name} />
         <div className="characterHeroOverlay" />
       </div>
 
@@ -94,37 +95,6 @@ export const Character = () => {
               <p className="characterNarration">{character.description}</p>
             </div>
           </div>
-
-          {appearances.length > 0 && (
-            <div className="characterAppearanceSelect">
-              <span className="characterAppearanceLabel">Ver personagem em</span>
-              <div className="characterLogoRow">
-                {appearances.map((appearance) => {
-                  const logo = getContentLogo(appearance.content);
-                  const isActive = appearance.id === selectedAppearanceId;
-                  return (
-                    <button
-                      key={appearance.id}
-                      type="button"
-                      className={`characterLogoButton${isActive ? ' active' : ''}`}
-                      onClick={() => setSelectedAppearanceId(appearance.id)}
-                      aria-pressed={isActive}
-                      aria-label={getContentLabel(appearance.content)}
-                      title={getContentLabel(appearance.content)}
-                    >
-                      {logo ? (
-                        <img src={logo} alt={getContentLabel(appearance.content)} />
-                      ) : (
-                        <span className="characterLogoFallback">
-                          {appearance.content.title}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {details.length > 0 && (
             <dl className="characterDetails">
@@ -142,6 +112,62 @@ export const Character = () => {
           <div className="imageVerticalCharacter">
             <img src={character.verticalmage} alt={character.name} />
           </div>
+        )}
+
+        {appearances.length > 0 && (
+          <section
+            ref={appearanceSectionRef}
+            className="characterGames"
+            aria-labelledby="characterAppearancesTitle"
+          >
+            <h2 className="characterGames__title" id="characterAppearancesTitle">
+              {character.name} em filmes e séries
+            </h2>
+            <div className="characterGames__grid">
+              {appearances.map((appearance) => {
+                const content = appearance.content;
+                const contentType = content.movieLogo !== undefined ? 'Filme' : 'Série';
+                return (
+                  <article
+                    className="characterGames__card"
+                    key={appearance.id}
+                  >
+                    <img
+                      src={appearance.characterImage}
+                      alt={`${character.name} em ${content.title}`}
+                      loading="lazy"
+                    />
+                    <span>{content.title}</span>
+                    <small className="characterAppearanceType">{contentType}</small>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {gameAppearances.length > 0 && (
+          <section
+            ref={gameSectionRef}
+            className="characterGames"
+            aria-labelledby="characterGamesTitle"
+          >
+            <h2 className="characterGames__title" id="characterGamesTitle">
+              {character.name} nos jogos
+            </h2>
+            <div className="characterGames__grid">
+              {gameAppearances.map((appearance) => (
+                  <article key={appearance.id} className="characterGames__card">
+                    <img
+                      src={appearance.characterImage}
+                      alt={`${character.name} em ${appearance.game?.title || 'um jogo'}`}
+                      loading="lazy"
+                    />
+                    <span>{appearance.game?.title || 'Jogo'}</span>
+                  </article>
+                ))}
+            </div>
+          </section>
         )}
       </div>
     </div>

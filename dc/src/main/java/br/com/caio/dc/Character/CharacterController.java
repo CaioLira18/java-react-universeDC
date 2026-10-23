@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/characters")
@@ -42,6 +44,14 @@ public class CharacterController {
   @PutMapping("/{id}")
   public ResponseEntity<Character> update(@PathVariable String id, @RequestBody Character character) {
     return ResponseEntity.ok(characterService.update(id, character));
+  }
+
+  @PostMapping("/{id}/media")
+  public ResponseEntity<Character> uploadMedia(
+      @PathVariable String id,
+      @RequestParam("field") String field,
+      @RequestParam("file") MultipartFile file) {
+    return ResponseEntity.ok(characterService.uploadMedia(id, field, file));
   }
 
   @DeleteMapping("/{id}")

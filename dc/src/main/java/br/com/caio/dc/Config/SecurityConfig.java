@@ -36,11 +36,14 @@ public class SecurityConfig {
             .requestMatchers("/users/me", "/users/me/media").authenticated()
             .requestMatchers("/users/login", "/users/register", "/users/*/media").permitAll()
             .requestMatchers(HttpMethod.GET,
+                "/games",
                 "/characters/**",
                 "/movies/**",
                 "/series/**",
                 "/planets/**",
-                "/character-appearances/**").permitAll()
+                "/character-appearances/**",
+                "/games/**",
+                "/character-game-appearances/**").permitAll()
             .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)

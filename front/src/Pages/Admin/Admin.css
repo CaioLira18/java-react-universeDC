@@ -130,6 +130,7 @@
 
 .admin__field input,
 .admin__field textarea,
+.admin__field select,
 .admin__search {
   width: 100%;
   box-sizing: border-box;
@@ -144,8 +145,15 @@
 
 .admin__field textarea { resize: vertical; }
 
+.admin__file-name {
+  color: rgba(255, 246, 220, 0.75);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
 .admin__field input:focus,
 .admin__field textarea:focus,
+.admin__field select:focus,
 .admin__search:focus {
   outline: 3px solid var(--hero-blue);
   outline-offset: 0;
@@ -161,6 +169,59 @@
   justify-content: center;
 }
 .admin__preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+.admin__game-link {
+  margin: 22px 0 18px;
+  padding: 16px;
+  background: #1c2040;
+  border: 2px solid rgba(255, 246, 220, 0.25);
+}
+
+.admin__game-link-title {
+  margin: 0 0 14px;
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: 23px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.admin__game-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.admin__game-link-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px;
+  background: var(--panel);
+}
+
+.admin__game-link-row img {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  object-fit: cover;
+  border: 2px solid var(--hero-yellow);
+}
+
+.admin__game-link-row span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin__game-link-form {
+  display: flex;
+  flex-direction: column;
+}
 
 /* ---------- Botões ---------- */
 .admin__actions { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -185,6 +246,10 @@
 .admin__btn--primary { background: var(--hero-red); color: #fff; }
 .admin__btn--danger { background: #ffb3b6; }
 .admin__btn--small { padding: 4px 14px; font-size: 16px; box-shadow: 3px 3px 0 var(--ink); }
+.admin__btn--preset {
+  margin: 0 0 18px;
+  background: var(--hero-yellow);
+}
 
 /* ---------- Lista ---------- */
 .admin__list-head {

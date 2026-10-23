@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import br.com.caio.dc.Games.CharacterGameAppearance;
 
 @Getter
 @Setter
@@ -37,4 +38,7 @@ public class Character {
 
   @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CharacterAppearance> appearances;
+
+  @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<CharacterGameAppearance> gameAppearances;
 }

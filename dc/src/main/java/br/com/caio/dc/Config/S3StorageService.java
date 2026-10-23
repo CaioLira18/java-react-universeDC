@@ -1,6 +1,8 @@
 package br.com.caio.dc.Config;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,8 +31,46 @@ public class S3StorageService {
   }
 
   public String uploadUserMedia(String userId, MultipartFile file) {
-    if (userId == null || userId.isBlank()) {
-      throw new IllegalArgumentException("User id is required");
+    return uploadMedia("users/" + userId, file);
+  }
+
+  public String uploadGameMedia(String gameId, MultipartFile file) {
+    return uploadMedia("games/" + gameId, file);
+  }
+
+  public String uploadGameCharacterMedia(String gameId, String characterId, MultipartFile file) {
+    return uploadMedia("games/" + gameId + "/Personagens/" + characterId, file);
+  }
+
+  public String uploadContentCharacterMedia(
+      String contentFolder,
+      String contentId,
+      String characterId,
+      MultipartFile file) {
+    if (!"movies".equals(contentFolder) && !"series".equals(contentFolder)) {
+      throw new IllegalArgumentException("Unsupported content media folder");
+    }
+    return uploadMedia(contentFolder + "/" + contentId + "/" + characterId, file);
+  }
+
+  public String uploadCharacterMedia(String characterName, MultipartFile file) {
+    if (characterName == null || characterName.isBlank()) {
+      throw new IllegalArgumentException("Character name is required");
+    }
+
+    String folderName = characterName.trim()
+        .replaceAll("[^\\p{L}\\p{N}._ -]", "_")
+        .replaceAll("\\s+", "_");
+    if (folderName.equals(".") || folderName.equals("..")) {
+      folderName = "_" + folderName;
+    }
+
+    return uploadMedia("characters/" + folderName, file);
+  }
+
+  private String uploadMedia(String objectPrefix, MultipartFile file) {
+    if (objectPrefix == null || objectPrefix.isBlank()) {
+      throw new IllegalArgumentException("Media folder is required");
     }
 
     if (file == null || file.isEmpty()) {
@@ -43,7 +83,7 @@ public class S3StorageService {
 
     String originalFilename = Objects.requireNonNullElse(file.getOriginalFilename(), "media");
     String sanitizedName = originalFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
-    String objectKey = "users/" + userId + "/" + UUID.randomUUID() + "-" + sanitizedName;
+    String objectKey = objectPrefix + "/" + UUID.randomUUID() + "-" + sanitizedName;
 
     try {
       PutObjectRequest request = PutObjectRequest.builder()
@@ -54,7 +94,10 @@ public class S3StorageService {
 
       s3Client.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-      return "https://" + bucketName + ".s3." + bucketRegion + ".amazonaws.com/" + objectKey;
+      String encodedKey = java.util.Arrays.stream(objectKey.split("/"))
+          .map(segment -> URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"))
+          .collect(java.util.stream.Collectors.joining("/"));
+      return "https://" + bucketName + ".s3." + bucketRegion + ".amazonaws.com/" + encodedKey;
     } catch (IOException exception) {
       throw new IllegalStateException("Failed to upload media to S3", exception);
     }

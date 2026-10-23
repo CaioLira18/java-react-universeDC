@@ -105,11 +105,12 @@
 .characterContent {
   position: relative;
   z-index: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 650px);
   align-items: center;
-  flex-wrap: wrap;
-  gap: 80px;
+  gap: 48px;
   max-width: 1280px;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 0 24px 96px;
   color: #fff;
@@ -117,10 +118,12 @@
 }
 
 .characterMain {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 32px;
-  flex: 1 1 480px;
+  width: 100%;
   max-width: 620px;
   min-width: 0;
 }
@@ -170,87 +173,6 @@
   animation: slideUp 0.6s ease;
 }
 
-/* ---------- Seletor de aparições ---------- */
-.characterAppearanceSelect {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: slideUp 0.7s ease;
-}
-
-.characterAppearanceLabel {
-  font-family: var(--font-comic);
-  font-size: 22px;
-  letter-spacing: 0.06em;
-  color: var(--paper);
-  text-shadow: 2px 2px 0 var(--ink);
-}
-
-.characterLogoRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.characterLogoButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 56px;
-  min-width: 92px;
-  padding: 8px 18px;
-  background: #1a1d33;
-  border: 3px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--ink);
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-}
-
-.characterLogoButton:hover {
-  background: var(--paper);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--hero-blue);
-}
-
-.characterLogoButton.active {
-  background: var(--paper);
-  border-color: var(--ink);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--hero-red);
-}
-
-.characterLogoButton:focus-visible {
-  outline: 3px solid var(--hero-yellow);
-  outline-offset: 3px;
-}
-
-.characterLogoButton img {
-  max-height: 28px;
-  max-width: 130px;
-  object-fit: contain;
-  filter: grayscale(1) brightness(1.6) opacity(0.7);
-  transition: filter 0.15s ease;
-}
-
-/* fundo claro quando ativo: o logo volta à cor original */
-.characterLogoButton:hover img,
-.characterLogoButton.active img {
-  filter: none;
-}
-
-.characterLogoFallback {
-  font-family: var(--font-comic);
-  font-size: 18px;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.85);
-  white-space: nowrap;
-}
-
-.characterLogoButton:hover .characterLogoFallback,
-.characterLogoButton.active .characterLogoFallback {
-  color: var(--ink);
-}
-
 /* ---------- Ficha do personagem ---------- */
 .characterDetails {
   display: grid;
@@ -285,19 +207,102 @@
   color: rgba(255, 255, 255, 0.94);
 }
 
+/* ---------- Aparições em jogos ---------- */
+.characterGames {
+  grid-column: 1 / -1;
+  grid-row: auto;
+  min-width: 0;
+  animation: slideUp 0.7s ease;
+}
+
+.characterGames__title {
+  display: inline-block;
+  margin: 0 0 34px;
+  padding: 8px 22px;
+  color: var(--ink);
+  background: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--hero-red);
+  transform: rotate(-1deg) skewX(-5deg);
+}
+
+.characterGames__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 22px;
+}
+
+.characterGames__card {
+  display: block;
+  min-width: 0;
+  padding: 10px;
+  color: var(--paper);
+  background: rgba(10, 12, 28, 0.9);
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  text-align: left;
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.characterGames--visible .characterGames__card {
+  animation: gameCardIn 0.75s cubic-bezier(0.2, 1.35, 0.4, 1) backwards;
+}
+
+.characterGames__card:nth-child(2) { animation-delay: 0.08s; }
+.characterGames__card:nth-child(3) { animation-delay: 0.16s; }
+.characterGames__card:nth-child(4) { animation-delay: 0.24s; }
+
+.characterGames__card:hover {
+  border-color: var(--hero-yellow);
+  transform: translate(-4px, -5px) rotate(-1deg) scale(1.02);
+  box-shadow: 7px 7px 0 var(--hero-red);
+}
+
+.characterGames__card img {
+  display: block;
+  width: 100%;
+  height: 240px;
+  margin-bottom: 10px;
+  background: #0d0f20;
+  object-fit: cover;
+}
+
+.characterGames__card span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.characterAppearanceType {
+  display: block;
+  margin-top: 5px;
+  color: rgba(255, 246, 220, 0.72);
+  font-size: 13px;
+  font-weight: 500;
+}
+
 /* ---------- Polaroids ---------- */
 .imageVerticalCharacter {
-  flex: 1 1 320px;
-  max-width: 500px;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  max-width: 650px;
   display: flex;
   justify-content: center;
   animation: slideUp 0.75s ease;
-  margin-left: 100px;
+  transform: translateX(28px);
 }
 
 .imageVerticalCharacter img {
-  width: 800px;
-  max-width: 740px;
+  width: 100%;
+  max-width: 650px;
   height: auto;
   display: block;
   filter: drop-shadow(8px 10px 0 rgba(10, 12, 28, 0.85));
@@ -312,19 +317,31 @@
   .characterHero { height: 420px; }
 
   .characterContent {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     gap: 48px;
   }
 
-  .characterMain { max-width: 100%; }
+  .characterMain {
+    grid-column: 1;
+    grid-row: auto;
+    max-width: 100%;
+  }
 
   .imageVerticalCharacter {
+    grid-column: 1;
+    grid-row: auto;
     max-width: 100%;
-    align-self: center;
+    justify-self: center;
+    transform: none;
   }
 
   .imageVerticalCharacter img { max-width: 100%; }
+
+  .characterGames {
+    grid-column: 1;
+    grid-row: auto;
+  }
 }
 
 @keyframes fadeIn {
@@ -342,6 +359,11 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes gameCardIn {
+  from { opacity: 0; transform: translateY(42px) rotate(-5deg) scale(0.88); }
+  to { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+}
+
 @keyframes slam {
   from { opacity: 0; transform: rotate(-2deg) scale(1.6); }
   to   { opacity: 1; transform: rotate(-2deg) scale(1); }
@@ -352,13 +374,16 @@
   .characterHero img,
   .characterInfo h1,
   .characterInfo p,
-  .characterAppearanceSelect,
   .characterDetails,
+  .characterGames,
   .imageVerticalCharacter {
     animation: none;
   }
 
-  .characterLogoButton,
+  .characterGames__card {
+    animation: none;
+  }
+
   .imageVerticalCharacter img {
     transition: none;
   }

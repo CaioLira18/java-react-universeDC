@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CharacterAppearanceRepository extends JpaRepository<CharacterAppearance, String> {
+  boolean existsByCharacter_IdAndContent_Id(String characterId, String contentId);
 }

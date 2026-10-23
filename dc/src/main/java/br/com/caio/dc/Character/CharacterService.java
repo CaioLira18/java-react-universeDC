@@ -3,15 +3,19 @@ package br.com.caio.dc.Character;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import br.com.caio.dc.Config.S3StorageService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CharacterService {
 
   private final CharacterRepository characterRepository;
+  private final S3StorageService s3StorageService;
 
-  public CharacterService(CharacterRepository characterRepository) {
+  public CharacterService(CharacterRepository characterRepository, S3StorageService s3StorageService) {
     this.characterRepository = characterRepository;
+    this.s3StorageService = s3StorageService;
   }
 
   public List<Character> findAll() {
@@ -38,7 +42,24 @@ public class CharacterService {
     existing.setPlanet(character.getPlanet());
     existing.setFirst_appearance(character.getFirst_appearance());
     existing.setFirst_appearance_year(character.getFirst_appearance_year());
+    existing.setVerticalmage(character.getVerticalmage());
     return characterRepository.save(existing);
+  }
+
+  public Character uploadMedia(String id, String field, MultipartFile file) {
+    Character character = findById(id);
+    if (!"background".equals(field) && !"verticalmage".equals(field)) {
+      throw new IllegalArgumentException("Unsupported character media field: " + field);
+    }
+
+    String mediaUrl = s3StorageService.uploadCharacterMedia(character.getName(), file);
+    if ("background".equals(field)) {
+      character.setBackground(mediaUrl);
+    } else {
+      character.setVerticalmage(mediaUrl);
+    }
+
+    return characterRepository.save(character);
   }
 
   public void delete(String id) {

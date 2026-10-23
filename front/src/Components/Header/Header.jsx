@@ -155,7 +155,7 @@ export const Header = () => {
           {user ? (
             <div className="headerProfile">
               <div className="headerProfile__identity">
-                <Link to="/profile" className="headerProfile__link" onClick={closeMenu} aria-label="Abrir meu perfil">
+                <div className="headerProfile__identityContent">
                   {profileImageUrl && !profileImageFailed ? (
                     <img
                       className="headerProfile__image"
@@ -172,8 +172,23 @@ export const Header = () => {
                     </span>
                   )}
                   <span className="headerProfile__name">{user.name || user.email}</span>
-                </Link>
+                </div>
               </div>
+              <select
+                className="headerQuickNav__select"
+                value=""
+                onChange={(event) => {
+                  if (event.target.value) {
+                    navigate(event.target.value)
+                    closeMenu()
+                  }
+                }}
+                aria-label="Navegação rápida"
+              >
+                <option value="" disabled>Navegar</option>
+                <option value="/profile">Meu perfil</option>
+                <option value="/admin">Painel Admin</option>
+              </select>
               <button onClick={handleLogout} type="button" className="loginButton">Sair</button>
             </div>
           ) : (
