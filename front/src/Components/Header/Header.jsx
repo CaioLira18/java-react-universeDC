@@ -6,10 +6,10 @@ import './Header.css'
 const API_URL = 'http://localhost:8080'
 
 const NAV_LINKS = [
-  { to: '/characters', label: 'Characters' },
-  { to: '/catalog', label: 'Catalog' },
+  { to: '/characters', label: 'Personagens' },
+  { to: '/catalog', label: 'Catálogo' },
   { to: '/sagas', label: 'Sagas' },
-  { to: '/planets', label: 'Planets' },
+  { to: '/planets', label: 'Planetas' },
 ]
 
 const getStoredUser = () => {

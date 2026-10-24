@@ -11,10 +11,10 @@
   padding: 120px 24px 100px;
   font-family: var(--font-body);
   color: var(--paper);
-  /* raios de quadrinho + retícula sobre fundo azul-noite */
   background:
-    radial-gradient(rgba(255, 255, 255, 0.06) 1.5px, transparent 1.6px) 0 0 / 14px 14px,
-    repeating-conic-gradient(from 0deg at 50% 30%, rgba(255, 212, 0, 0.07) 0deg 6deg, transparent 6deg 15deg),
+    radial-gradient(rgba(124, 174, 255, 0.071) 1px, transparent 1.5px) 0 0 / 16px 16px,
+    linear-gradient(rgba(0, 3, 16, 0.97), rgba(0, 4, 18, 0.985)),
+    url('https://images.alphacoders.com/104/1046632.jpg') center / cover fixed,
     var(--ink);
 }
 

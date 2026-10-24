@@ -30,11 +30,8 @@
   justify-content: space-between;
   gap: 28px;
   padding: 12px clamp(20px, 4vw, 56px) 18px;
-  background:
-    radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1.2px) 0 0 / 12px 12px,
-    linear-gradient(180deg, rgba(10, 12, 28, 0.96), rgba(10, 12, 28, 0.72));
+  background: var(--ink);
   border-bottom: 3px solid var(--hero-yellow);
-  box-shadow: 0 5px 0 rgba(10, 12, 28, 0.8);
 }
 
 .starMapHeading {
@@ -306,9 +303,7 @@
   position: absolute;
   z-index: 3;
   inset: 0;
-  background:
-    radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1.2px) 0 0 / 12px 12px,
-    radial-gradient(ellipse at center, transparent 48%, rgba(10, 12, 28, 0.72) 100%);
+  background: radial-gradient(ellipse at center, transparent 48%, rgba(10, 12, 28, 0.72) 100%);
   pointer-events: none;
 }
 
@@ -513,22 +508,26 @@
 .starMapOverlay {
   position: fixed;
   z-index: 6;
-  inset: 88px 0 0;
+  inset: 120px 0 0;
   background: rgba(10, 12, 28, 0.72);
   animation: fadeIn 0.2s ease;
 }
 
 .starMapDetails {
   position: fixed;
-  top: 88px;
-  right: 0;
+  top: 120px;
+  right: max(12px, env(safe-area-inset-right));
   z-index: 7;
   box-sizing: border-box;
-  width: min(420px, 100%);
-  height: calc(100vh - 88px);
-  height: calc(100dvh - 88px);
+  width: min(420px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  height: calc(100vh - 120px);
+  height: calc(100dvh - 120px);
   padding: 36px 30px;
+  overflow-x: hidden;
   overflow-y: auto;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
   color: var(--paper);
   background:
     radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1.2px) 0 0 / 12px 12px,
@@ -694,7 +693,9 @@
   .starMapOverlay { inset-block-start: 84px; }
   .starMapDetails {
     top: 84px;
-    width: min(420px, 100%);
+    right: max(12px, env(safe-area-inset-right));
+    width: min(420px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
     height: calc(100vh - 84px);
     height: calc(100dvh - 84px);
     padding: 30px 22px;

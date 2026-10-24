@@ -37,7 +37,7 @@ export const Home = () => {
     <div className="home">
 
       <div className="backgroundImage">
-        <img src="https://dc-universe-bucket.s3.us-east-1.amazonaws.com/zoom-de-quadrinhos-amarelos-abstratos_1409-923.avif" alt="" />
+        <img src="https://wallpapercave.com/wp/wp3979958.jpg" alt="" />
       </div>
 
       {activeSlide ? (
@@ -97,11 +97,12 @@ export const Home = () => {
         </header>
       )}
 
-      <div className="characterSection">
-        <CharacterSection />
+      <div className="homeSections">
+        <div className="characterSection">
+          <CharacterSection />
+        </div>
+        <MovieSecction />
       </div>
-
-      <MovieSecction />
 
       <div className="space"></div>
     </div>
