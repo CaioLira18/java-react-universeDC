@@ -76,10 +76,34 @@ const RESOURCES = {
       { name: 'active', label: 'Publicado na página inicial', type: 'checkbox', defaultValue: true },
     ],
   },
+  sagas: {
+    label: 'Sagas',
+    singular: 'saga',
+    path: '/sagas',
+    listPath: '/sagas/admin',
+    titleField: 'name',
+    imageField: 'banner',
+    fields: [
+      { name: 'name', label: 'Nome da saga', type: 'text', required: true },
+      { name: 'description', label: 'Descrição', type: 'textarea', required: true },
+      { name: 'startYear', label: 'Ano inicial', type: 'number' },
+      { name: 'endYear', label: 'Ano final', type: 'number' },
+      { name: 'displayOrder', label: 'Ordem de exibição', type: 'number', defaultValue: 0 },
+      { name: 'active', label: 'Publicado', type: 'checkbox', defaultValue: true },
+    ],
+  },
 };
 
 const emptyForm = (fields) =>
   Object.fromEntries(fields.map((f) => [f.name, f.defaultValue ?? '']));
+
+const newSagaComic = () => ({
+  name: '',
+  releaseYear: '',
+  description: '',
+  coverImage: '',
+  file: null,
+})
 
 const BATMAN_PRESET = {
   name: 'Batman',
@@ -90,6 +114,78 @@ const BATMAN_PRESET = {
   first_appearance: 'Detective Comics #27',
   first_appearance_year: '1939',
 }
+
+const SAGA_PRESETS = {
+  new52: {
+    name: 'New 52',
+    description: 'Iniciativa editorial da DC que relançou suas séries em 2011, apresentando novas origens e uma continuidade compartilhada para seus heróis. A fase principal foi substituída pela iniciativa DC Rebirth em 2016.',
+    startYear: '2011',
+    endYear: '2016',
+    displayOrder: '1',
+    active: true,
+  },
+  absolute: {
+    name: 'Universo Absolute',
+    description: 'Uma linha alternativa da DC que reimagina seus heróis em um mundo mais hostil e com menos recursos. Batman, Superman e Mulher-Maravilha seguem origens próprias, em histórias independentes da continuidade principal.',
+    startYear: '2024',
+    endYear: '',
+    displayOrder: '2',
+    active: true,
+  },
+}
+
+const NEW52_COMICS = [
+  {
+    name: 'Justice League: Origin',
+    releaseYear: '2012',
+    description: 'A formação inicial da Liga da Justiça enfrenta uma invasão que reúne pela primeira vez alguns dos maiores heróis da Terra.',
+  },
+  {
+    name: 'Batman: The Court of Owls',
+    releaseYear: '2012',
+    description: 'Batman investiga uma sociedade secreta ligada à história de Gotham e descobre uma ameaça que conhece a cidade melhor do que ele.',
+  },
+  {
+    name: 'Batman: The City of Owls',
+    releaseYear: '2012',
+    description: 'A conspiração da Corte das Corujas avança sobre Gotham, colocando a cidade e seus aliados em risco.',
+  },
+  {
+    name: 'Aquaman: The Trench',
+    releaseYear: '2012',
+    description: 'Aquaman investiga criaturas desconhecidas que emergem das profundezas e ameaçam a população costeira.',
+  },
+  {
+    name: 'Wonder Woman: Blood',
+    releaseYear: '2012',
+    description: 'Uma nova origem para Diana a envolve em conflitos entre os deuses do Olimpo e em revelações sobre sua família.',
+  },
+  {
+    name: 'The Flash: Move Forward',
+    releaseYear: '2012',
+    description: 'Barry Allen encara um novo inimigo e tenta compreender as consequências de seus poderes enquanto protege Central City.',
+  },
+  {
+    name: 'Batman: Death of the Family',
+    releaseYear: '2013',
+    description: 'O Coringa retorna com um plano para separar Batman dos aliados que se tornaram parte de sua família.',
+  },
+  {
+    name: 'Superman Unchained',
+    releaseYear: '2013',
+    description: 'Superman enfrenta uma força de poder extraordinário e questiona seu papel em um mundo que também desenvolve novas armas.',
+  },
+  {
+    name: 'Forever Evil',
+    releaseYear: '2014',
+    description: 'Com a Liga da Justiça fora de ação, os vilões assumem o controle e os sobreviventes precisam formar alianças improváveis.',
+  },
+  {
+    name: 'Darkseid War',
+    releaseYear: '2015',
+    description: 'A Liga da Justiça fica no centro de uma guerra cósmica entre Darkseid e o Anti-Monitor, com consequências para seus integrantes.',
+  },
+]
 
 const request = async (method, path, body) => {
   let auth = null
@@ -181,6 +277,8 @@ export const Admin = () => {
   const [movieMediaFile, setMovieMediaFile] = useState(null)
   const [seriesMediaFile, setSeriesMediaFile] = useState(null)
   const [bannerMediaFile, setBannerMediaFile] = useState(null)
+  const [sagaComics, setSagaComics] = useState([])
+  const [openSagaComicIndex, setOpenSagaComicIndex] = useState(null)
   const [galleryMediaFiles, setGalleryMediaFiles] = useState([])
   const [galleryImagesToRemove, setGalleryImagesToRemove] = useState([])
   const [characterBackgroundFile, setCharacterBackgroundFile] = useState(null)
@@ -230,6 +328,8 @@ export const Admin = () => {
   useEffect(() => {
     setEditing(null);
     setForm(emptyForm(resource.fields));
+    setSagaComics([]);
+    setOpenSagaComicIndex(null);
     setFilter('');
     loadItems();
   }, [resourceKey, resource.fields, loadItems]);
@@ -261,14 +361,26 @@ export const Admin = () => {
     setCharacterVerticalFile(null)
     setAppearanceImageFile(null)
     const values = {};
-    resource.fields.forEach((f) => { values[f.name] = item[f.name] ?? ''; });
+    resource.fields.forEach((f) => {
+      values[f.name] = item[f.name] ?? '';
+    });
     setForm(values);
+    setSagaComics(resourceKey === 'sagas'
+      ? (item.comics || []).map((comic) => (
+          typeof comic === 'string'
+            ? { ...newSagaComic(), name: comic }
+            : { ...comic, file: null }
+        ))
+      : [])
+    setOpenSagaComicIndex(null)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const cancelEdit = () => {
     setEditing(null);
     setForm(emptyForm(resource.fields));
+    setSagaComics([]);
+    setOpenSagaComicIndex(null)
     setGameMediaFile(null)
     setMovieMediaFile(null)
     setSeriesMediaFile(null)
@@ -296,14 +408,29 @@ export const Admin = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const fillSagaPreset = (preset) => {
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...SAGA_PRESETS[preset] })
+    setSagaComics([])
+    setOpenSagaComicIndex(null)
+    setBannerMediaFile(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (resourceKey === 'characters' && !editing && !characterBackgroundFile) {
       notify('error', 'Selecione a imagem de fundo do personagem.')
       return
     }
-    if (['games', 'movies', 'series', 'homeSlides'].includes(resourceKey) && !editing && !bannerMediaFile) {
+    if (['games', 'movies', 'series', 'homeSlides', 'sagas'].includes(resourceKey) && !editing && !bannerMediaFile) {
       notify('error', resourceKey === 'homeSlides' ? 'Selecione a imagem do destaque.' : 'Selecione o banner estático.')
+      return
+    }
+    if (resourceKey === 'sagas' && sagaComics.some((comic) => (
+      !comic.name.trim() || (!comic.coverImage && !comic.file)
+    ))) {
+      notify('error', 'Cada HQ precisa de um nome e uma imagem de capa.')
       return
     }
     setSaving(true);
@@ -320,6 +447,14 @@ export const Admin = () => {
 
     let savedItem = null
     try {
+      const comicPayload = sagaComics.map((comic, index) => ({
+        ...(comic.id ? { id: comic.id } : {}),
+        name: comic.name.trim(),
+        releaseYear: comic.releaseYear ? Number(comic.releaseYear) : null,
+        description: comic.description.trim() || null,
+        coverImage: comic.coverImage || null,
+        readingOrder: index + 1,
+      }))
       if (editing) {
         const updatePayload = resourceKey === 'characters'
           ? {
@@ -352,10 +487,14 @@ export const Admin = () => {
                 banner: editing.banner,
                 images: editing.images || [],
               }
-          : { ...editing, ...clean }
+          : resourceKey === 'sagas'
+            ? { ...editing, ...clean, comics: comicPayload }
+            : { ...editing, ...clean }
         savedItem = await request('PUT', `${resource.path}/${editing.id}`, updatePayload);
       } else {
-        savedItem = await request('POST', resource.path, clean);
+        savedItem = await request('POST', resource.path, resourceKey === 'sagas'
+          ? { ...clean, comics: comicPayload }
+          : clean);
       }
 
       if (resourceKey === 'games' && gameMediaFile) {
@@ -391,6 +530,27 @@ export const Admin = () => {
         })
       }
 
+      if (resourceKey === 'sagas' && bannerMediaFile) {
+        const { url } = await uploadCatalogMedia(resourceKey, savedItem.id, bannerMediaFile)
+        savedItem = await request('PUT', `${resource.path}/${savedItem.id}`, {
+          ...savedItem,
+          banner: url,
+        })
+      }
+
+      if (resourceKey === 'sagas') {
+        for (const [index, comic] of sagaComics.entries()) {
+          if (!comic.file) continue
+          const savedComic = comic.id
+            ? savedItem.comics.find((item) => item.id === comic.id)
+            : savedItem.comics.find((item) => item.readingOrder === index + 1)
+          if (!savedComic) {
+            throw new Error(`Não foi possível localizar a HQ "${comic.name}" para enviar a capa.`)
+          }
+          await uploadMedia(`/sagas/${savedItem.id}/comics/${savedComic.id}/media`, comic.file)
+        }
+      }
+
       if (
         ['games', 'movies', 'series'].includes(resourceKey) &&
         (bannerMediaFile || galleryMediaFiles.length > 0 || galleryImagesToRemove.length > 0)
@@ -422,7 +582,7 @@ export const Admin = () => {
       cancelEdit();
       loadItems();
     } catch (err) {
-      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'homeSlides' || resourceKey === 'characters')) {
+      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'characters')) {
         setEditing(savedItem)
         if (!editing) {
           const values = {}
@@ -438,6 +598,38 @@ export const Admin = () => {
       setSaving(false);
     }
   };
+
+  const addSagaComic = () => {
+    setOpenSagaComicIndex(sagaComics.length)
+    setSagaComics((current) => [...current, newSagaComic()])
+  }
+
+  const removeSagaComic = (index) => {
+    setSagaComics((current) => current.filter((_, itemIndex) => itemIndex !== index))
+    setOpenSagaComicIndex((current) => {
+      if (current === index) return null
+      if (current !== null && current > index) return current - 1
+      return current
+    })
+  }
+
+  const addNew52Comics = () => {
+    const existingNames = new Set(sagaComics.map((comic) => (
+      comic.name.trim().toLocaleLowerCase('pt-BR')
+    )))
+    const additions = NEW52_COMICS
+      .filter((comic) => !existingNames.has(comic.name.toLocaleLowerCase('pt-BR')))
+      .map((comic) => ({ ...newSagaComic(), ...comic }))
+
+    if (additions.length === 0) {
+      notify('ok', 'As principais HQs do New 52 já estão na lista.')
+      return
+    }
+
+    setOpenSagaComicIndex(sagaComics.length)
+    setSagaComics((current) => [...current, ...additions])
+    notify('ok', `${additions.length} HQs principais do New 52 adicionadas. Envie uma capa para cada uma antes de salvar.`)
+  }
 
   const handleDelete = async (item) => {
     const name = item[resource.titleField] || 'este item';
@@ -606,6 +798,25 @@ export const Admin = () => {
             </div>
           )}
 
+          {resourceKey === 'sagas' && !editing && (
+            <div className="admin__preset-actions">
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={() => fillSagaPreset('new52')}
+              >
+                Preencher dados do New 52
+              </button>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={() => fillSagaPreset('absolute')}
+              >
+                Preencher dados do Universo Absolute
+              </button>
+            </div>
+          )}
+
           {resource.fields.map((f) => (
             <label key={f.name} className="admin__field">
               <span className="admin__label">
@@ -634,6 +845,137 @@ export const Admin = () => {
               )}
             </label>
           ))}
+
+          {resourceKey === 'sagas' && (
+            <section className="admin__game-link admin__saga-comics">
+              <div className="admin__saga-comics-heading">
+                <h3 className="admin__game-link-title">HQs desta saga</h3>
+                <button
+                  type="button"
+                  className="admin__btn admin__btn--small"
+                  onClick={addSagaComic}
+                >
+                  Adicionar HQ
+                </button>
+              </div>
+              {String(form.name || '').toLocaleLowerCase('pt-BR').includes('new 52') && (
+                <div className="admin__saga-comic-presets">
+                  <button
+                    type="button"
+                    className="admin__btn admin__btn--small admin__btn--preset"
+                    onClick={addNew52Comics}
+                  >
+                    Adicionar principais HQs do New 52
+                  </button>
+                  <span>As capas precisam ser enviadas individualmente.</span>
+                </div>
+              )}
+              {sagaComics.length === 0 ? (
+                <p className="admin__empty">Nenhuma HQ adicionada.</p>
+              ) : (
+                <ol className="admin__saga-comic-list">
+                  {sagaComics.map((comic, index) => (
+                    <li
+                      className={`admin__saga-comic${openSagaComicIndex === index ? ' admin__saga-comic--open' : ''}`}
+                      key={comic.id || `new-${index}`}
+                    >
+                      <div className="admin__saga-comic-summary">
+                        <button
+                          type="button"
+                          className="admin__saga-comic-toggle"
+                          aria-expanded={openSagaComicIndex === index}
+                          aria-controls={`saga-comic-fields-${index}`}
+                          onClick={() => setOpenSagaComicIndex((current) => current === index ? null : index)}
+                        >
+                          {comic.coverImage ? (
+                            <img src={comic.coverImage} alt="" />
+                          ) : (
+                            <span className="admin__saga-comic-thumb-empty" aria-hidden="true">HQ</span>
+                          )}
+                          <span className="admin__saga-comic-summary-text">
+                            <strong>HQ {index + 1}: {comic.name.trim() || 'Nova HQ'}</strong>
+                            <span>
+                              {comic.releaseYear || 'Ano não informado'}
+                              {' · '}
+                              {comic.coverImage || comic.file ? 'Capa adicionada' : 'Capa pendente'}
+                            </span>
+                          </span>
+                          <span className="admin__saga-comic-chevron" aria-hidden="true">
+                            {openSagaComicIndex === index ? '−' : '+'}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          className="admin__btn admin__btn--small admin__btn--danger"
+                          onClick={() => removeSagaComic(index)}
+                        >
+                          Remover
+                        </button>
+                      </div>
+                      {openSagaComicIndex === index && (
+                        <div className="admin__saga-comic-fields" id={`saga-comic-fields-${index}`}>
+                          {comic.coverImage && !comic.file && (
+                            <img className="admin__saga-comic-cover" src={comic.coverImage} alt={`Capa atual de ${comic.name}`} />
+                          )}
+                          <label className="admin__field">
+                            <span className="admin__label">Nome da HQ *</span>
+                            <input
+                              type="text"
+                              required
+                              value={comic.name}
+                              onChange={(event) => setSagaComics((current) => current.map((item, itemIndex) => (
+                                itemIndex === index ? { ...item, name: event.target.value } : item
+                              )))}
+                            />
+                          </label>
+                          <label className="admin__field">
+                            <span className="admin__label">Ano de lançamento</span>
+                            <input
+                              type="number"
+                              min="1900"
+                              max="2100"
+                              value={comic.releaseYear}
+                              onChange={(event) => setSagaComics((current) => current.map((item, itemIndex) => (
+                                itemIndex === index ? { ...item, releaseYear: event.target.value } : item
+                              )))}
+                            />
+                          </label>
+                          <label className="admin__field">
+                            <span className="admin__label">Descrição</span>
+                            <textarea
+                              rows={3}
+                              value={comic.description}
+                              onChange={(event) => setSagaComics((current) => current.map((item, itemIndex) => (
+                                itemIndex === index ? { ...item, description: event.target.value } : item
+                              )))}
+                            />
+                          </label>
+                          <label className="admin__field">
+                            <span className="admin__label">Capa da HQ{!comic.coverImage && ' *'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              required={!comic.coverImage && !comic.file}
+                              onChange={(event) => setSagaComics((current) => current.map((item, itemIndex) => (
+                                itemIndex === index ? { ...item, file: event.target.files?.[0] || null } : item
+                              )))}
+                            />
+                            <span className="admin__file-name">
+                              {comic.file
+                                ? `${comic.file.name} (${(comic.file.size / (1024 * 1024)).toFixed(1)} MB)`
+                                : comic.coverImage
+                                  ? 'Capa atual mantida se nenhum arquivo for escolhido'
+                                  : 'Obrigatória — limite de 25 MB'}
+                            </span>
+                          </label>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+          )}
 
           {resourceKey === 'characters' && (
             <>
@@ -789,9 +1131,9 @@ export const Admin = () => {
             </>
           )}
 
-          {resourceKey === 'homeSlides' && (
+          {(resourceKey === 'homeSlides' || resourceKey === 'sagas') && (
             <label className="admin__field">
-              <span className="admin__label">Imagem de fundo{!editing && ' *'}</span>
+              <span className="admin__label">{resourceKey === 'homeSlides' ? 'Imagem de fundo' : 'Banner da saga'}{!editing && ' *'}</span>
               <input
                 key={bannerMediaFile?.name || 'home-slide-image-empty'}
                 type="file"
@@ -802,8 +1144,8 @@ export const Admin = () => {
               <span className="admin__file-name">
                 {bannerMediaFile
                   ? `${bannerMediaFile.name} (${(bannerMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
-                  : editing?.image
-                    ? 'Imagem atual mantida se nenhum arquivo for escolhido'
+                  : editing?.[resource.imageField]
+                    ? `${resourceKey === 'sagas' ? 'Banner' : 'Imagem'} atual mantida se nenhum arquivo for escolhido`
                     : 'Obrigatória no cadastro — limite de 25 MB'}
               </span>
             </label>

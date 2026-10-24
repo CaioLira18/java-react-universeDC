@@ -8,6 +8,7 @@ const API_URL = 'http://localhost:8080'
 const NAV_LINKS = [
   { to: '/characters', label: 'Characters' },
   { to: '/catalog', label: 'Catalog' },
+  { to: '/sagas', label: 'Sagas' },
   { to: '/planets', label: 'Planets' },
 ]
 

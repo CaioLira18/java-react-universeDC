@@ -36,6 +36,12 @@ Jogos, filmes e séries têm descrição, um banner estático e uma galeria de i
 ## Destaques da página inicial
 
 O painel administrativo permite criar, editar, ordenar, publicar e remover destaques da Home. Cada slide pode ter chamada, título, descrição, botão e imagem de fundo, armazenada no S3 em `home-slides/{slideId}/`. O endpoint público `GET /home-slides` retorna apenas os slides ativos; `GET /home-slides/admin` lista todos e exige autenticação. O upload autenticado usa `POST /home-slides/{id}/media`, com o arquivo no campo `file`.
+
+## Sagas da DC
+
+O painel administrativo permite cadastrar, editar, ordenar, publicar e remover sagas, com nome, descrição, anos de publicação e banner. Os banners são armazenados no S3 em `sagas/{sagaId}/`. `GET /sagas` lista as sagas ativas; `GET /sagas/admin` lista todas e exige autenticação. O upload autenticado usa `POST /sagas/{id}/media`, com o arquivo no campo `file`.
+
+A página `/sagas` exibe as sagas publicadas com banner, período e descrição, consumindo a lista pública `GET /sagas`. Cada saga tem uma página de detalhes em `/sagas/{id}`, com HQs exibidas em ordem de leitura. No painel, cada HQ tem nome, ano de lançamento, descrição e capa; os dados são persistidos como entidades relacionadas na tabela `saga_hqs`, e as capas ficam no S3 em `sagas/{sagaId}/comics/{comicId}/`. O upload autenticado usa `POST /sagas/{id}/comics/{comicId}/media`, com o arquivo no campo `file`.
 O backend aceita arquivos de até 25 MB por upload; o limite da requisição multipart é 26 MB.
 
 No CRUD de personagens, também é possível relacionar o personagem a filmes e séries cadastrados e enviar uma imagem específica para cada aparição. Os arquivos são salvos em `movies/{movieId}/{characterId}/` ou `series/{seriesId}/{characterId}/`. O upload autenticado usa `POST /character-appearances/media?characterId={characterId}&contentId={contentId}`, com o arquivo no campo `file`; a relação é criada em seguida por `POST /character-appearances`.

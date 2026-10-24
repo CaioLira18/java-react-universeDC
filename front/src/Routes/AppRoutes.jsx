@@ -12,6 +12,8 @@ import Register from '../Pages/Register/Register'
 import UserPage from '../Pages/Users/UserPage'
 import CatalogPage from '../Pages/Catalog/CatalogPage'
 import { GameDetail, SeriesDetail } from '../Pages/Catalog/CatalogDetail'
+import SagasPage from '../Pages/Sagas/SagasPage'
+import SagaDetail from '../Pages/Sagas/SagaDetail'
 
 export const AppRoutes = () => {
   return (
@@ -22,6 +24,8 @@ export const AppRoutes = () => {
         <Route path="/characters/:id" element={<Character />} />
         <Route path="/characters" element={<CharactersPage />} />
         <Route path="/catalog" element={<CatalogPage />} />
+        <Route path="/sagas" element={<SagasPage />} />
+        <Route path="/sagas/:id" element={<SagaDetail />} />
         <Route path="/planets" element={<StarMap />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/movies/:id" element={<Movie />} />

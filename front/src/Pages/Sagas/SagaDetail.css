@@ -1,0 +1,406 @@
+.sagaDetail {
+  --ink: #0a0c1c;
+  --panel: #14172b;
+  --hero-yellow: #ffd400;
+  --hero-red: #e8212e;
+  --paper: #fff6dc;
+  --font-comic: 'Bangers', 'Impact', sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 116px 24px 96px;
+  color: var(--paper);
+  font-family: var(--font-body);
+  background: var(--ink);
+  isolation: isolate;
+}
+
+.sagaDetail__background,
+.sagaDetail__hero,
+.sagaDetail__hero-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.sagaDetail__background {
+  z-index: -3;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.06) 1.5px, transparent 1.6px) 0 0 / 14px 14px,
+    var(--ink);
+}
+
+.sagaDetail__hero {
+  z-index: -2;
+  height: min(66vh, 680px);
+  overflow: hidden;
+}
+
+.sagaDetail__hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.sagaDetail__hero-overlay {
+  background: linear-gradient(180deg, rgba(10, 12, 28, 0.3), var(--ink) 92%);
+}
+
+.sagaDetail__content {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+}
+
+.sagaDetail__back {
+  display: inline-block;
+  padding: 7px 14px;
+  color: var(--paper);
+  background: rgba(10, 12, 28, 0.86);
+  font-family: var(--font-comic);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border: 2px solid var(--hero-yellow);
+  box-shadow: 4px 4px 0 var(--hero-red);
+}
+
+.sagaDetail__back:hover {
+  color: var(--ink);
+  background: var(--hero-yellow);
+}
+
+.sagaDetail__back:focus-visible {
+  outline: 3px solid var(--paper);
+  outline-offset: 3px;
+}
+
+.sagaDetail__header {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 0 64px;
+  text-align: center;
+}
+
+.sagaDetail__period {
+  margin: 0 0 18px;
+  padding: 6px 14px;
+  color: var(--ink);
+  background: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: 22px;
+  border: 3px solid var(--ink);
+  transform: rotate(-2deg);
+}
+
+.sagaDetail__title {
+  margin: 0;
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: clamp(56px, 11vw, 112px);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 6px 6px 0 var(--hero-red), 10px 10px 0 var(--ink);
+}
+
+.sagaDetail__description {
+  max-width: 68ch;
+  margin: 28px 0 0;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.7;
+  text-shadow: 0 2px 8px var(--ink);
+  white-space: pre-line;
+}
+
+.sagaDetail__comics {
+  position: relative;
+  padding: 30px;
+  background: rgba(20, 23, 43, 0.96);
+  border: 3px solid var(--hero-yellow);
+  box-shadow: 9px 9px 0 var(--ink);
+}
+
+.sagaDetail__section-heading {
+  margin-bottom: 24px;
+}
+
+.sagaDetail__eyebrow {
+  margin: 0 0 6px;
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sagaDetail__section-title {
+  margin: 0;
+  color: var(--paper);
+  font-family: var(--font-comic);
+  font-size: clamp(34px, 5vw, 48px);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.sagaDetail__comic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sagaDetail__comic {
+  min-width: 0;
+  box-sizing: border-box;
+  background: #1c2040;
+  border: 2px solid rgba(255, 246, 220, 0.2);
+  box-shadow: 4px 4px 0 var(--ink);
+  overflow: hidden;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.sagaDetail__comic:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 6px 0 var(--hero-red);
+}
+
+.sagaDetail__comic-button {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  padding: 0;
+  color: var(--paper);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  border: 0;
+  cursor: pointer;
+}
+
+.sagaDetail__comic-button:focus-visible {
+  outline: 3px solid var(--hero-yellow);
+  outline-offset: -3px;
+}
+
+.sagaDetail__comic-cover {
+  display: block;
+  width: 100%;
+  flex: 0 0 auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: var(--ink);
+}
+
+.sagaDetail__comic-cover--empty {
+  display: grid;
+  place-items: center;
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: 56px;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.6px) 0 0 / 14px 14px,
+    #20243b;
+}
+
+.sagaDetail__comic-info {
+  display: flex;
+  min-height: 112px;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+  padding: 10px 11px;
+}
+
+.sagaDetail__comic-number {
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.sagaDetail__comic-name {
+  display: -webkit-box;
+  margin: 4px 0;
+  overflow: hidden;
+  color: var(--paper);
+  font-family: var(--font-comic);
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.sagaDetail__comic-year {
+  margin: auto 0 0;
+  color: rgba(255, 246, 220, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sagaDetail__comic-action {
+  align-self: flex-end;
+  margin-top: 8px;
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: 15px;
+  letter-spacing: 0.03em;
+}
+
+.sagaDetail__empty-comics,
+.sagaDetail__notice {
+  margin: 0;
+  padding: 18px 22px;
+  color: var(--ink);
+  background: var(--paper);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.sagaDetail--message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.sagaDetail__notice {
+  max-width: 50ch;
+  text-align: center;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--hero-red);
+}
+
+.sagaDetail__modal-backdrop {
+  --ink: #0a0c1c;
+  --panel: #14172b;
+  --hero-yellow: #ffd400;
+  --hero-red: #e8212e;
+  --paper: #fff6dc;
+  --font-comic: 'Bangers', 'Impact', sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: rgba(3, 4, 12, 0.82);
+  backdrop-filter: blur(5px);
+}
+
+.sagaDetail__modal {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+  width: min(100%, 760px);
+  max-height: min(85vh, 720px);
+  overflow: auto;
+  color: var(--paper);
+  background: var(--panel);
+  border: 3px solid var(--hero-yellow);
+  box-shadow: 10px 10px 0 var(--hero-red);
+}
+
+.sagaDetail__modal:focus {
+  outline: none;
+}
+
+.sagaDetail__modal-close {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+  color: var(--paper);
+  background: var(--ink);
+  font-size: 30px;
+  line-height: 1;
+  border: 2px solid var(--hero-yellow);
+  cursor: pointer;
+}
+
+.sagaDetail__modal-close:hover,
+.sagaDetail__modal-close:focus-visible {
+  color: var(--ink);
+  background: var(--hero-yellow);
+}
+
+.sagaDetail__modal-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+  background: var(--ink);
+}
+
+.sagaDetail__modal-info {
+  align-self: center;
+  padding: 36px;
+}
+
+.sagaDetail__modal-title {
+  margin: 10px 0 16px;
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 400;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.sagaDetail__modal-description {
+  margin: 0;
+  color: rgba(255, 246, 220, 0.9);
+  font-size: 15px;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+@media (max-width: 600px) {
+  .sagaDetail { padding: 100px 16px 72px; }
+  .sagaDetail__header { min-height: 360px; padding: 28px 0 50px; }
+  .sagaDetail__description { font-size: 16px; }
+  .sagaDetail__comics { padding: 20px 16px; }
+  .sagaDetail__comic-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 135px), 1fr)); gap: 12px; }
+  .sagaDetail__comic-info { min-height: 100px; padding: 8px; }
+  .sagaDetail__comic-name { font-size: 17px; }
+  .sagaDetail__modal-backdrop { padding: 14px; }
+  .sagaDetail__modal { grid-template-columns: minmax(0, 1fr); width: min(100%, 420px); }
+  .sagaDetail__modal-cover { width: min(100%, 240px); height: auto; min-height: 0; aspect-ratio: 2 / 3; margin: 0 auto; }
+  .sagaDetail__modal-info { padding: 20px; }
+}
+
+@media (max-width: 360px) {
+  .sagaDetail__comic-grid { grid-template-columns: 1fr; }
+  .sagaDetail__comic-button { display: grid; grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1fr); }
+  .sagaDetail__comic-cover { height: 100%; }
+  .sagaDetail__comic-info { min-height: 0; padding: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sagaDetail__comic { transition: none; }
+}
