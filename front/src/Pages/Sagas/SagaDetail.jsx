@@ -103,7 +103,7 @@ export const SagaDetail = () => {
         <section className="sagaDetail__comics" aria-labelledby="saga-comics-title">
           <div className="sagaDetail__section-heading">
             <p className="sagaDetail__eyebrow">Leituras da continuidade</p>
-            <h2 id="saga-comics-title" className="sagaDetail__section-title">HQs da saga</h2>
+            <h2 id="saga-comics-title" className="sagaDetail__section-title">Principais HQs da saga</h2>
           </div>
           {saga.comics?.length ? (
             <ol className="sagaDetail__comic-grid">

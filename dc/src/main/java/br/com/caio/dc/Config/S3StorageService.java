@@ -58,6 +58,10 @@ public class S3StorageService {
     return uploadMedia("sagas/" + sagaId + "/comics/" + comicId, file);
   }
 
+  public String uploadPlanetMedia(String planetId, MultipartFile file) {
+    return uploadMedia("planets/" + planetId, file);
+  }
+
   public String uploadGameCharacterMedia(String gameId, String characterId, MultipartFile file) {
     return uploadMedia("games/" + gameId + "/Personagens/" + characterId, file);
   }

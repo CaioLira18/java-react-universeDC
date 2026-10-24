@@ -87,9 +87,9 @@
 
 .sagasPage__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 36px;
-  max-width: 1240px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0 8px;
   list-style: none;
@@ -230,11 +230,15 @@
   clip-path: inset(50%);
 }
 
+@media (max-width: 1050px) {
+  .sagasPage__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 600px) {
   .sagasPage { padding: 104px 16px 72px; }
   .sagasPage__title { padding: 7px 20px; }
   .sagasPage__intro { font-size: 16px; }
-  .sagasPage__grid { gap: 28px; padding: 0; }
+  .sagasPage__grid { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 0; }
   .sagasPage__banner { aspect-ratio: 4 / 3; }
   .sagasPage__content { padding: 17px 18px 20px; }
 }

@@ -92,6 +92,24 @@ const RESOURCES = {
       { name: 'active', label: 'Publicado', type: 'checkbox', defaultValue: true },
     ],
   },
+  planets: {
+    label: 'Planetas',
+    singular: 'planeta',
+    path: '/planets',
+    titleField: 'name',
+    imageField: 'image',
+    fields: [
+      { name: 'name', label: 'Nome', type: 'text', required: true },
+      { name: 'description', label: 'Descrição', type: 'textarea' },
+      { name: 'sector', label: 'Setor ou galáxia', type: 'text' },
+      { name: 'color', label: 'Cor do planeta (hexadecimal)', type: 'text' },
+      { name: 'notableResidents', label: 'Habitantes notáveis', type: 'textarea' },
+      { name: 'positionX', label: 'Posição X no mapa', type: 'number' },
+      { name: 'positionY', label: 'Posição Y no mapa', type: 'number' },
+      { name: 'positionZ', label: 'Posição Z no mapa', type: 'number' },
+      { name: 'size', label: 'Tamanho no mapa', type: 'number' },
+    ],
+  },
 };
 
 const emptyForm = (fields) =>
@@ -132,7 +150,63 @@ const SAGA_PRESETS = {
     displayOrder: '2',
     active: true,
   },
+  goldenAge: {
+    name: 'Era de Ouro',
+    description: 'Período inicial dos quadrinhos de super-heróis da DC, marcado pela estreia de personagens como Superman, Batman, Flash, Lanterna Verde, Mulher-Maravilha e pela formação da Sociedade da Justiça. É geralmente situado entre o fim da década de 1930 e meados da década de 1950.',
+    startYear: '1938',
+    endYear: '1956',
+    displayOrder: '0',
+    active: true,
+  },
 }
+
+const GOLDEN_AGE_COMICS = [
+  {
+    name: 'Action Comics #1',
+    releaseYear: '1938',
+    description: 'Edição histórica que apresentou Superman e é considerada um marco no início da era dos super-heróis.',
+  },
+  {
+    name: 'Detective Comics #27',
+    releaseYear: '1939',
+    description: 'Primeira aparição de Batman, em uma aventura de investigação que apresentou o vigilante de Gotham.',
+  },
+  {
+    name: 'Superman #1',
+    releaseYear: '1939',
+    description: 'Primeira revista solo do Superman, reunindo histórias do herói em uma publicação própria.',
+  },
+  {
+    name: 'Flash Comics #1',
+    releaseYear: '1940',
+    description: 'Edição de estreia de Flash, na versão de Jay Garrick, e de Hawkman.',
+  },
+  {
+    name: 'All-American Comics #16',
+    releaseYear: '1940',
+    description: 'Apresenta a primeira aparição de Alan Scott, o Lanterna Verde da Era de Ouro.',
+  },
+  {
+    name: 'All-Star Comics #3',
+    releaseYear: '1940',
+    description: 'Reúne heróis que formariam a Sociedade da Justiça, uma das primeiras equipes de super-heróis dos quadrinhos.',
+  },
+  {
+    name: 'Batman #1',
+    releaseYear: '1940',
+    description: 'Primeira edição da revista solo de Batman, com as primeiras aparições do Coringa e da Mulher-Gato.',
+  },
+  {
+    name: 'All-Star Comics #8',
+    releaseYear: '1941',
+    description: 'Apresenta a primeira aparição de Mulher-Maravilha, personagem que se tornaria uma das principais heroínas da DC.',
+  },
+  {
+    name: 'Wonder Woman #1',
+    releaseYear: '1942',
+    description: 'Primeira edição da revista solo de Mulher-Maravilha, expandindo as aventuras de Diana.',
+  },
+]
 
 const NEW52_COMICS = [
   {
@@ -281,6 +355,7 @@ export const Admin = () => {
   const [openSagaComicIndex, setOpenSagaComicIndex] = useState(null)
   const [galleryMediaFiles, setGalleryMediaFiles] = useState([])
   const [galleryImagesToRemove, setGalleryImagesToRemove] = useState([])
+  const [planetPrimaryImageFile, setPlanetPrimaryImageFile] = useState(null)
   const [characterBackgroundFile, setCharacterBackgroundFile] = useState(null)
   const [characterVerticalFile, setCharacterVerticalFile] = useState(null)
   const [linkingGame, setLinkingGame] = useState(false)
@@ -356,6 +431,7 @@ export const Admin = () => {
     setBannerMediaFile(null)
     setGalleryMediaFiles([])
     setGalleryImagesToRemove([])
+    setPlanetPrimaryImageFile(null)
     setGameCharacterImageFile(null)
     setCharacterBackgroundFile(null)
     setCharacterVerticalFile(null)
@@ -387,6 +463,7 @@ export const Admin = () => {
     setBannerMediaFile(null)
     setGalleryMediaFiles([])
     setGalleryImagesToRemove([])
+    setPlanetPrimaryImageFile(null)
     setGameCharacterImageFile(null)
     setGameCharacterImage('')
     setCharacterBackgroundFile(null)
@@ -489,12 +566,20 @@ export const Admin = () => {
               }
           : resourceKey === 'sagas'
             ? { ...editing, ...clean, comics: comicPayload }
+          : resourceKey === 'planets'
+            ? {
+                ...editing,
+                ...clean,
+                images: (editing.images || []).filter((image) => !galleryImagesToRemove.includes(image)),
+              }
             : { ...editing, ...clean }
         savedItem = await request('PUT', `${resource.path}/${editing.id}`, updatePayload);
       } else {
         savedItem = await request('POST', resource.path, resourceKey === 'sagas'
           ? { ...clean, comics: comicPayload }
-          : clean);
+          : resourceKey === 'planets'
+            ? { ...clean, images: [] }
+            : clean);
       }
 
       if (resourceKey === 'games' && gameMediaFile) {
@@ -551,6 +636,19 @@ export const Admin = () => {
         }
       }
 
+      if (resourceKey === 'planets') {
+        if (planetPrimaryImageFile) {
+          const { url } = await uploadMedia(`/planets/${savedItem.id}/primary-media`, planetPrimaryImageFile)
+          savedItem = { ...savedItem, image: url }
+          setPlanetPrimaryImageFile(null)
+        }
+        for (const file of galleryMediaFiles) {
+          const { url } = await uploadMedia(`/planets/${savedItem.id}/media`, file)
+          savedItem = { ...savedItem, images: [...(savedItem.images || []), url] }
+          setGalleryMediaFiles((current) => current.filter((selectedFile) => selectedFile !== file))
+        }
+      }
+
       if (
         ['games', 'movies', 'series'].includes(resourceKey) &&
         (bannerMediaFile || galleryMediaFiles.length > 0 || galleryImagesToRemove.length > 0)
@@ -582,7 +680,7 @@ export const Admin = () => {
       cancelEdit();
       loadItems();
     } catch (err) {
-      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'characters')) {
+      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'characters' || resourceKey === 'planets')) {
         setEditing(savedItem)
         if (!editing) {
           const values = {}
@@ -613,22 +711,22 @@ export const Admin = () => {
     })
   }
 
-  const addNew52Comics = () => {
+  const addSagaComicPreset = (presetComics, sagaName) => {
     const existingNames = new Set(sagaComics.map((comic) => (
       comic.name.trim().toLocaleLowerCase('pt-BR')
     )))
-    const additions = NEW52_COMICS
+    const additions = presetComics
       .filter((comic) => !existingNames.has(comic.name.toLocaleLowerCase('pt-BR')))
       .map((comic) => ({ ...newSagaComic(), ...comic }))
 
     if (additions.length === 0) {
-      notify('ok', 'As principais HQs do New 52 já estão na lista.')
+      notify('ok', `As principais HQs da ${sagaName} já estão na lista.`)
       return
     }
 
     setOpenSagaComicIndex(sagaComics.length)
     setSagaComics((current) => [...current, ...additions])
-    notify('ok', `${additions.length} HQs principais do New 52 adicionadas. Envie uma capa para cada uma antes de salvar.`)
+    notify('ok', `${additions.length} HQs principais da ${sagaName} adicionadas. Envie uma capa para cada uma antes de salvar.`)
   }
 
   const handleDelete = async (item) => {
@@ -761,6 +859,7 @@ export const Admin = () => {
                 setBannerMediaFile(null)
                 setGalleryMediaFiles([])
                 setGalleryImagesToRemove([])
+                setPlanetPrimaryImageFile(null)
                 setGameCharacterImageFile(null)
                 setGameCharacterImage('')
               }}
@@ -814,6 +913,13 @@ export const Admin = () => {
               >
                 Preencher dados do Universo Absolute
               </button>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={() => fillSagaPreset('goldenAge')}
+              >
+                Preencher dados da Era de Ouro
+              </button>
             </div>
           )}
 
@@ -846,6 +952,74 @@ export const Admin = () => {
             </label>
           ))}
 
+          {resourceKey === 'planets' && (
+            <section className="admin__game-link">
+              <h3 className="admin__game-link-title">Imagem principal</h3>
+              {editing?.image && (
+                <div className="admin__game-link-row">
+                  <img src={editing.image} alt={`Imagem principal atual de ${editing.name}`} />
+                  <span>Imagem principal atual</span>
+                </div>
+              )}
+              <label className="admin__field">
+                <span className="admin__label">Substituir imagem principal</span>
+                <input
+                  key={planetPrimaryImageFile?.name || 'planet-primary-image-empty'}
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setPlanetPrimaryImageFile(event.target.files?.[0] || null)}
+                />
+                <span className="admin__file-name">
+                  {planetPrimaryImageFile
+                    ? `${planetPrimaryImageFile.name} (${(planetPrimaryImageFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                    : editing?.image
+                      ? 'Imagem atual mantida se nenhum arquivo for escolhido'
+                      : 'Nenhuma imagem principal selecionada'}
+                </span>
+              </label>
+              <h3 className="admin__game-link-title">Galeria do planeta</h3>
+              <label className="admin__field">
+                <span className="admin__label">Adicionar imagens à galeria</span>
+                <input
+                  key={galleryMediaFiles.map((file) => file.name).join('|') || 'planet-gallery-empty'}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(event) => setGalleryMediaFiles(Array.from(event.target.files || []))}
+                />
+                <span className="admin__file-name">
+                  {galleryMediaFiles.length > 0
+                    ? `${galleryMediaFiles.length} imagem(ns) selecionada(s)`
+                    : `Imagens na galeria: ${editing?.images?.length || 0} — arquivos de até 25 MB cada`}
+                </span>
+              </label>
+              {editing?.images?.length > 0 && (
+                <ul className="admin__game-links" aria-label="Imagens atuais do planeta">
+                  {editing.images.map((image) => {
+                    const markedForRemoval = galleryImagesToRemove.includes(image)
+                    return (
+                      <li className="admin__game-link-row" key={image}>
+                        <img src={image} alt="" />
+                        <span>{markedForRemoval ? 'Será removida ao salvar' : 'Imagem da galeria'}</span>
+                        <button
+                          type="button"
+                          className={`admin__btn admin__btn--small${markedForRemoval ? '' : ' admin__btn--danger'}`}
+                          onClick={() => setGalleryImagesToRemove((current) => (
+                            markedForRemoval
+                              ? current.filter((url) => url !== image)
+                              : [...current, image]
+                          ))}
+                        >
+                          {markedForRemoval ? 'Manter' : 'Remover'}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </section>
+          )}
+
           {resourceKey === 'sagas' && (
             <section className="admin__game-link admin__saga-comics">
               <div className="admin__saga-comics-heading">
@@ -858,15 +1032,27 @@ export const Admin = () => {
                   Adicionar HQ
                 </button>
               </div>
-              {String(form.name || '').toLocaleLowerCase('pt-BR').includes('new 52') && (
+              {(String(form.name || '').toLocaleLowerCase('pt-BR').includes('new 52')
+                || String(form.name || '').toLocaleLowerCase('pt-BR').includes('era de ouro')) && (
                 <div className="admin__saga-comic-presets">
-                  <button
-                    type="button"
-                    className="admin__btn admin__btn--small admin__btn--preset"
-                    onClick={addNew52Comics}
-                  >
-                    Adicionar principais HQs do New 52
-                  </button>
+                  {String(form.name || '').toLocaleLowerCase('pt-BR').includes('new 52') && (
+                    <button
+                      type="button"
+                      className="admin__btn admin__btn--small admin__btn--preset"
+                      onClick={() => addSagaComicPreset(NEW52_COMICS, 'New 52')}
+                    >
+                      Adicionar principais HQs do New 52
+                    </button>
+                  )}
+                  {String(form.name || '').toLocaleLowerCase('pt-BR').includes('era de ouro') && (
+                    <button
+                      type="button"
+                      className="admin__btn admin__btn--small admin__btn--preset"
+                      onClick={() => addSagaComicPreset(GOLDEN_AGE_COMICS, 'Era de Ouro')}
+                    >
+                      Adicionar principais HQs da Era de Ouro
+                    </button>
+                  )}
                   <span>As capas precisam ser enviadas individualmente.</span>
                 </div>
               )}

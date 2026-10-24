@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:8080';
 // escala as coordenadas do banco (livres, ex.: -20 a 20) pra pixels na cena CSS 3D
 const SCALE = 34;
 
-function Planet3D({ planet, isActive, onSelect, onHover, rotation }) {
+function Planet3D({ planet, isActive, onSelect, onHover }) {
   const x = (planet.positionX ?? 0) * SCALE;
   const y = (planet.positionY ?? 0) * SCALE;
   const z = (planet.positionZ ?? 0) * SCALE;
@@ -16,17 +16,26 @@ function Planet3D({ planet, isActive, onSelect, onHover, rotation }) {
   return (
     <div
       className="starMapPlanet3d"
+      role="button"
+      tabIndex={0}
+      aria-label={`Inspecionar ${planet.name}`}
       style={{
-        // translada pra posição no espaço, depois contra-rotaciona (billboard)
-        // pra sempre encarar a câmera, cancelando o giro aplicado na cena
-        transform: `translate3d(${x}px, ${-y}px, ${z}px) rotateY(${-rotation.y}deg) rotateX(${-rotation.x}deg)`,
+        transform: `translate3d(${x}px, ${-y}px, ${z}px)`,
       }}
       onClick={(e) => {
         e.stopPropagation();
         onSelect(planet.id);
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(planet.id);
+        }
+      }}
       onMouseEnter={() => onHover(planet)}
       onMouseLeave={() => onHover(null)}
+      onFocus={() => onHover(planet)}
+      onBlur={() => onHover(null)}
     >
       <div className={`starMapOrbitRing${isActive ? ' active' : ''}`} style={{ borderColor: `${color}55` }} />
       <div
@@ -51,149 +60,181 @@ function Planet3D({ planet, isActive, onSelect, onHover, rotation }) {
 
 export const StarMap = () => {
   const [planets, setPlanets] = useState([]);
+  const [mapStatus, setMapStatus] = useState('loading');
   const [selectedPlanetId, setSelectedPlanetId] = useState(null);
+  const [selectedPlanetImage, setSelectedPlanetImage] = useState(null);
   const [hoveredPlanet, setHoveredPlanet] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const searchInputRef = useRef(null);
 
-  // rotação da câmera (tilt) + posição livre no plano (pan) — os dois combinados no drag
-  const [rotation, setRotation] = useState({ x: -15, y: -25 });
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const dragState = useRef(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/planets`)
-      .then(r => r.json())
-      .then(data => setPlanets(data || []))
-      .catch(console.error);
-  }, []);
+    const controller = new AbortController();
 
-  // rotação automática contínua da cena — some enquanto o usuário arrasta
-  // (dragState.current !== null) e volta suavemente quando ele solta
-  useEffect(() => {
-    const AUTO_ROTATE_SPEED = 6; // graus por segundo
-    let frameId;
-    let lastTime = performance.now();
-
-    const tick = (time) => {
-      const dt = (time - lastTime) / 1000;
-      lastTime = time;
-
-      if (!dragState.current) {
-        setRotation((prev) => ({
-          ...prev,
-          y: prev.y + AUTO_ROTATE_SPEED * dt,
-        }));
+    const loadPlanets = async () => {
+      try {
+        const response = await fetch(`${API_URL}/planets`, { signal: controller.signal });
+        if (!response.ok) throw new Error(`Erro ${response.status} ao carregar os planetas`);
+        const data = await response.json();
+        setPlanets(Array.isArray(data) ? data : []);
+        setMapStatus('ready');
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+        console.error('Não foi possível carregar os planetas.', error);
+        setMapStatus('error');
       }
-
-      frameId = requestAnimationFrame(tick);
     };
 
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
+    loadPlanets();
+    return () => controller.abort();
   }, []);
 
   const selectedPlanet = planets.find((planet) => planet.id === selectedPlanetId);
+  const planetGallery = selectedPlanet
+    ? [...new Set([selectedPlanet.image, ...(selectedPlanet.images || [])].filter(Boolean))]
+    : [];
+  const activePlanetImage = planetGallery.includes(selectedPlanetImage)
+    ? selectedPlanetImage
+    : planetGallery[0];
   const readoutPlanet = hoveredPlanet || selectedPlanet;
 
-  // busca deriva de "planets" via useMemo — nunca sobrescreve o estado original
   const filteredPlanets = useMemo(
     () => planets.filter((planet) =>
-      planet.name.toLowerCase().includes(searchTerm.toLowerCase())
+      String(planet.name || '').toLocaleLowerCase('pt-BR').includes(searchTerm.toLocaleLowerCase('pt-BR'))
     ),
     [planets, searchTerm]
   );
 
   const handlePointerDown = (e) => {
+    if (e.button !== 0 || e.target.closest('.starMapPlanet3d')) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
     dragState.current = {
+      pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
-      rotX: rotation.x,
-      rotY: rotation.y,
       panX: pan.x,
       panY: pan.y,
+      moved: false,
     };
   };
 
   const handlePointerMove = (e) => {
-    if (!dragState.current) return;
-    const dx = e.clientX - dragState.current.startX;
-    const dy = e.clientY - dragState.current.startY;
-    setRotation({
-      x: Math.max(-80, Math.min(80, dragState.current.rotX - dy * 0.15)),
-      y: dragState.current.rotY + dx * 0.15,
-    });
-    setPan({
-      x: dragState.current.panX + dx / zoom,
-      y: dragState.current.panY + dy / zoom,
-    });
+    const drag = dragState.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    drag.moved = true;
+    setPan({ x: drag.panX + dx, y: drag.panY + dy });
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e) => {
+    if (dragState.current?.pointerId !== e.pointerId) return;
     dragState.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
   };
 
   const handleWheel = (e) => {
     e.preventDefault();
-    setZoom((z) => Math.max(0.4, Math.min(2.2, z - e.deltaY * 0.001)));
+    const bounds = e.currentTarget.getBoundingClientRect();
+    const cursorX = e.clientX - bounds.left - bounds.width / 2;
+    const cursorY = e.clientY - bounds.top - bounds.height / 2;
+    const zoomFactor = Math.exp(-e.deltaY * 0.001);
+    const nextZoom = Math.max(0.5, Math.min(2.5, zoom * zoomFactor));
+    const scale = nextZoom / zoom;
+    setPan((currentPan) => ({
+      x: cursorX - (cursorX - currentPan.x) * scale,
+      y: cursorY - (cursorY - currentPan.y) * scale,
+    }));
+    setZoom(nextZoom);
+  };
+
+  const adjustZoom = (factor) => {
+    setZoom((currentZoom) => Math.max(0.5, Math.min(2.5, currentZoom * factor)));
+  };
+
+  const resetView = () => {
+    setPan({ x: 0, y: 0 });
+    setZoom(1);
   };
 
   return (
     <div className="starMapPage">
-      {/* busca flutuante: digitar filtra a lista abaixo, clicar num resultado seleciona o planeta */}
-      <div
-        className="starMapSearch"
-        onMouseDown={(e) => {
-          // clicar em qualquer parte da barra (ícone, padding) foca o input;
-          // sem isso só clicar exatamente em cima do texto funcionava
-          if (e.target !== searchInputRef.current) {
-            e.preventDefault();
-            searchInputRef.current?.focus();
-          }
-        }}
-      >
-        <span className="searchPlanetsIcon">⌕</span>
-        <input
-          ref={searchInputRef}
-          type="text"
-          placeholder="buscar objeto estelar..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <header className="starMapToolbar">
+        <div className="starMapHeading">
+          <p className="starMapEyebrow">Explore o cosmos DC</p>
+          <h1 className="starMapTitle">Mapa do Multiverso</h1>
+          <p className="starMapSubtitle">Planetas, mundos e lugares lendários</p>
+        </div>
 
-        {searchTerm.trim() !== '' && (
-          <div className="starMapSearchResults">
-            {filteredPlanets.length === 0 && (
-              <div className="starMapSearchEmpty">nenhum objeto encontrado</div>
-            )}
-            {filteredPlanets.map((planet) => (
-              <button
-                type="button"
-                key={planet.id}
-                className="starMapSearchResult"
-                onClick={() => {
-                  setSelectedPlanetId(planet.id);
-                  setSearchTerm('');
-                }}
-              >
-                <span
-                  className="starMapSearchResultDot"
-                  style={{ background: planet.color || '#8c6dfb' }}
-                />
-                {planet.name}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+        <div
+          className="starMapSearch"
+          onMouseDown={(e) => {
+            if (e.target !== searchInputRef.current) {
+              e.preventDefault();
+              searchInputRef.current?.focus();
+            }
+          }}
+        >
+          <span className="searchPlanetsIcon" aria-hidden="true">⌕</span>
+          <input
+            ref={searchInputRef}
+            type="search"
+            aria-label="Buscar planeta"
+            placeholder="Buscar planeta..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          {searchTerm.trim() !== '' && (
+            <div className="starMapSearchResults">
+              {filteredPlanets.length === 0 && (
+                <div className="starMapSearchEmpty">Nenhum planeta encontrado</div>
+              )}
+              {filteredPlanets.map((planet) => (
+                <button
+                  type="button"
+                  key={planet.id}
+                  className="starMapSearchResult"
+                  onClick={() => {
+                    setSelectedPlanetId(planet.id);
+                    setSelectedPlanetImage(null);
+                    setSearchTerm('');
+                  }}
+                >
+                  <span
+                    className="starMapSearchResultDot"
+                    style={{ background: planet.color || '#8c6dfb' }}
+                  />
+                  {planet.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="starMapControls" aria-label="Controles do mapa">
+          <button type="button" onClick={() => adjustZoom(1.2)} aria-label="Aumentar zoom">+</button>
+          <span className="starMapZoomValue" aria-live="polite">{Math.round(zoom * 100)}%</span>
+          <button type="button" onClick={() => adjustZoom(1 / 1.2)} aria-label="Diminuir zoom">−</button>
+          <button className="starMapReset" type="button" onClick={resetView}>Centralizar</button>
+        </div>
+      </header>
 
       <div
         className="starMapCanvasWrapper"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onLostPointerCapture={(e) => {
+          if (dragState.current?.pointerId === e.pointerId) dragState.current = null;
+        }}
         onWheel={handleWheel}
       >
         <div className="starMapStarsBg">
@@ -230,7 +271,7 @@ export const StarMap = () => {
           <div
             className="starMapScene"
             style={{
-              transform: `scale(${zoom}) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+              transform: `scale(${zoom})`,
             }}
           >
             {filteredPlanets.map((planet) => (
@@ -238,13 +279,25 @@ export const StarMap = () => {
                 key={planet.id}
                 planet={planet}
                 isActive={planet.id === selectedPlanetId}
-                onSelect={setSelectedPlanetId}
+                onSelect={(planetId) => {
+                  setSelectedPlanetId(planetId);
+                  setSelectedPlanetImage(null);
+                }}
                 onHover={setHoveredPlanet}
-                rotation={rotation}
               />
             ))}
           </div>
         </div>
+
+        {(mapStatus !== 'ready' || planets.length === 0) && (
+          <div className="starMapCanvasMessage" role={mapStatus === 'error' ? 'alert' : 'status'}>
+            {mapStatus === 'loading'
+              ? 'Carregando mundos...'
+              : mapStatus === 'error'
+                ? 'Não foi possível carregar os planetas. Verifique se a API está disponível.'
+                : 'Ainda não há planetas cadastrados.'}
+          </div>
+        )}
 
         {/* readout inferior esquerdo, tipo telemetria */}
         <div className="starMapHud starMapHudReadout">
@@ -265,7 +318,7 @@ export const StarMap = () => {
         </div>
 
         <div className="starMapHud starMapHudHint">
-          ARRASTE PARA NAVEGAR • ROLE PARA ZOOM • CLIQUE PARA INSPECIONAR
+          ARRASTE O ESPAÇO VAZIO PARA MOVER • ROLE PARA ZOOM • SELECIONE UM PLANETA
         </div>
       </div>
 
@@ -285,9 +338,9 @@ export const StarMap = () => {
               ×
             </button>
 
-            {selectedPlanet.image && (
+            {activePlanetImage && (
               <div className="starMapDetailsImage">
-                <img src={selectedPlanet.image} alt={selectedPlanet.name} />
+                <img src={activePlanetImage} alt={selectedPlanet.name} />
               </div>
             )}
 
@@ -296,6 +349,23 @@ export const StarMap = () => {
               <span className="starMapDetailsSector">{selectedPlanet.sector}</span>
             )}
             {selectedPlanet.description && <p>{selectedPlanet.description}</p>}
+
+            {planetGallery.length > 1 && (
+              <div className="starMapDetailsGallery" aria-label={`Imagens de ${selectedPlanet.name}`}>
+                {planetGallery.map((image, index) => (
+                  <button
+                    className={`starMapDetailsGalleryItem${image === activePlanetImage ? ' active' : ''}`}
+                    type="button"
+                    key={image}
+                    onClick={() => setSelectedPlanetImage(image)}
+                    aria-label={`Exibir imagem ${index + 1} de ${selectedPlanet.name}`}
+                    aria-pressed={image === activePlanetImage}
+                  >
+                    <img src={image} alt="" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {selectedPlanet.notableResidents && (
               <div className="starMapDetailsResidents">

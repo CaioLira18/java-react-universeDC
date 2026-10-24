@@ -39,9 +39,14 @@ O painel administrativo permite criar, editar, ordenar, publicar e remover desta
 
 ## Sagas da DC
 
-O painel administrativo permite cadastrar, editar, ordenar, publicar e remover sagas, com nome, descrição, anos de publicação e banner. Os banners são armazenados no S3 em `sagas/{sagaId}/`. `GET /sagas` lista as sagas ativas; `GET /sagas/admin` lista todas e exige autenticação. O upload autenticado usa `POST /sagas/{id}/media`, com o arquivo no campo `file`.
+O painel administrativo permite cadastrar, editar, ordenar, publicar e remover sagas, com nome, descrição, anos de publicação e banner. Há preenchimentos rápidos para New 52, Universo Absolute e Era de Ouro; as principais HQs do New 52 e da Era de Ouro também podem ser adicionadas em lote. As capas das HQs do lote devem ser enviadas no painel. Os banners são armazenados no S3 em `sagas/{sagaId}/`. `GET /sagas` lista as sagas ativas; `GET /sagas/admin` lista todas e exige autenticação. O upload autenticado usa `POST /sagas/{id}/media`, com o arquivo no campo `file`.
 
 A página `/sagas` exibe as sagas publicadas com banner, período e descrição, consumindo a lista pública `GET /sagas`. Cada saga tem uma página de detalhes em `/sagas/{id}`, com HQs exibidas em ordem de leitura. No painel, cada HQ tem nome, ano de lançamento, descrição e capa; os dados são persistidos como entidades relacionadas na tabela `saga_hqs`, e as capas ficam no S3 em `sagas/{sagaId}/comics/{comicId}/`. O upload autenticado usa `POST /sagas/{id}/comics/{comicId}/media`, com o arquivo no campo `file`.
+
+## Imagens dos planetas
+
+Na aba **Planetas** do painel, cadastre ou edite os dados do planeta, envie a imagem principal e adicione várias imagens à galeria. Todos os arquivos ficam no S3 em `planets/{planetId}/`; o URL da imagem principal é salvo no planeta e os URLs da galeria na tabela `planet_images`. A imagem principal é enviada por `POST /planets/{id}/primary-media`; as imagens da galeria são enviadas por `POST /planets/{id}/media`. Ambos os endpoints recebem o arquivo no campo `file` e exigem autenticação.
+
 O backend aceita arquivos de até 25 MB por upload; o limite da requisição multipart é 26 MB.
 
 No CRUD de personagens, também é possível relacionar o personagem a filmes e séries cadastrados e enviar uma imagem específica para cada aparição. Os arquivos são salvos em `movies/{movieId}/{characterId}/` ou `series/{seriesId}/{characterId}/`. O upload autenticado usa `POST /character-appearances/media?characterId={characterId}&contentId={contentId}`, com o arquivo no campo `file`; a relação é criada em seguida por `POST /character-appearances`.
