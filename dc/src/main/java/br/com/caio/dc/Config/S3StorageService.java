@@ -46,6 +46,10 @@ public class S3StorageService {
     return uploadMedia("movies/" + movieId, file);
   }
 
+  public String uploadHomeSlideMedia(String slideId, MultipartFile file) {
+    return uploadMedia("home-slides/" + slideId, file);
+  }
+
   public String uploadGameCharacterMedia(String gameId, String characterId, MultipartFile file) {
     return uploadMedia("games/" + gameId + "/Personagens/" + characterId, file);
   }

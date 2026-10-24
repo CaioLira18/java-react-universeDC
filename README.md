@@ -32,6 +32,10 @@ No CRUD de séries, o logo pode ser enviado como arquivo e é armazenado no S3 e
 No CRUD de filmes, o pôster enviado é armazenado no S3 em `movies/{movieId}/`. O upload autenticado usa `POST /movies/{id}/media`, com o arquivo no campo `file`. A página do filme exibe somente o pôster, sem logo.
 
 Jogos, filmes e séries têm descrição, um banner estático e uma galeria de imagens. Envie o banner e várias imagens pelos campos de mídia do painel; os arquivos são armazenados na pasta S3 do respectivo item (`games/{id}/`, `movies/{id}/` ou `series/{id}/`). Os URLs da galeria ficam persistidos nas entidades e são exibidos nas páginas individuais. Hibernate atualiza o esquema para incluir os campos e tabelas das galerias.
+
+## Destaques da página inicial
+
+O painel administrativo permite criar, editar, ordenar, publicar e remover destaques da Home. Cada slide pode ter chamada, título, descrição, botão e imagem de fundo, armazenada no S3 em `home-slides/{slideId}/`. O endpoint público `GET /home-slides` retorna apenas os slides ativos; `GET /home-slides/admin` lista todos e exige autenticação. O upload autenticado usa `POST /home-slides/{id}/media`, com o arquivo no campo `file`.
 O backend aceita arquivos de até 25 MB por upload; o limite da requisição multipart é 26 MB.
 
 No CRUD de personagens, também é possível relacionar o personagem a filmes e séries cadastrados e enviar uma imagem específica para cada aparição. Os arquivos são salvos em `movies/{movieId}/{characterId}/` ou `series/{seriesId}/{characterId}/`. O upload autenticado usa `POST /character-appearances/media?characterId={characterId}&contentId={contentId}`, com o arquivo no campo `file`; a relação é criada em seguida por `POST /character-appearances`.

@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:8080';
 
 /*
   Para cadastrar um campo novo, basta adicionar uma linha em "fields".
-  type: 'text' | 'textarea' | 'number' | 'url'
+  type: 'text' | 'textarea' | 'number' | 'url' | 'checkbox'
   O "name" precisa ser igual ao atributo da entidade no Java.
 */
 const RESOURCES = {
@@ -59,19 +59,36 @@ const RESOURCES = {
       { name: 'description', label: 'Descrição', type: 'textarea', required: true },
     ],
   },
+  homeSlides: {
+    label: 'Destaques da Home',
+    singular: 'destaque',
+    path: '/home-slides',
+    listPath: '/home-slides/admin',
+    titleField: 'title',
+    imageField: 'image',
+    fields: [
+      { name: 'title', label: 'Título', type: 'text', required: true },
+      { name: 'subtitle', label: 'Chamada curta', type: 'text' },
+      { name: 'description', label: 'Descrição', type: 'textarea', required: true },
+      { name: 'buttonText', label: 'Texto do botão', type: 'text' },
+      { name: 'buttonLink', label: 'Link do botão', type: 'text' },
+      { name: 'displayOrder', label: 'Ordem de exibição', type: 'number', defaultValue: 0 },
+      { name: 'active', label: 'Publicado na página inicial', type: 'checkbox', defaultValue: true },
+    ],
+  },
 };
 
 const emptyForm = (fields) =>
-  Object.fromEntries(fields.map((f) => [f.name, '']));
+  Object.fromEntries(fields.map((f) => [f.name, f.defaultValue ?? '']));
 
-const SUPERGIRL_PRESET = {
-  name: 'Supergirl',
-  true_name: 'Kara Zor-El',
-  description: 'Heroína kryptoniana e prima do Superman, enviada à Terra para sobreviver à destruição de Krypton.',
-  powers: 'Voo, superforça, supervelocidade, visão de calor, sopro congelante e invulnerabilidade.',
-  planet: 'Krypton',
-  first_appearance: 'Action Comics #252',
-  first_appearance_year: '1959',
+const BATMAN_PRESET = {
+  name: 'Batman',
+  true_name: 'Bruce Wayne',
+  description: 'Vigilante de Gotham City que combate o crime usando inteligência, preparo físico e tecnologia.',
+  powers: 'Sem superpoderes; mestre em artes marciais, estratégia, investigação e uso de equipamentos.',
+  planet: 'Terra',
+  first_appearance: 'Detective Comics #27',
+  first_appearance_year: '1939',
 }
 
 const request = async (method, path, body) => {
@@ -126,6 +143,8 @@ const uploadMovieMedia = (movieId, file) => uploadMedia(`/movies/${movieId}/medi
 const uploadSeriesMedia = (seriesId, file) => uploadMedia(`/series/${seriesId}/media`, file)
 const uploadCatalogMedia = (resourceKey, itemId, file) =>
   uploadMedia(`/${resourceKey}/${itemId}/media`, file)
+const uploadHomeSlideMedia = (slideId, file) =>
+  uploadMedia(`/home-slides/${slideId}/media`, file)
 
 const uploadGameCharacterMedia = (gameId, characterId, file) =>
   uploadMedia(`/games/${gameId}/characters/${characterId}/media`, file)
@@ -144,6 +163,7 @@ export const Admin = () => {
 
   const [resourceKey, setResourceKey] = useState('characters');
   const resource = RESOURCES[resourceKey];
+  const itemsPath = resource.listPath || resource.path;
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -179,14 +199,14 @@ export const Admin = () => {
 
   const loadItems = useCallback(() => {
     setLoading(true);
-    request('GET', resource.path)
+    request('GET', itemsPath)
       .then(setItems)
       .catch((err) => {
         setItems([]);
         notify('error', `${err.message}. A API está rodando em ${API_URL}?`);
       })
       .finally(() => setLoading(false));
-  }, [resource.path]);
+  }, [itemsPath]);
 
   useEffect(() => {
     request('GET', '/games')
@@ -212,7 +232,7 @@ export const Admin = () => {
     setForm(emptyForm(resource.fields));
     setFilter('');
     loadItems();
-  }, [resourceKey, loadItems]);
+  }, [resourceKey, resource.fields, loadItems]);
 
   useEffect(() => {
     if (resourceKey !== 'characters' || !editing) return
@@ -268,9 +288,9 @@ export const Admin = () => {
   const handleChange = (name, value) =>
     setForm((prev) => ({ ...prev, [name]: value }));
 
-  const fillSupergirlPreset = () => {
+  const fillBatmanPreset = () => {
     setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...SUPERGIRL_PRESET })
+    setForm({ ...emptyForm(resource.fields), ...BATMAN_PRESET })
     setCharacterBackgroundFile(null)
     setCharacterVerticalFile(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -282,8 +302,8 @@ export const Admin = () => {
       notify('error', 'Selecione a imagem de fundo do personagem.')
       return
     }
-    if (['games', 'movies', 'series'].includes(resourceKey) && !editing && !bannerMediaFile) {
-      notify('error', 'Selecione o banner estático.')
+    if (['games', 'movies', 'series', 'homeSlides'].includes(resourceKey) && !editing && !bannerMediaFile) {
+      notify('error', resourceKey === 'homeSlides' ? 'Selecione a imagem do destaque.' : 'Selecione o banner estático.')
       return
     }
     setSaving(true);
@@ -293,7 +313,9 @@ export const Admin = () => {
     resource.fields.forEach((f) => {
       const v = form[f.name];
       if (v === '' || v === undefined) clean[f.name] = null;
-      else clean[f.name] = f.type === 'number' ? Number(v) : v;
+      else if (f.type === 'number') clean[f.name] = Number(v);
+      else if (f.type === 'checkbox') clean[f.name] = Boolean(v);
+      else clean[f.name] = v;
     });
 
     let savedItem = null
@@ -361,6 +383,14 @@ export const Admin = () => {
         })
       }
 
+      if (resourceKey === 'homeSlides' && bannerMediaFile) {
+        const { url } = await uploadHomeSlideMedia(savedItem.id, bannerMediaFile)
+        savedItem = await request('PUT', `/home-slides/${savedItem.id}`, {
+          ...savedItem,
+          image: url,
+        })
+      }
+
       if (
         ['games', 'movies', 'series'].includes(resourceKey) &&
         (bannerMediaFile || galleryMediaFiles.length > 0 || galleryImagesToRemove.length > 0)
@@ -392,7 +422,7 @@ export const Admin = () => {
       cancelEdit();
       loadItems();
     } catch (err) {
-      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'characters')) {
+      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'homeSlides' || resourceKey === 'characters')) {
         setEditing(savedItem)
         if (!editing) {
           const values = {}
@@ -565,13 +595,15 @@ export const Admin = () => {
           </h2>
 
           {resourceKey === 'characters' && !editing && (
-            <button
-              type="button"
-              className="admin__btn admin__btn--preset"
-              onClick={fillSupergirlPreset}
-            >
-              Preencher dados da Supergirl
-            </button>
+            <div className="admin__preset-actions">
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillBatmanPreset}
+              >
+                Preencher dados do Batman
+              </button>
+            </div>
           )}
 
           {resource.fields.map((f) => (
@@ -585,6 +617,12 @@ export const Admin = () => {
                   value={form[f.name] ?? ''}
                   required={f.required}
                   onChange={(e) => handleChange(f.name, e.target.value)}
+                />
+              ) : f.type === 'checkbox' ? (
+                <input
+                  type="checkbox"
+                  checked={Boolean(form[f.name])}
+                  onChange={(e) => handleChange(f.name, e.target.checked)}
                 />
               ) : (
                 <input
@@ -749,6 +787,26 @@ export const Admin = () => {
                 </ul>
               )}
             </>
+          )}
+
+          {resourceKey === 'homeSlides' && (
+            <label className="admin__field">
+              <span className="admin__label">Imagem de fundo{!editing && ' *'}</span>
+              <input
+                key={bannerMediaFile?.name || 'home-slide-image-empty'}
+                type="file"
+                accept="image/*"
+                required={!editing && !bannerMediaFile}
+                onChange={(event) => setBannerMediaFile(event.target.files?.[0] || null)}
+              />
+              <span className="admin__file-name">
+                {bannerMediaFile
+                  ? `${bannerMediaFile.name} (${(bannerMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
+                  : editing?.image
+                    ? 'Imagem atual mantida se nenhum arquivo for escolhido'
+                    : 'Obrigatória no cadastro — limite de 25 MB'}
+              </span>
+            </label>
           )}
 
           {resourceKey === 'characters' && editing && (

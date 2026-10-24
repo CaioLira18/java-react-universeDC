@@ -51,6 +51,110 @@
   padding: 140px 24px 60px;
 }
 
+.hero--featured {
+  position: relative;
+  min-height: clamp(600px, 42vw, 720px);
+  height: auto;
+  box-sizing: border-box;
+  justify-content: center;
+  padding: 160px 24px 100px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ink);
+}
+
+.hero__slide-background,
+.hero__slide-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__slide-background {
+  z-index: -2;
+  background-position: center;
+  background-size: cover;
+  animation: heroSlideFade 0.4s ease;
+}
+
+.hero__slide-overlay {
+  z-index: -1;
+  background:
+    radial-gradient(rgba(10, 12, 28, 0.25) 1.5px, transparent 1.6px) 0 0 / 8px 8px,
+    linear-gradient(180deg, rgba(10, 12, 28, 0.3), rgba(10, 12, 28, 0.9));
+}
+
+.hero__slide-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero__title--single {
+  max-width: 14ch;
+  overflow-wrap: anywhere;
+}
+
+.hero__slide-controls {
+  position: absolute;
+  right: 24px;
+  bottom: 22px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.hero__slide-controls > button {
+  padding: 6px 14px;
+  color: var(--paper);
+  background: rgba(10, 12, 28, 0.8);
+  font-family: var(--font-comic);
+  font-size: 18px;
+  border: 2px solid var(--hero-yellow);
+  cursor: pointer;
+}
+
+.hero__slide-controls > button:hover,
+.hero__slide-controls > button:focus-visible {
+  color: var(--ink);
+  background: var(--hero-yellow);
+}
+
+.hero__slide-indicators {
+  display: flex;
+  gap: 10px;
+}
+
+.hero__slide-indicators button {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.hero__slide-indicators button.active {
+  background: var(--hero-yellow);
+  box-shadow: 0 0 0 2px var(--hero-red);
+}
+
+.hero__slide-controls button:focus-visible {
+  outline: 3px solid var(--paper);
+  outline-offset: 3px;
+}
+
+.hero--featured .hero__title-line {
+  animation: slam 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes heroSlideFade {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
 .hero__bubble {
   position: relative;
   margin: 0 0 28px;
@@ -152,11 +256,15 @@
 @media (prefers-reduced-motion: reduce) {
   .hero__title-line { animation: none; }
   .hero__cta { transition: none; }
+  .hero__slide-background { animation: none; }
 }
 
 @media (max-width: 600px) {
   .hero { padding-top: 110px; }
   .hero__subtitle { font-size: 17px; }
+  .hero--featured { min-height: 620px; padding: 140px 18px 100px; }
+  .hero__slide-controls { gap: 10px; }
+  .hero__slide-controls > button { padding: 5px 9px; font-size: 16px; }
 }
 
 .space { height: 80px; }
