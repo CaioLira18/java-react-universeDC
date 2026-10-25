@@ -179,6 +179,15 @@
 
 .admin__field textarea { resize: vertical; }
 
+.admin__field select[multiple] {
+  min-height: 130px;
+  padding: 8px;
+}
+
+.admin__field select[multiple] option {
+  padding: 6px 8px;
+}
+
 .admin__file-name {
   color: rgba(255, 246, 220, 0.75);
   font-size: 13px;
@@ -493,6 +502,11 @@
 }
 
 .admin__planet-preset {
+  flex: 1 1 100%;
+  margin-bottom: 0;
+}
+
+.admin__group-preset {
   flex: 1 1 100%;
   margin-bottom: 0;
 }

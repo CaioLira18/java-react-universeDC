@@ -37,7 +37,9 @@ public class SecurityConfig {
             .requestMatchers("/users/login", "/users/register", "/users/*/media").permitAll()
             .requestMatchers(HttpMethod.GET, "/home-slides").permitAll()
             .requestMatchers(HttpMethod.GET, "/sagas/admin").authenticated()
+            .requestMatchers(HttpMethod.GET, "/groups/admin").authenticated()
             .requestMatchers(HttpMethod.GET, "/sagas", "/sagas/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/groups", "/groups/*").permitAll()
             .requestMatchers(HttpMethod.GET,
                 "/games",
                 "/characters/**",

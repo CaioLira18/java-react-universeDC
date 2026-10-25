@@ -94,6 +94,25 @@ const RESOURCES = {
       { name: 'active', label: 'Publicado', type: 'checkbox', defaultValue: true },
     ],
   },
+  groups: {
+    label: 'Equipes',
+    singular: 'equipe',
+    path: '/groups',
+    listPath: '/groups/admin',
+    titleField: 'name',
+    imageField: 'banner',
+    fields: [
+      { name: 'name', label: 'Nome da equipe', type: 'text', required: true },
+      { name: 'description', label: 'Descrição', type: 'textarea' },
+      { name: 'groupType', label: 'Tipo de equipe', type: 'text' },
+      { name: 'universe', label: 'Universo ou continuidade', type: 'text' },
+      { name: 'base', label: 'Base de operações', type: 'text' },
+      { name: 'foundedYear', label: 'Ano de formação', type: 'number' },
+      { name: 'firstAppearance', label: 'Primeira aparição', type: 'text' },
+      { name: 'displayOrder', label: 'Ordem de exibição', type: 'number', defaultValue: 0 },
+      { name: 'active', label: 'Publicada', type: 'checkbox', defaultValue: true },
+    ],
+  },
   planets: {
     label: 'Planetas',
     singular: 'planeta',
@@ -251,6 +270,87 @@ const CHARACTER_PRESETS = {
     planet: 'Terra',
     first_appearance: 'Batman #1',
     first_appearance_year: '1940',
+  },
+  johnConstantine: {
+    name: 'John Constantine',
+    true_name: 'John Constantine',
+    description: 'Detetive do oculto e mago inglês que enfrenta ameaças sobrenaturais usando conhecimento, astúcia e métodos pouco convencionais.',
+    powers: 'Conhecimento avançado de ocultismo, rituais e exorcismo; habilidade em investigação, ilusionismo e manipulação.',
+    planet: 'Terra',
+    first_appearance: 'The Saga of the Swamp Thing #37',
+    first_appearance_year: '1985',
+  },
+  etrigan: {
+    name: 'Etrigan',
+    true_name: 'Jason Blood',
+    description: 'Demônio ligado por Merlin ao cavaleiro Jason Blood, alternando entre a vida humana e uma poderosa forma demoníaca.',
+    powers: 'Força e resistência sobre-humanas, fogo infernal, longevidade e conhecimento místico.',
+    planet: 'Inferno',
+    first_appearance: 'The Demon #1',
+    first_appearance_year: '1972',
+  },
+  swampThing: {
+    name: 'Monstro do Pântano',
+    true_name: 'Alec Holland',
+    description: 'Guardião do Verde, força elemental conectada à vida vegetal e protetor do equilíbrio natural.',
+    powers: 'Controle e regeneração de matéria vegetal, conexão com o Verde, mudança de forma e consciência distribuída pela vegetação.',
+    planet: 'Terra',
+    first_appearance: 'House of Secrets #92',
+    first_appearance_year: '1971',
+  },
+  deadman: {
+    name: 'Desafiador',
+    true_name: 'Boston Brand',
+    description: 'Artista de circo assassinado que retorna como espírito e ajuda os vivos enquanto busca justiça.',
+    powers: 'Como espírito, pode possuir temporariamente pessoas vivas e atravessar objetos.',
+    planet: 'Terra',
+    first_appearance: 'Strange Adventures #205',
+    first_appearance_year: '1967',
+  },
+  zatanna: {
+    name: 'Zatanna',
+    true_name: 'Zatanna Zatara',
+    description: 'Mágica de palco e poderosa feiticeira que protege o mundo de ameaças místicas.',
+    powers: 'Magia conjurada principalmente ao pronunciar palavras ao contrário; grande conhecimento de artes arcanas.',
+    planet: 'Terra',
+    first_appearance: 'Hawkman #4',
+    first_appearance_year: '1964',
+  },
+  doctorFate: {
+    name: 'Doutor Destino',
+    true_name: 'Kent Nelson',
+    description: 'Um dos principais usuários de magia da Terra, ligado ao elmo de Nabu e à antiga Ordem dos Senhores da Ordem.',
+    powers: 'Magia poderosa, voo, proteção mística, teletransporte e conhecimento arcano concedidos pelo elmo de Nabu.',
+    planet: 'Terra',
+    first_appearance: 'More Fun Comics #55',
+    first_appearance_year: '1940',
+  },
+  madameXanadu: {
+    name: 'Madame Xanadu',
+    true_name: 'Nimue Inwudu',
+    description: 'Vidente e conselheira mística que auxilia heróis em conflitos envolvendo magia e forças sobrenaturais.',
+    powers: 'Clarividência, leitura de tarô, longevidade e conhecimento de magia e ocultismo.',
+    planet: 'Terra',
+    first_appearance: 'Doorway to Nightmare #1',
+    first_appearance_year: '1978',
+  },
+  frankenstein: {
+    name: 'Frankenstein',
+    true_name: 'Frankenstein',
+    description: 'Criatura reanimada de grande longevidade que atua como guerreiro e investigador de ameaças sobrenaturais.',
+    powers: 'Força e resistência sobre-humanas, longevidade e experiência em combate.',
+    planet: 'Terra',
+    first_appearance: 'Frankenstein #1',
+    first_appearance_year: '1973',
+  },
+  detectiveChimp: {
+    name: 'Detetive Chimp',
+    true_name: 'Bobo T. Chimpanzee',
+    description: 'Chimpanzé inteligente e detetive excepcional, frequentemente envolvido em mistérios e casos sobrenaturais.',
+    powers: 'Inteligência extraordinária, habilidades de investigação e domínio de diversos idiomas.',
+    planet: 'Terra',
+    first_appearance: 'The Adventures of Rex the Wonder Dog #4',
+    first_appearance_year: '1952',
   },
 }
 
@@ -760,6 +860,75 @@ const DC_PLANET_PRESETS = [
   },
 ]
 
+const DC_GROUP_PRESETS = [
+  {
+    name: 'Liga da Justiça',
+    description: 'A principal aliança de heróis da Terra, reunida para proteger o planeta de ameaças que nenhum integrante conseguiria enfrentar sozinho.',
+    groupType: 'Equipe de super-heróis',
+    universe: 'Universo DC',
+    base: 'Sala de Justiça / Torre de Vigilância',
+    foundedYear: '1960',
+    firstAppearance: 'The Brave and the Bold #28',
+    displayOrder: '1',
+    active: true,
+    memberAliases: [
+      ['Superman', 'Clark Kent'],
+      ['Batman', 'Bruce Wayne'],
+      ['Mulher-Maravilha', 'Wonder Woman', 'Diana'],
+      ['Flash', 'Barry Allen'],
+      ['Lanterna Verde', 'Green Lantern', 'Hal Jordan'],
+      ['Aquaman', 'Arthur Curry'],
+      ['Ciborgue', 'Cyborg', 'Victor Stone'],
+    ],
+  },
+  {
+    name: 'Jovens Titãs',
+    description: 'Equipe de jovens heróis que une diferentes gerações e poderes para proteger o mundo, crescer como indivíduos e provar seu valor ao lado dos grandes heróis.',
+    groupType: 'Equipe de jovens super-heróis',
+    universe: 'Universo DC',
+    base: 'Torre dos Titãs',
+    foundedYear: '1964',
+    firstAppearance: 'The Brave and the Bold #54',
+    displayOrder: '2',
+    active: true,
+    memberAliases: [
+      ['Robin', 'Dick Grayson'],
+      ['Mutano', 'Beast Boy', 'Garfield Logan'],
+      ['Ravena', 'Raven', 'Rachel Roth'],
+      ['Estelar', 'Starfire', 'Koriand’r', "Koriand'r"],
+      ['Ciborgue', 'Cyborg', 'Victor Stone'],
+    ],
+  },
+  {
+    name: 'Liga da Justiça Sombria',
+    description: 'Grupo especializado em ameaças mágicas e sobrenaturais, reunindo especialistas e seres extraordinários para defender a realidade de perigos ocultos.',
+    groupType: 'Equipe de heróis sobrenaturais',
+    universe: 'Universo DC',
+    base: 'Casa dos Mistérios',
+    foundedYear: '2011',
+    firstAppearance: 'Justice League Dark #1',
+    displayOrder: '3',
+    active: true,
+    memberAliases: [
+      ['John Constantine', 'Constantine'],
+      ['Etrigan', 'Jason Blood'],
+      ['Zatanna', 'Zatanna Zatara'],
+      ['Desafiador', 'Deadman', 'Boston Brand'],
+      ['Monstro do Pântano', 'Swamp Thing', 'Alec Holland'],
+      ['Madame Xanadu', 'Nimue Inwudu'],
+      ['Doutor Destino', 'Doctor Fate', 'Kent Nelson'],
+      ['Frankenstein', 'Victor Frankenstein'],
+      ['Detetive Chimp', 'Detective Chimp', 'Bobo T. Chimpanzee'],
+    ],
+  },
+]
+
+const normalizeCharacterName = (name) => String(name || '')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLocaleLowerCase('pt-BR')
+  .replace(/[^a-z0-9]/g, '')
+
 const request = async (method, path, body) => {
   let auth = null
   try {
@@ -843,6 +1012,8 @@ export const Admin = () => {
   const [games, setGames] = useState([])
   const [movies, setMovies] = useState([])
   const [series, setSeries] = useState([])
+  const [availableCharacters, setAvailableCharacters] = useState([])
+  const [selectedCharacterIds, setSelectedCharacterIds] = useState([])
   const [selectedGameId, setSelectedGameId] = useState('')
   const [gameCharacterImage, setGameCharacterImage] = useState('')
   const [gameCharacterImageFile, setGameCharacterImageFile] = useState(null)
@@ -862,6 +1033,7 @@ export const Admin = () => {
   const [selectedSeriesPreset, setSelectedSeriesPreset] = useState(0)
   const [selectedGamePreset, setSelectedGamePreset] = useState(0)
   const [selectedPlanetPreset, setSelectedPlanetPreset] = useState(0)
+  const [selectedGroupPreset, setSelectedGroupPreset] = useState(0)
   const [linkingGame, setLinkingGame] = useState(false)
   const [appearanceType, setAppearanceType] = useState('movie')
   const [selectedContentId, setSelectedContentId] = useState('')
@@ -903,12 +1075,19 @@ export const Admin = () => {
       .catch((err) => notify('error', `Não foi possível carregar filmes e séries: ${err.message}`))
   }, []);
 
+  useEffect(() => {
+    request('GET', '/characters')
+      .then(setAvailableCharacters)
+      .catch((err) => notify('error', `Não foi possível carregar os personagens para as equipes: ${err.message}`))
+  }, []);
+
   // trocou de aba: limpa o formulário e recarrega a lista
   useEffect(() => {
     setEditing(null);
     setForm(emptyForm(resource.fields));
     setSagaComics([]);
     setOpenSagaComicIndex(null);
+    setSelectedCharacterIds([]);
     setFilter('');
     loadItems();
   }, [resourceKey, resource.fields, loadItems]);
@@ -945,6 +1124,9 @@ export const Admin = () => {
       values[f.name] = item[f.name] ?? '';
     });
     setForm(values);
+    setSelectedCharacterIds(resourceKey === 'groups'
+      ? (item.characters || []).map((character) => character.id)
+      : [])
     setSagaComics(resourceKey === 'sagas'
       ? (item.comics || []).map((comic) => (
           typeof comic === 'string'
@@ -961,6 +1143,7 @@ export const Admin = () => {
     setForm(emptyForm(resource.fields));
     setSagaComics([]);
     setOpenSagaComicIndex(null)
+    setSelectedCharacterIds([])
     setGameMediaFile(null)
     setMovieMediaFile(null)
     setSeriesMediaFile(null)
@@ -1028,6 +1211,35 @@ export const Admin = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const fillGroupPreset = () => {
+    const { memberAliases, ...preset } = DC_GROUP_PRESETS[selectedGroupPreset]
+    const matches = memberAliases.map((aliases) => {
+      const normalizedAliases = aliases.map(normalizeCharacterName)
+      return {
+        name: aliases[0],
+        character: availableCharacters.find((character) => (
+          normalizedAliases.includes(normalizeCharacterName(character.name))
+          || normalizedAliases.includes(normalizeCharacterName(character.true_name))
+        )),
+      }
+    })
+
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...preset })
+    setSelectedCharacterIds(matches
+      .flatMap(({ character }) => character ? [character.id] : []))
+    setBannerMediaFile(null)
+    const missingMembers = matches
+      .filter(({ character }) => !character)
+      .map(({ name }) => name)
+    if (missingMembers.length > 0) {
+      notify('error', `Não encontrei estes personagens cadastrados; você pode selecioná-los manualmente: ${missingMembers.join(', ')}.`)
+    } else {
+      notify('ok', 'Dados da equipe e integrantes disponíveis preenchidos. Envie o banner e revise antes de salvar.')
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const fillSagaPreset = (preset) => {
     setEditing(null)
     setForm({ ...emptyForm(resource.fields), ...SAGA_PRESETS[preset] })
@@ -1043,7 +1255,7 @@ export const Admin = () => {
       notify('error', 'Selecione a imagem de fundo do personagem.')
       return
     }
-    if (['games', 'movies', 'series', 'homeSlides', 'sagas'].includes(resourceKey) && !editing && !bannerMediaFile) {
+    if (['games', 'movies', 'series', 'homeSlides', 'sagas', 'groups'].includes(resourceKey) && !editing && !bannerMediaFile) {
       notify('error', resourceKey === 'homeSlides' ? 'Selecione a imagem do destaque.' : 'Selecione o banner estático.')
       return
     }
@@ -1109,6 +1321,13 @@ export const Admin = () => {
               }
           : resourceKey === 'sagas'
             ? { ...editing, ...clean, comics: comicPayload }
+          : resourceKey === 'groups'
+            ? {
+                ...editing,
+                ...clean,
+                characters: selectedCharacterIds.map((id) => ({ id })),
+                banner: editing.banner,
+              }
           : resourceKey === 'planets'
             ? {
                 ...editing,
@@ -1120,9 +1339,11 @@ export const Admin = () => {
       } else {
         savedItem = await request('POST', resource.path, resourceKey === 'sagas'
           ? { ...clean, comics: comicPayload }
-          : resourceKey === 'planets'
-            ? { ...clean, images: [] }
-            : clean);
+          : resourceKey === 'groups'
+            ? { ...clean, characters: selectedCharacterIds.map((id) => ({ id })) }
+            : resourceKey === 'planets'
+              ? { ...clean, images: [] }
+              : clean);
       }
 
       if (resourceKey === 'games' && gameMediaFile) {
@@ -1159,6 +1380,14 @@ export const Admin = () => {
       }
 
       if (resourceKey === 'sagas' && bannerMediaFile) {
+        const { url } = await uploadCatalogMedia(resourceKey, savedItem.id, bannerMediaFile)
+        savedItem = await request('PUT', `${resource.path}/${savedItem.id}`, {
+          ...savedItem,
+          banner: url,
+        })
+      }
+
+      if (resourceKey === 'groups' && bannerMediaFile) {
         const { url } = await uploadCatalogMedia(resourceKey, savedItem.id, bannerMediaFile)
         savedItem = await request('PUT', `${resource.path}/${savedItem.id}`, {
           ...savedItem,
@@ -1223,7 +1452,7 @@ export const Admin = () => {
       cancelEdit();
       loadItems();
     } catch (err) {
-      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'characters' || resourceKey === 'planets')) {
+      if (savedItem?.id && (resourceKey === 'games' || resourceKey === 'movies' || resourceKey === 'series' || resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'groups' || resourceKey === 'characters' || resourceKey === 'planets')) {
         setEditing(savedItem)
         if (!editing) {
           const values = {}
@@ -1573,6 +1802,29 @@ export const Admin = () => {
             </div>
           )}
 
+          {resourceKey === 'groups' && !editing && (
+            <div className="admin__preset-actions">
+              <label className="admin__field admin__group-preset">
+                <span className="admin__label">Equipes principais da DC</span>
+                <select
+                  value={selectedGroupPreset}
+                  onChange={(event) => setSelectedGroupPreset(Number(event.target.value))}
+                >
+                  {DC_GROUP_PRESETS.map((group, index) => (
+                    <option key={group.name} value={index}>{group.name}</option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillGroupPreset}
+              >
+                Preencher dados da equipe
+              </button>
+            </div>
+          )}
+
           {resource.fields.map((f) => (
             <label key={f.name} className="admin__field">
               <span className="admin__label">
@@ -1601,6 +1853,29 @@ export const Admin = () => {
               )}
             </label>
           ))}
+
+          {resourceKey === 'groups' && (
+            <label className="admin__field">
+              <span className="admin__label">Personagens da equipe</span>
+              <select
+                multiple
+                size={Math.min(Math.max(availableCharacters.length, 4), 8)}
+                value={selectedCharacterIds}
+                onChange={(event) => setSelectedCharacterIds(
+                  Array.from(event.target.selectedOptions, (option) => option.value)
+                )}
+                aria-describedby="group-character-help"
+              >
+                {availableCharacters.map((character) => (
+                  <option key={character.id} value={character.id}>{character.name}</option>
+                ))}
+              </select>
+              <span className="admin__file-name" id="group-character-help">
+                Selecione um ou mais personagens. Use Ctrl (Windows) ou Cmd (Mac) para múltiplas seleções no computador.
+                {selectedCharacterIds.length > 0 && ` ${selectedCharacterIds.length} selecionado(s).`}
+              </span>
+            </label>
+          )}
 
           {resourceKey === 'planets' && (
             <section className="admin__game-link">
@@ -1967,9 +2242,16 @@ export const Admin = () => {
             </>
           )}
 
-          {(resourceKey === 'homeSlides' || resourceKey === 'sagas') && (
+          {(resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'groups') && (
             <label className="admin__field">
-              <span className="admin__label">{resourceKey === 'homeSlides' ? 'Imagem de fundo' : 'Banner da saga'}{!editing && ' *'}</span>
+              <span className="admin__label">
+                {resourceKey === 'homeSlides'
+                  ? 'Imagem de fundo'
+                  : resourceKey === 'groups'
+                    ? 'Banner da equipe'
+                    : 'Banner da saga'}
+                {!editing && ' *'}
+              </span>
               <input
                 key={bannerMediaFile?.name || 'home-slide-image-empty'}
                 type="file"
@@ -1981,7 +2263,7 @@ export const Admin = () => {
                 {bannerMediaFile
                   ? `${bannerMediaFile.name} (${(bannerMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
                   : editing?.[resource.imageField]
-                    ? `${resourceKey === 'sagas' ? 'Banner' : 'Imagem'} atual mantida se nenhum arquivo for escolhido`
+                    ? `${resourceKey === 'homeSlides' ? 'Imagem' : 'Banner'} atual mantido se nenhum arquivo for escolhido`
                     : 'Obrigatória no cadastro — limite de 25 MB'}
               </span>
             </label>

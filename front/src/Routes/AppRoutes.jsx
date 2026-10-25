@@ -14,6 +14,8 @@ import CatalogPage from '../Pages/Catalog/CatalogPage'
 import { GameDetail, SeriesDetail } from '../Pages/Catalog/CatalogDetail'
 import SagasPage from '../Pages/Sagas/SagasPage'
 import SagaDetail from '../Pages/Sagas/SagaDetail'
+import GroupsPage from '../Pages/Groups/GroupsPage'
+import GroupDetail from '../Pages/Groups/GroupDetail'
 
 export const AppRoutes = () => {
   const { pathname } = useLocation()
@@ -28,6 +30,8 @@ export const AppRoutes = () => {
         <Route path="/catalog" element={<CatalogPage />} />
         <Route path="/sagas" element={<SagasPage />} />
         <Route path="/sagas/:id" element={<SagaDetail />} />
+        <Route path="/groups" element={<GroupsPage />} />
+        <Route path="/groups/:id" element={<GroupDetail />} />
         <Route path="/planets" element={<StarMap />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/movies/:id" element={<Movie />} />

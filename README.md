@@ -43,6 +43,12 @@ O painel administrativo permite cadastrar, editar, ordenar, publicar e remover s
 
 A página `/sagas` exibe as sagas publicadas com banner, período e descrição, consumindo a lista pública `GET /sagas`. Cada saga tem uma página de detalhes em `/sagas/{id}`, com HQs exibidas em ordem de leitura. No painel, cada HQ tem nome, ano de lançamento, descrição e capa; os dados são persistidos como entidades relacionadas na tabela `saga_hqs`, e as capas ficam no S3 em `sagas/{sagaId}/comics/{comicId}/`. O upload autenticado usa `POST /sagas/{id}/comics/{comicId}/media`, com o arquivo no campo `file`.
 
+## Equipes de heróis
+
+Na aba **Equipes** do painel, cadastre e edite equipes como a Liga da Justiça e os Jovens Titãs. Cada registro inclui descrição, tipo, universo, base de operações, ano de formação, primeira aparição, ordem de exibição, publicação, banner e personagens selecionados entre os já cadastrados. A relação com os personagens é persistida em `hero_group_characters`; os banners ficam em `groups/{groupId}/` no S3.
+
+`GET /groups` lista equipes publicadas e `GET /groups/{id}` retorna os detalhes públicos, incluindo seus integrantes. `GET /groups/admin` lista todas as equipes e exige autenticação. Criar, editar, excluir e enviar banners também exigem autenticação; o upload usa `POST /groups/{id}/media` com o arquivo no campo `file`. No site, `/groups` mostra a listagem geral e `/groups/{id}` os detalhes da equipe.
+
 ## Imagens dos planetas
 
 Na aba **Planetas** do painel, cadastre ou edite os dados do planeta, envie a imagem principal e adicione várias imagens à galeria. Todos os arquivos ficam no S3 em `planets/{planetId}/`; o URL da imagem principal é salvo no planeta e os URLs da galeria na tabela `planet_images`. A imagem principal é enviada por `POST /planets/{id}/primary-media`; as imagens da galeria são enviadas por `POST /planets/{id}/media`. Ambos os endpoints recebem o arquivo no campo `file` e exigem autenticação.

@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: '/characters', label: 'Personagens' },
   { to: '/catalog', label: 'Catálogo' },
   { to: '/sagas', label: 'Sagas' },
+  { to: '/groups', label: 'Equipes' },
   { to: '/planets', label: 'Planetas' },
 ]
 

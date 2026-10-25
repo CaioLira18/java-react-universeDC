@@ -54,6 +54,10 @@ public class S3StorageService {
     return uploadMedia("sagas/" + sagaId, file);
   }
 
+  public String uploadGroupMedia(String groupId, MultipartFile file) {
+    return uploadMedia("groups/" + groupId, file);
+  }
+
   public String uploadSagaComicMedia(String sagaId, String comicId, MultipartFile file) {
     return uploadMedia("sagas/" + sagaId + "/comics/" + comicId, file);
   }
