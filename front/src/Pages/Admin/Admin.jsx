@@ -35,6 +35,8 @@ const RESOURCES = {
     fields: [
       { name: 'title', label: 'Título', type: 'text', required: true },
       { name: 'description', label: 'Descrição', type: 'textarea', required: true },
+      { name: 'year', label: 'Ano de lançamento', type: 'text' },
+      { name: 'duration', label: 'Duração', type: 'text' },
     ],
   },
   series: {
@@ -123,15 +125,233 @@ const newSagaComic = () => ({
   file: null,
 })
 
-const BATMAN_PRESET = {
-  name: 'Batman',
-  true_name: 'Bruce Wayne',
-  description: 'Vigilante de Gotham City que combate o crime usando inteligência, preparo físico e tecnologia.',
-  powers: 'Sem superpoderes; mestre em artes marciais, estratégia, investigação e uso de equipamentos.',
-  planet: 'Terra',
-  first_appearance: 'Detective Comics #27',
-  first_appearance_year: '1939',
+const CHARACTER_PRESETS = {
+  superman: {
+    name: 'Superman',
+    true_name: 'Clark Kent (Kal-El)',
+    description: 'Último filho de Krypton, criado em Smallville e protetor de Metrópolis.',
+    powers: 'Superforça, voo, supervelocidade, visão de calor, visão de raio X e invulnerabilidade.',
+    planet: 'Krypton',
+    first_appearance: 'Action Comics #1',
+    first_appearance_year: '1938',
+  },
+  batman: {
+    name: 'Batman',
+    true_name: 'Bruce Wayne',
+    description: 'Vigilante de Gotham City que combate o crime usando inteligência, preparo físico e tecnologia.',
+    powers: 'Sem superpoderes; mestre em artes marciais, estratégia, investigação e uso de equipamentos.',
+    planet: 'Terra',
+    first_appearance: 'Detective Comics #27',
+    first_appearance_year: '1939',
+  },
+  beastBoy: {
+    name: 'Mutano',
+    true_name: 'Garfield Logan',
+    description: 'Herói e integrante dos Jovens Titãs, conhecido por seu humor e espírito de equipe.',
+    powers: 'Pode se transformar em diferentes animais e assumir as habilidades físicas deles.',
+    planet: 'Terra',
+    first_appearance: 'Doom Patrol #99',
+    first_appearance_year: '1965',
+  },
+  aquaman: {
+    name: 'Aquaman',
+    true_name: 'Arthur Curry',
+    description: 'Rei da Atlântida e protetor dos oceanos, ligado tanto ao mundo submarino quanto à superfície.',
+    powers: 'Respiração subaquática, força e resistência ampliadas, natação em alta velocidade e comunicação com a vida marinha.',
+    planet: 'Terra',
+    first_appearance: 'More Fun Comics #73',
+    first_appearance_year: '1941',
+  },
+  mera: {
+    name: 'Mera',
+    true_name: 'Mera',
+    description: 'Guerreira de Xebel, rainha da Atlântida e aliada de Aquaman.',
+    powers: 'Hidrocinésia: controla e molda a água, além de possuir força e resistência sobre-humanas.',
+    planet: 'Xebel',
+    first_appearance: 'Aquaman #11',
+    first_appearance_year: '1963',
+  },
+  flash: {
+    name: 'Flash',
+    true_name: 'Barry Allen',
+    description: 'Cientista forense de Central City que usa seus poderes para proteger pessoas e combater o crime.',
+    powers: 'Supervelocidade, reflexos ampliados e conexão com a Força de Aceleração.',
+    planet: 'Terra',
+    first_appearance: 'Showcase #4',
+    first_appearance_year: '1956',
+  },
+  wonderWoman: {
+    name: 'Mulher-Maravilha',
+    true_name: 'Diana de Themyscira',
+    description: 'Princesa amazona e embaixadora de Themyscira, dedicada à justiça e à paz.',
+    powers: 'Força, velocidade e resistência sobre-humanas; grande habilidade de combate e uso do laço da verdade.',
+    planet: 'Terra',
+    first_appearance: 'All Star Comics #8',
+    first_appearance_year: '1941',
+  },
+  greenLantern: {
+    name: 'Lanterna Verde',
+    true_name: 'Hal Jordan',
+    description: 'Piloto terrestre escolhido para integrar a Tropa dos Lanternas Verdes.',
+    powers: 'Anel de poder que cria construções de energia e permite voo e proteção, alimentado pela força de vontade.',
+    planet: 'Terra',
+    first_appearance: 'Showcase #22',
+    first_appearance_year: '1959',
+  },
+  cyborg: {
+    name: 'Ciborgue',
+    true_name: 'Victor Stone',
+    description: 'Herói cuja vida mudou após um acidente que o deixou integrado a tecnologia avançada.',
+    powers: 'Força ampliada, sistemas tecnológicos integrados, interface com computadores e armamentos cibernéticos.',
+    planet: 'Terra',
+    first_appearance: 'DC Comics Presents #26',
+    first_appearance_year: '1980',
+  },
+  raven: {
+    name: 'Ravena',
+    true_name: 'Rachel Roth',
+    description: 'Empata reservada e integrante dos Jovens Titãs, que busca controlar sua herança mística.',
+    powers: 'Empatia, telecinese, projeção astral e magia.',
+    planet: 'Terra',
+    first_appearance: 'DC Comics Presents #26',
+    first_appearance_year: '1980',
+  },
+  starfire: {
+    name: 'Estelar',
+    true_name: "Koriand'r",
+    description: 'Princesa de Tamaran e integrante dos Jovens Titãs, conhecida por sua coragem e energia.',
+    powers: 'Voo, força sobre-humana e rajadas de energia estelar.',
+    planet: 'Tamaran',
+    first_appearance: 'DC Comics Presents #26',
+    first_appearance_year: '1980',
+  },
+  greenArrow: {
+    name: 'Arqueiro Verde',
+    true_name: 'Oliver Queen',
+    description: 'Herói de Star City que usa suas habilidades de arqueiro para defender sua comunidade.',
+    powers: 'Sem superpoderes; arqueiro de elite, estrategista e combatente experiente.',
+    planet: 'Terra',
+    first_appearance: 'More Fun Comics #73',
+    first_appearance_year: '1941',
+  },
+  nightwing: {
+    name: 'Asa Noturna',
+    true_name: 'Dick Grayson',
+    description: 'Herói de Blüdhaven, antigo parceiro de Batman e líder experiente dos Jovens Titãs.',
+    powers: 'Sem superpoderes; acrobata excepcional, estrategista e especialista em artes marciais.',
+    planet: 'Terra',
+    first_appearance: 'Tales of the Teen Titans #44',
+    first_appearance_year: '1984',
+  },
+  joker: {
+    name: 'Coringa',
+    true_name: 'Desconhecido',
+    description: 'Criminoso imprevisível de Gotham City e um dos adversários mais conhecidos de Batman.',
+    powers: 'Sem superpoderes; especialista em crimes elaborados, manipulação e uso de toxinas.',
+    planet: 'Terra',
+    first_appearance: 'Batman #1',
+    first_appearance_year: '1940',
+  },
 }
+
+const DCAMU_MOVIE_PRESETS = [
+  {
+    title: 'Justice League: The Flashpoint Paradox',
+    year: '2013',
+    duration: '81 min',
+    description: 'Flash altera o passado ao tentar salvar sua família e desperta uma realidade devastada por uma guerra entre Atlântida e Themyscira.',
+  },
+  {
+    title: 'Justice League: War',
+    year: '2014',
+    duration: '79 min',
+    description: 'Uma invasão alienígena reúne Batman, Superman, Mulher-Maravilha, Flash, Lanterna Verde, Shazam e Ciborgue na formação da Liga da Justiça.',
+  },
+  {
+    title: 'Son of Batman',
+    year: '2014',
+    duration: '74 min',
+    description: 'Batman descobre a existência de Damian Wayne e precisa lidar com o filho enquanto enfrenta uma disputa ligada à Liga dos Assassinos.',
+  },
+  {
+    title: 'Justice League: Throne of Atlantis',
+    year: '2015',
+    duration: '72 min',
+    description: 'A Liga da Justiça enfrenta uma ameaça vinda de Atlântida enquanto Arthur Curry descobre sua ligação com o reino submarino.',
+  },
+  {
+    title: 'Batman vs. Robin',
+    year: '2015',
+    duration: '80 min',
+    description: 'O conflito entre Batman e Damian aumenta quando Robin se aproxima de uma sociedade secreta que atua nas sombras de Gotham.',
+  },
+  {
+    title: 'Batman: Bad Blood',
+    year: '2016',
+    duration: '72 min',
+    description: 'Batwoman desaparece após um confronto, levando Batman e seus aliados a investigar uma conspiração que ameaça Gotham.',
+  },
+  {
+    title: 'Justice League vs. Teen Titans',
+    year: '2016',
+    duration: '78 min',
+    description: 'Damian se junta aos Jovens Titãs, que precisam enfrentar uma força sobrenatural capaz de colocar a Liga da Justiça sob controle.',
+  },
+  {
+    title: 'Justice League Dark',
+    year: '2017',
+    duration: '75 min',
+    description: 'Batman se une a John Constantine, Zatanna e outros especialistas em magia para investigar ataques de origem sobrenatural.',
+  },
+  {
+    title: 'Teen Titans: The Judas Contract',
+    year: '2017',
+    duration: '84 min',
+    description: 'Os Jovens Titãs recebem uma nova integrante enquanto enfrentam um plano de Exterminador que ameaça a equipe.',
+  },
+  {
+    title: 'Suicide Squad: Hell to Pay',
+    year: '2018',
+    duration: '86 min',
+    description: 'Amanda Waller envia o Esquadrão Suicida em uma missão perigosa para recuperar um objeto místico disputado por vários inimigos.',
+  },
+  {
+    title: 'The Death of Superman',
+    year: '2018',
+    duration: '81 min',
+    description: 'A chegada de Apocalypse desencadeia uma batalha de proporções inéditas e coloca Superman diante de seu maior sacrifício.',
+  },
+  {
+    title: 'Constantine: City of Demons',
+    year: '2018',
+    duration: '90 min',
+    description: 'John Constantine busca salvar a filha de um velho amigo e enfrenta forças demoníacas em uma jornada marcada por magia e consequências pessoais.',
+  },
+  {
+    title: 'Reign of the Supermen',
+    year: '2019',
+    duration: '87 min',
+    description: 'Após a ausência de Superman, novos heróis surgem para ocupar seu lugar enquanto Lois Lane procura descobrir o que realmente aconteceu.',
+  },
+  {
+    title: 'Batman: Hush',
+    year: '2019',
+    duration: '82 min',
+    description: 'Um inimigo misterioso manipula aliados e adversários de Batman, colocando em risco sua identidade e seus relacionamentos.',
+  },
+  {
+    title: 'Wonder Woman: Bloodlines',
+    year: '2019',
+    duration: '83 min',
+    description: 'Mulher-Maravilha enfrenta uma organização criminosa e criaturas mitológicas enquanto tenta proteger uma jovem em perigo.',
+  },
+  {
+    title: 'Justice League Dark: Apokolips War',
+    year: '2020',
+    duration: '90 min',
+    description: 'Após uma derrota devastadora diante de Darkseid, os heróis sobreviventes tentam organizar uma última resistência para salvar a Terra.',
+  },
+]
 
 const SAGA_PRESETS = {
   new52: {
@@ -261,6 +481,65 @@ const NEW52_COMICS = [
   },
 ]
 
+const DC_SERIES_PRESETS = [
+  {
+    title: 'Smallville',
+    description: 'Acompanha a juventude de Clark Kent em Smallville, sua descoberta dos poderes e o caminho que o levará a se tornar Superman.',
+  },
+  {
+    title: 'Arrow',
+    description: 'Após anos desaparecido, Oliver Queen retorna a Starling City e assume a missão de proteger a cidade como um arqueiro vigilante.',
+  },
+  {
+    title: 'The Flash',
+    description: 'Depois de um acidente no acelerador de partículas, o investigador Barry Allen ganha supervelocidade e passa a proteger Central City.',
+  },
+  {
+    title: 'Supergirl',
+    description: 'Kara Danvers decide usar seus poderes kryptonianos para defender National City e encontrar seu próprio lugar como heroína.',
+  },
+  {
+    title: 'DC’s Legends of Tomorrow',
+    description: 'Um grupo improvável de heróis e fora da lei viaja pelo tempo para impedir ameaças que podem alterar a história.',
+  },
+  {
+    title: 'Gotham',
+    description: 'Antes da ascensão de Batman, o jovem detetive James Gordon enfrenta o crime e acompanha o surgimento de figuras marcantes de Gotham.',
+  },
+  {
+    title: 'Titans',
+    description: 'Dick Grayson reúne jovens heróis como Rachel Roth, Kory Anders e Gar Logan para enfrentar ameaças e construir uma nova equipe.',
+  },
+  {
+    title: 'Doom Patrol',
+    description: 'Um grupo de pessoas marginalizadas, transformadas por acidentes extraordinários, encontra uma família e enfrenta perigos surreais.',
+  },
+  {
+    title: 'Superman & Lois',
+    description: 'Clark Kent e Lois Lane equilibram a vida familiar em Smallville com os desafios de proteger o mundo como Superman.',
+  },
+  {
+    title: 'Peacemaker',
+    description: 'Christopher Smith, o Pacificador, é recrutado para missões secretas que colocam à prova sua visão distorcida de justiça.',
+  },
+  {
+    title: 'Harley Quinn',
+    description: 'Depois de romper com o Coringa, Harley Quinn busca seu espaço no submundo de Gotham ao lado de uma equipe de aliados excêntricos.',
+  },
+  {
+    title: 'Young Justice',
+    description: 'Jovens heróis como Robin, Superboy, Miss Martian e Aqualad formam uma equipe secreta e assumem missões próprias.',
+  },
+  {
+    title: 'Batman: The Animated Series',
+    description: 'Batman combate o crime em Gotham em uma série animada reconhecida por sua atmosfera noir e por reinterpretar personagens clássicos.',
+  },
+  {
+    title: 'Justice League Unlimited',
+    description: 'A Liga da Justiça amplia sua equipe e reúne heróis de todo o universo DC para enfrentar ameaças globais e cósmicas.',
+  },
+]
+
 const request = async (method, path, body) => {
   let auth = null
   try {
@@ -358,6 +637,9 @@ export const Admin = () => {
   const [planetPrimaryImageFile, setPlanetPrimaryImageFile] = useState(null)
   const [characterBackgroundFile, setCharacterBackgroundFile] = useState(null)
   const [characterVerticalFile, setCharacterVerticalFile] = useState(null)
+  const [selectedCharacterPreset, setSelectedCharacterPreset] = useState('superman')
+  const [selectedMoviePreset, setSelectedMoviePreset] = useState(0)
+  const [selectedSeriesPreset, setSelectedSeriesPreset] = useState(0)
   const [linkingGame, setLinkingGame] = useState(false)
   const [appearanceType, setAppearanceType] = useState('movie')
   const [selectedContentId, setSelectedContentId] = useState('')
@@ -477,11 +759,30 @@ export const Admin = () => {
   const handleChange = (name, value) =>
     setForm((prev) => ({ ...prev, [name]: value }));
 
-  const fillBatmanPreset = () => {
+  const fillCharacterPreset = () => {
     setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...BATMAN_PRESET })
+    setForm({ ...emptyForm(resource.fields), ...CHARACTER_PRESETS[selectedCharacterPreset] })
     setCharacterBackgroundFile(null)
     setCharacterVerticalFile(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const fillMoviePreset = () => {
+    const preset = DCAMU_MOVIE_PRESETS[selectedMoviePreset]
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...preset })
+    setMovieMediaFile(null)
+    setBannerMediaFile(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const fillSeriesPreset = () => {
+    const preset = DC_SERIES_PRESETS[selectedSeriesPreset]
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...preset })
+    setSeriesMediaFile(null)
+    setBannerMediaFile(null)
+    setGalleryMediaFiles([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -552,8 +853,8 @@ export const Admin = () => {
                 ...clean,
                 verticalImage: editing.verticalImage,
                 movieLogo: null,
-                year: editing.year,
-                duration: editing.duration,
+                year: clean.year,
+                duration: clean.duration,
                 banner: editing.banner,
                 images: editing.images || [],
               }
@@ -887,12 +1188,73 @@ export const Admin = () => {
 
           {resourceKey === 'characters' && !editing && (
             <div className="admin__preset-actions">
+              <label className="admin__field admin__character-preset">
+                <span className="admin__label">Modelo de personagem</span>
+                <select
+                  value={selectedCharacterPreset}
+                  onChange={(event) => setSelectedCharacterPreset(event.target.value)}
+                >
+                  {Object.entries(CHARACTER_PRESETS).map(([key, preset]) => (
+                    <option key={key} value={key}>{preset.name}</option>
+                  ))}
+                </select>
+              </label>
               <button
                 type="button"
                 className="admin__btn admin__btn--preset"
-                onClick={fillBatmanPreset}
+                onClick={fillCharacterPreset}
               >
-                Preencher dados do Batman
+                Preencher dados
+              </button>
+            </div>
+          )}
+
+          {resourceKey === 'movies' && !editing && (
+            <div className="admin__preset-actions">
+              <label className="admin__field admin__movie-preset">
+                <span className="admin__label">Filmes do DCAMU</span>
+                <select
+                  value={selectedMoviePreset}
+                  onChange={(event) => setSelectedMoviePreset(Number(event.target.value))}
+                >
+                  {DCAMU_MOVIE_PRESETS.map((movie, index) => (
+                    <option key={movie.title} value={index}>
+                      {movie.year} — {movie.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillMoviePreset}
+              >
+                Preencher dados do filme
+              </button>
+            </div>
+          )}
+
+          {resourceKey === 'series' && !editing && (
+            <div className="admin__preset-actions">
+              <label className="admin__field admin__series-preset">
+                <span className="admin__label">Séries principais da DC</span>
+                <select
+                  value={selectedSeriesPreset}
+                  onChange={(event) => setSelectedSeriesPreset(Number(event.target.value))}
+                >
+                  {DC_SERIES_PRESETS.map((seriesPreset, index) => (
+                    <option key={seriesPreset.title} value={index}>
+                      {seriesPreset.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillSeriesPreset}
+              >
+                Preencher dados da série
               </button>
             </div>
           )}

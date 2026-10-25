@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import './CatalogPage.css'
 
 const API_URL = 'http://localhost:8080'
@@ -53,9 +53,13 @@ const CatalogCard = ({ item, type }) => {
 }
 
 export const CatalogPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [catalog, setCatalog] = useState([])
   const [status, setStatus] = useState('loading')
-  const [category, setCategory] = useState('all')
+  const requestedCategory = searchParams.get('category')
+  const [category, setCategory] = useState(
+    CATEGORIES.some((item) => item.id === requestedCategory) ? requestedCategory : 'all'
+  )
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -119,7 +123,10 @@ export const CatalogPage = () => {
               type="button"
               className={`catalog__filter${category === item.id ? ' catalog__filter--active' : ''}`}
               aria-pressed={category === item.id}
-              onClick={() => setCategory(item.id)}
+              onClick={() => {
+                setCategory(item.id)
+                setSearchParams(item.id === 'all' ? {} : { category: item.id })
+              }}
             >
               {item.label}
             </button>

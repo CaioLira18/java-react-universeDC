@@ -152,6 +152,31 @@
   accent-color: var(--hero-yellow);
 }
 
+.admin__field input[type="file"] {
+  cursor: pointer;
+}
+
+.admin__field input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 14px;
+  color: var(--paper);
+  background: var(--hero-red);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--font-comic);
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin__field input[type="file"]::file-selector-button:hover {
+  color: var(--ink);
+  background: var(--hero-yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
 .admin__field textarea { resize: vertical; }
 
 .admin__file-name {
@@ -161,6 +186,7 @@
 }
 
 .admin__field input:focus,
+.admin__field input[type="file"]:focus-visible,
 .admin__field textarea:focus,
 .admin__field select:focus,
 .admin__search:focus {
@@ -441,8 +467,24 @@
 .admin__preset-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-end;
   gap: 12px;
   margin-bottom: 18px;
+}
+
+.admin__character-preset {
+  flex: 1 1 100%;
+  margin-bottom: 0;
+}
+
+.admin__movie-preset {
+  flex: 1 1 100%;
+  margin-bottom: 0;
+}
+
+.admin__series-preset {
+  flex: 1 1 100%;
+  margin-bottom: 0;
 }
 
 .admin__btn--preset {
@@ -509,4 +551,5 @@
 @media (prefers-reduced-motion: reduce) {
   .admin__toast { animation: none; }
   .admin__btn, .admin__tab { transition: none; }
+  .admin__field input[type="file"]::file-selector-button { transition: none; }
 }

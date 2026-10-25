@@ -126,7 +126,7 @@ export const Header = () => {
       <div className="headerContainer">
         <Link to="/" className="logoHeader" onClick={closeMenu} aria-label="Ir para a página inicial">
           <img
-            src="https://dc-universe-bucket.s3.us-east-1.amazonaws.com/DCUniverse.png"
+            src="https://dc-universe-bucket.s3.us-east-1.amazonaws.com/logos/DCUniverse.png"
             alt="DC Universe"
           />
         </Link>
