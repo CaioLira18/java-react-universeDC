@@ -487,6 +487,16 @@
   margin-bottom: 0;
 }
 
+.admin__game-preset {
+  flex: 1 1 100%;
+  margin-bottom: 0;
+}
+
+.admin__planet-preset {
+  flex: 1 1 100%;
+  margin-bottom: 0;
+}
+
 .admin__btn--preset {
   background: var(--hero-yellow);
 }

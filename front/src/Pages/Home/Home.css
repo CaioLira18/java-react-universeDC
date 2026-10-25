@@ -92,7 +92,12 @@
   z-index: -2;
   background-position: center;
   background-size: cover;
-  animation: heroSlideReveal 0.8s ease both;
+  animation: heroSlideReveal 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.hero__slide-background--previous {
+  z-index: -3;
+  animation: heroSlideFadeOut 1.1s ease both;
 }
 
 .hero__slide-overlay {
@@ -115,6 +120,7 @@
   width: min(100%, 760px);
   padding: 12px 24px 18px;
   background: radial-gradient(ellipse, rgba(10, 12, 28, 0.5), transparent 72%);
+  animation: heroContentReveal 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
 .hero--featured .hero__bubble {
@@ -144,34 +150,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
   flex: 0 0 auto;
   margin-top: 32px;
-  padding: 8px 14px;
+  padding: 9px 16px;
   background: rgba(10, 12, 28, 0.52);
   border: 1px solid rgba(255, 212, 0, 0.35);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
 }
 
-.hero__slide-controls > button {
-  padding: 6px 14px;
-  color: var(--paper);
-  background: rgba(10, 12, 28, 0.8);
-  font-family: var(--font-comic);
-  font-size: 18px;
-  border: 2px solid var(--hero-yellow);
-  cursor: pointer;
-}
-
-.hero__slide-controls > button:hover,
-.hero__slide-controls > button:focus-visible {
-  color: var(--ink);
-  background: var(--hero-yellow);
-}
-
 .hero__slide-indicators {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -190,18 +180,24 @@
   box-shadow: 0 0 0 2px var(--hero-red);
 }
 
-.hero__slide-controls button:focus-visible {
+.hero__slide-indicators button:focus-visible {
   outline: 3px solid var(--paper);
   outline-offset: 3px;
 }
 
-.hero--featured .hero__title-line {
-  animation: slam 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+@keyframes heroSlideReveal {
+  from { opacity: 0; transform: scale(1.045); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes heroSlideReveal {
-  from { opacity: 0.65; transform: scale(1.035); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes heroSlideFadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.025); }
+}
+
+@keyframes heroContentReveal {
+  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 .hero__bubble {
@@ -305,7 +301,8 @@
 @media (prefers-reduced-motion: reduce) {
   .hero__title-line { animation: none; }
   .hero__cta { transition: none; }
-  .hero__slide-background { animation: none; }
+  .hero__slide-background,
+  .hero__slide-content { animation: none; }
 }
 
 @media (max-width: 600px) {
@@ -315,8 +312,7 @@
   .hero--featured .hero__title { font-size: clamp(46px, 12vw, 68px); }
   .hero--featured .hero__subtitle { margin: 22px 0 18px; font-size: 16px; }
   .hero--featured .hero__bubble { margin-bottom: 18px; font-size: 19px; }
-  .hero__slide-controls { gap: 10px; margin-top: 24px; padding: 7px 9px; }
-  .hero__slide-controls > button { padding: 5px 9px; font-size: 16px; }
+  .hero__slide-controls { margin-top: 24px; padding: 7px 11px; }
 }
 
 .space { height: 80px; }

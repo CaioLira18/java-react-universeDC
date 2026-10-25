@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './CharacterSection.css'
 
@@ -8,7 +8,6 @@ export const CharacterSection = () => {
 
   const [characters, setCharacters] = useState([]);
   const [status, setStatus] = useState('loading'); // loading | ready | error
-  const cardsRef = useRef(null)
   const API_URL = 'http://localhost:8080';
 
   useEffect(() => {
@@ -24,24 +23,12 @@ export const CharacterSection = () => {
       });
   }, []);
 
-  const scrollCharacters = (direction) => {
-    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-    cardsRef.current?.scrollBy({
-      left: direction * cardsRef.current.clientWidth * 0.8,
-      behavior,
-    })
-  }
-
   return (
     <section id="personagens" className="character__section">
       <div className="character__section-heading">
         <h2 className="character__section-title">
           <span>Personagens</span>
         </h2>
-        <div className="character__section-actions">
-          <button type="button" onClick={() => scrollCharacters(-1)} aria-label="Personagens anteriores">‹</button>
-          <button type="button" onClick={() => scrollCharacters(1)} aria-label="Próximos personagens">›</button>
-        </div>
       </div>
 
       {status === 'loading' && (
@@ -59,7 +46,7 @@ export const CharacterSection = () => {
       )}
 
       {status === 'ready' && (
-        <div className="character__section-cards" ref={cardsRef} aria-label="Carrossel de personagens">
+        <div className="character__section-cards" aria-label="Carrossel de personagens">
           {characters.slice(0, HOME_CHARACTER_LIMIT).map((character) => (
             <Link to={`/characters/${character.id}`} key={character.id} className="character__card">
               <img

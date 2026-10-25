@@ -37,14 +37,6 @@
   transform: skewX(6deg);
 }
 
-.character__section-actions {
-  position: absolute;
-  right: 24px;
-  display: flex;
-  gap: 10px;
-}
-
-.character__section-actions button,
 .character__section-all {
   padding: 8px 18px;
   color: var(--ink, #0a0c1c);
@@ -58,8 +50,6 @@
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.character__section-actions button:hover,
-.character__section-actions button:focus-visible,
 .character__section-all:hover,
 .character__section-all:focus-visible {
   color: var(--paper, #fff6dc);
@@ -67,7 +57,6 @@
   transform: translate(-2px, -2px);
 }
 
-.character__section-actions button:focus-visible,
 .character__section-all:focus-visible {
   outline: 3px solid var(--paper, #fff6dc);
   outline-offset: 3px;
@@ -198,17 +187,14 @@
 
 @media (prefers-reduced-motion: reduce) {
   .character__card,
-  .character__section-actions button,
   .character__section-all { transition: none; }
   .character__card--skeleton { animation: none; }
   .character__section-cards { scroll-behavior: auto; }
 }
 
 @media (max-width: 480px) {
-  .character__section-heading { justify-content: flex-start; gap: 16px; }
+  .character__section-heading { justify-content: center; }
   .character__section-title { padding: 8px 24px; }
-  .character__section-actions { position: static; }
-  .character__section-actions button { padding: 6px 14px; }
   .character__section-cards {
     grid-template-rows: repeat(2, 230px);
     grid-auto-columns: 150px;

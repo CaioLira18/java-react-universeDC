@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './Home.css'
 import { CharacterSection } from '../../Components/Character/CharacterSection';
 import { MovieSecction } from '../../Components/Movie/MovieSecction';
+import { GameSection } from '../../Components/Game/GameSection';
+
+const SLIDE_INTERVAL_MS = 6000
+const SLIDE_TRANSITION_MS = 1100
 
 export const Home = () => {
 
   const [homeSlides, setHomeSlides] = useState([]);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [transitionFromSlide, setTransitionFromSlide] = useState(null)
+  const previousSlideRef = useRef(null)
   const API_URL = 'http://localhost:8080';
 
   useEffect(() => {
@@ -28,7 +34,30 @@ export const Home = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (homeSlides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+
+    const timeoutId = window.setTimeout(() => {
+      setActiveSlideIndex((currentIndex) => (currentIndex + 1) % homeSlides.length)
+    }, SLIDE_INTERVAL_MS)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [activeSlideIndex, homeSlides.length])
+
   const activeSlide = homeSlides[activeSlideIndex]
+
+  useEffect(() => {
+    if (!activeSlide) return undefined
+
+    const previousSlide = previousSlideRef.current
+    previousSlideRef.current = activeSlide
+    if (!previousSlide || previousSlide.id === activeSlide.id) return undefined
+
+    setTransitionFromSlide(previousSlide)
+    const timeoutId = window.setTimeout(() => setTransitionFromSlide(null), SLIDE_TRANSITION_MS)
+    return () => window.clearTimeout(timeoutId)
+  }, [activeSlide])
+
   const showSlide = (index) => {
     setActiveSlideIndex((index + homeSlides.length) % homeSlides.length)
   }
@@ -42,12 +71,21 @@ export const Home = () => {
 
       {activeSlide ? (
         <header className="hero hero--featured" aria-roledescription="carrossel">
+          {transitionFromSlide && (
+            <div
+              key={`previous-${transitionFromSlide.id}`}
+              className="hero__slide-background hero__slide-background--previous"
+              style={{ backgroundImage: `url("${transitionFromSlide.image}")` }}
+              aria-hidden="true"
+            />
+          )}
           <div
+            key={activeSlide.id}
             className="hero__slide-background"
             style={{ backgroundImage: `url("${activeSlide.image}")` }}
           />
           <div className="hero__slide-overlay" />
-          <div className="hero__slide-content" aria-live="polite">
+          <div key={`content-${activeSlide.id}`} className="hero__slide-content" aria-live="polite">
             {activeSlide.subtitle && <p className="hero__bubble">{activeSlide.subtitle}</p>}
             <h1 className="hero__title hero__title--single">
               <span className="hero__title-line">{activeSlide.title}</span>
@@ -60,11 +98,8 @@ export const Home = () => {
             )}
           </div>
           {homeSlides.length > 1 && (
-            <div className="hero__slide-controls" aria-label="Navegação dos destaques">
-              <button type="button" onClick={() => showSlide(activeSlideIndex - 1)} aria-label="Destaque anterior">
-                Anterior
-              </button>
-              <div className="hero__slide-indicators">
+            <div className="hero__slide-controls">
+              <div className="hero__slide-indicators" aria-label="Selecionar destaque">
                 {homeSlides.map((slide, index) => (
                   <button
                     key={slide.id}
@@ -76,9 +111,6 @@ export const Home = () => {
                   />
                 ))}
               </div>
-              <button type="button" onClick={() => showSlide(activeSlideIndex + 1)} aria-label="Próximo destaque">
-                Próximo
-              </button>
             </div>
           )}
         </header>
@@ -102,6 +134,7 @@ export const Home = () => {
           <CharacterSection />
         </div>
         <MovieSecction />
+        <GameSection />
       </div>
 
       <div className="space"></div>

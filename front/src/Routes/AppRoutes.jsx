@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Home } from '../Pages/Home/Home'
 import { Header } from '../Components/Header/Header'
 import { Character } from '../Pages/Character/Character'
@@ -16,6 +16,8 @@ import SagasPage from '../Pages/Sagas/SagasPage'
 import SagaDetail from '../Pages/Sagas/SagaDetail'
 
 export const AppRoutes = () => {
+  const { pathname } = useLocation()
+
   return (
     <div>
       <Header />
@@ -35,6 +37,36 @@ export const AppRoutes = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<UserPage />} />
       </Routes>
+      {pathname !== '/planets' && (
+        <footer className="site-footer">
+          <div className="site-footer__content">
+            <div className="site-footer__brands" aria-label="DC Universe e Amazon Web Services">
+              <img
+                className="site-footer__brand site-footer__brand--dc"
+                src="https://dc-universe-bucket.s3.us-east-1.amazonaws.com/logos/DCUniverse.png"
+                alt="DC Universe"
+              />
+              <span className="site-footer__divider" aria-hidden="true" />
+              <img
+                className="site-footer__brand site-footer__brand--aws"
+                src="https://dc-universe-bucket.s3.us-east-1.amazonaws.com/logos/amazon_logo.png"
+                alt="Amazon Web Services"
+              />
+            </div>
+          </div>
+          <div className="site-footer__legal">
+            <p>
+              Este é um projeto pessoal, não oficial e sem fins comerciais. Não possui afiliação,
+              patrocínio ou endosso da DC Comics, Warner Bros. Discovery, Amazon ou AWS.
+            </p>
+            <p>
+              Personagens, nomes, logotipos, imagens e demais elementos relacionados ao universo
+              DC pertencem aos seus respectivos titulares, incluindo DC Comics e Warner Bros.
+              Discovery. AWS e o logotipo da AWS são marcas da Amazon.com, Inc. ou de suas afiliadas.
+            </p>
+          </div>
+        </footer>
+      )}
     </div>
   )
 }

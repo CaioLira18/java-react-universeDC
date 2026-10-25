@@ -511,6 +511,14 @@ const DC_SERIES_PRESETS = [
     description: 'Dick Grayson reúne jovens heróis como Rachel Roth, Kory Anders e Gar Logan para enfrentar ameaças e construir uma nova equipe.',
   },
   {
+    title: 'Jovens Titãs (2003)',
+    description: 'Robin, Estelar, Ciborgue, Ravena e Mutano formam uma equipe de jovens heróis que protege Jump City e enfrenta vilões enquanto aprendem a trabalhar juntos.',
+  },
+  {
+    title: 'Os Jovens Titãs em Ação! (2013)',
+    description: 'Em uma versão cômica e mais leve, Robin, Estelar, Ciborgue, Ravena e Mutano vivem aventuras e situações cotidianas na Torre dos Titãs.',
+  },
+  {
     title: 'Doom Patrol',
     description: 'Um grupo de pessoas marginalizadas, transformadas por acidentes extraordinários, encontra uma família e enfrenta perigos surreais.',
   },
@@ -537,6 +545,218 @@ const DC_SERIES_PRESETS = [
   {
     title: 'Justice League Unlimited',
     description: 'A Liga da Justiça amplia sua equipe e reúne heróis de todo o universo DC para enfrentar ameaças globais e cósmicas.',
+  },
+]
+
+const DC_GAME_PRESETS = [
+  {
+    title: 'Batman: Arkham Asylum',
+    description: 'Batman precisa deter o Coringa após ele assumir o controle do Asilo Arkham e libertar diversos criminosos de Gotham.',
+  },
+  {
+    title: 'Batman: Arkham City',
+    description: 'Batman investiga uma enorme prisão a céu aberto construída dentro de Gotham e descobre um plano que ameaça seus habitantes.',
+  },
+  {
+    title: 'Batman: Arkham Origins',
+    description: 'Uma aventura ambientada nos primeiros anos de Batman, quando uma recompensa atrai assassinos perigosos para Gotham na véspera de Natal.',
+  },
+  {
+    title: 'Batman: Arkham Knight',
+    description: 'Batman enfrenta o Espantalho e uma nova ameaça que mobiliza Gotham, enquanto tenta proteger a cidade durante uma noite decisiva.',
+  },
+  {
+    title: 'Injustice: Gods Among Us',
+    description: 'Em uma realidade alternativa, Superman estabelece um regime mundial e antigos aliados se dividem entre apoiá-lo ou resistir.',
+  },
+  {
+    title: 'Injustice 2',
+    description: 'Heróis e vilões se enfrentam em um mundo ainda abalado pelo regime de Superman, enquanto uma nova ameaça se aproxima da Terra.',
+  },
+  {
+    title: 'LEGO Batman: The Videogame',
+    description: 'Batman e Robin enfrentam vilões de Gotham em uma aventura de ação e quebra-cabeças construída no universo LEGO.',
+  },
+  {
+    title: 'LEGO Batman 2: DC Super Heroes',
+    description: 'Batman e Robin se unem a Superman e outros heróis da DC para impedir os planos de Lex Luthor e do Coringa.',
+  },
+  {
+    title: 'LEGO Batman 3: Beyond Gotham',
+    description: 'Batman e diversos heróis da DC viajam pelo espaço para enfrentar Brainiac e proteger os Lanternas e seus mundos.',
+  },
+  {
+    title: 'DC Universe Online',
+    description: 'Um RPG online ambientado no universo DC em que jogadores criam seus próprios heróis ou vilões e participam de aventuras ao lado de personagens conhecidos.',
+  },
+  {
+    title: 'Batman: The Telltale Series',
+    description: 'Uma aventura narrativa que acompanha Bruce Wayne e Batman diante de escolhas difíceis que afetam Gotham e seus aliados.',
+  },
+  {
+    title: 'Gotham Knights',
+    description: 'Após a morte de Bruce Wayne, Batgirl, Asa Noturna, Capuz Vermelho e Robin protegem Gotham e investigam a Corte das Corujas.',
+  },
+  {
+    title: 'Suicide Squad: Kill the Justice League',
+    description: 'Arlequina, Pistoleiro, Tubarão-Rei e Capitão Bumerangue recebem a missão de enfrentar membros da Liga da Justiça sob controle de Brainiac.',
+  },
+]
+
+const DC_PLANET_PRESETS = [
+  {
+    name: 'Terra',
+    description: 'Mundo natal da maioria dos heróis da Liga da Justiça e centro de inúmeras ameaças cósmicas.',
+    sector: 'Setor 2814',
+    color: '#4da6ff',
+    notableResidents: 'Superman, Batman, Mulher-Maravilha, Flash, Lanterna Verde',
+    positionX: '0',
+    positionY: '0',
+    positionZ: '0',
+    size: '1.3',
+  },
+  {
+    name: 'Marte',
+    description: 'Mundo natal dos marcianos, devastado por uma guerra que deixou poucos sobreviventes.',
+    sector: 'Setor 2814',
+    color: '#d95745',
+    notableResidents: 'Caçador de Marte (J’onn J’onzz), marcianos verdes e brancos',
+    positionX: '3',
+    positionY: '4',
+    positionZ: '-4',
+    size: '0.95',
+  },
+  {
+    name: 'Tamaran',
+    description: 'Mundo de alta gravidade conhecido por sua cultura guerreira e pelos habitantes de pele alaranjada.',
+    sector: 'Sistema Vega',
+    color: '#ff9c43',
+    notableResidents: 'Estelar (Koriand’r), Komand’r, tamaraneanos',
+    positionX: '-22',
+    positionY: '8',
+    positionZ: '-14',
+    size: '1.1',
+  },
+  {
+    name: 'Xebel',
+    description: 'Reino extradimensional ligado à Atlântida, de onde Mera veio antes de se tornar uma de suas principais líderes.',
+    sector: 'Dimensão de Xebel',
+    color: '#42c9c4',
+    notableResidents: 'Mera, Nereus, xebelianos',
+    positionX: '23',
+    positionY: '3',
+    positionZ: '-11',
+    size: '0.9',
+  },
+  {
+    name: 'Rann',
+    description: 'Planeta avançado que mantém uma ligação histórica com a Terra por meio do cientista e aventureiro Adam Strange.',
+    sector: 'Sistema Alpha Centauri',
+    color: '#71a7ff',
+    notableResidents: 'Adam Strange, Alanna, rannianos',
+    positionX: '-26',
+    positionY: '-4',
+    positionZ: '-24',
+    size: '1.05',
+  },
+  {
+    name: 'Daxam',
+    description: 'Mundo habitado por descendentes de kryptonianos; seus habitantes compartilham poderes semelhantes sob um sol amarelo, mas são vulneráveis ao chumbo.',
+    sector: 'Setor 1760',
+    color: '#e6a64a',
+    notableResidents: 'Mon-El, daxamitas',
+    positionX: '25',
+    positionY: '10',
+    positionZ: '-26',
+    size: '1.0',
+  },
+  {
+    name: 'Colu',
+    description: 'Planeta conhecido por sua população altamente inteligente e por avanços extraordinários em ciência e tecnologia.',
+    sector: 'Setor 2810',
+    color: '#72d696',
+    notableResidents: 'Brainiac, Brainiac 5, coluanos',
+    positionX: '-1',
+    positionY: '18',
+    positionZ: '-32',
+    size: '0.95',
+  },
+  {
+    name: 'Korugar',
+    description: 'Planeta natal de Sinestro, cuja história está ligada à Tropa dos Lanternas Verdes e à criação da Tropa Sinestro.',
+    sector: 'Setor 1417',
+    color: '#e24c43',
+    notableResidents: 'Sinestro, Soranik Natu, korugarianos',
+    positionX: '29',
+    positionY: '-10',
+    positionZ: '-8',
+    size: '1.0',
+  },
+  {
+    name: 'Qward',
+    description: 'Mundo antimatéria e lar dos Armeiros de Qward, inimigos históricos dos Lanternas Verdes.',
+    sector: 'Universo de antimatéria',
+    color: '#d8c64a',
+    notableResidents: 'Armeiros de Qward, Anti-Monitor',
+    positionX: '-31',
+    positionY: '5',
+    positionZ: '-12',
+    size: '1.0',
+  },
+  {
+    name: 'Warworld',
+    description: 'Planeta artificial transformado em uma fortaleza e arena de combate, conhecido por seus governantes conquistadores.',
+    sector: 'Espaço profundo',
+    color: '#b95d48',
+    notableResidents: 'Mongul, gladiadores e povos conquistados',
+    positionX: '0',
+    positionY: '-18',
+    positionZ: '-32',
+    size: '1.5',
+  },
+  {
+    name: 'Gemworld',
+    description: 'Mundo mágico dividido em reinos associados a pedras preciosas e conectado às aventuras de Amethyst.',
+    sector: 'Dimensão mágica',
+    color: '#bd78e8',
+    notableResidents: 'Amethyst, Lorde Opal, habitantes dos reinos-gema',
+    positionX: '30',
+    positionY: '14',
+    positionZ: '-18',
+    size: '0.9',
+  },
+  {
+    name: 'Ysmault',
+    description: 'Mundo-prisão devastado que se tornou o refúgio e centro de poder da Tropa dos Lanternas Vermelhos.',
+    sector: 'Setor 666',
+    color: '#f04437',
+    notableResidents: 'Atrocitus, Lanternas Vermelhos',
+    positionX: '-28',
+    positionY: '-13',
+    positionZ: '-30',
+    size: '0.9',
+  },
+  {
+    name: 'Czarnia',
+    description: 'Planeta natal dos czarnianos, destruído após a ação de um de seus habitantes mais perigosos.',
+    sector: 'Setor 2813',
+    color: '#b7c7d9',
+    notableResidents: 'Lobo, czarnianos',
+    positionX: '3',
+    positionY: '24',
+    positionZ: '-24',
+    size: '0.85',
+  },
+  {
+    name: 'Htrae (Mundo Bizarro)',
+    description: 'Planeta de forma cúbica associado ao universo Bizarro, onde muitas coisas acontecem ao contrário.',
+    sector: 'Universo Bizarro',
+    color: '#c7a5e8',
+    notableResidents: 'Bizarro, habitantes Bizarro',
+    positionX: '34',
+    positionY: '-19',
+    positionZ: '-32',
+    size: '0.85',
   },
 ]
 
@@ -640,6 +860,8 @@ export const Admin = () => {
   const [selectedCharacterPreset, setSelectedCharacterPreset] = useState('superman')
   const [selectedMoviePreset, setSelectedMoviePreset] = useState(0)
   const [selectedSeriesPreset, setSelectedSeriesPreset] = useState(0)
+  const [selectedGamePreset, setSelectedGamePreset] = useState(0)
+  const [selectedPlanetPreset, setSelectedPlanetPreset] = useState(0)
   const [linkingGame, setLinkingGame] = useState(false)
   const [appearanceType, setAppearanceType] = useState('movie')
   const [selectedContentId, setSelectedContentId] = useState('')
@@ -783,6 +1005,26 @@ export const Admin = () => {
     setSeriesMediaFile(null)
     setBannerMediaFile(null)
     setGalleryMediaFiles([])
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const fillGamePreset = () => {
+    const preset = DC_GAME_PRESETS[selectedGamePreset]
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...preset })
+    setGameMediaFile(null)
+    setBannerMediaFile(null)
+    setGalleryMediaFiles([])
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const fillPlanetPreset = () => {
+    const preset = DC_PLANET_PRESETS[selectedPlanetPreset]
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...preset })
+    setPlanetPrimaryImageFile(null)
+    setGalleryMediaFiles([])
+    setGalleryImagesToRemove([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -1255,6 +1497,52 @@ export const Admin = () => {
                 onClick={fillSeriesPreset}
               >
                 Preencher dados da série
+              </button>
+            </div>
+          )}
+
+          {resourceKey === 'games' && !editing && (
+            <div className="admin__preset-actions">
+              <label className="admin__field admin__game-preset">
+                <span className="admin__label">Jogos principais da DC</span>
+                <select
+                  value={selectedGamePreset}
+                  onChange={(event) => setSelectedGamePreset(Number(event.target.value))}
+                >
+                  {DC_GAME_PRESETS.map((game, index) => (
+                    <option key={game.title} value={index}>{game.title}</option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillGamePreset}
+              >
+                Preencher dados do jogo
+              </button>
+            </div>
+          )}
+
+          {resourceKey === 'planets' && !editing && (
+            <div className="admin__preset-actions">
+              <label className="admin__field admin__planet-preset">
+                <span className="admin__label">Outros planetas importantes da DC</span>
+                <select
+                  value={selectedPlanetPreset}
+                  onChange={(event) => setSelectedPlanetPreset(Number(event.target.value))}
+                >
+                  {DC_PLANET_PRESETS.map((planet, index) => (
+                    <option key={planet.name} value={index}>{planet.name}</option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillPlanetPreset}
+              >
+                Preencher dados do planeta
               </button>
             </div>
           )}
