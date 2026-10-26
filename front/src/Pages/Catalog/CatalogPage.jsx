@@ -60,7 +60,13 @@ export const CatalogPage = () => {
   const [category, setCategory] = useState(
     CATEGORIES.some((item) => item.id === requestedCategory) ? requestedCategory : 'all'
   )
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(searchParams.get('search') || '')
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '')
+    const nextCategory = searchParams.get('category')
+    setCategory(CATEGORIES.some((item) => item.id === nextCategory) ? nextCategory : 'all')
+  }, [searchParams])
 
   useEffect(() => {
     const loadCatalog = async () => {
@@ -125,7 +131,10 @@ export const CatalogPage = () => {
               aria-pressed={category === item.id}
               onClick={() => {
                 setCategory(item.id)
-                setSearchParams(item.id === 'all' ? {} : { category: item.id })
+                const nextParams = {}
+                if (item.id !== 'all') nextParams.category = item.id
+                if (search.trim()) nextParams.search = search.trim()
+                setSearchParams(nextParams)
               }}
             >
               {item.label}

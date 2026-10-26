@@ -39,16 +39,26 @@ function Planet3D({ planet, isActive, onSelect, onHover }) {
     >
       <div className={`starMapOrbitRing${isActive ? ' active' : ''}`} style={{ borderColor: `${color}55` }} />
       <div
-        className={`starMapPlanetSphere${isActive ? ' active' : ''}`}
+        className={`starMapPlanetSphere${isActive ? ' active' : ''}${planet.image ? ' hasTexture' : ''}`}
         style={{
           width: size,
           height: size,
-          background: `radial-gradient(circle at 35% 30%, ${color}, ${color}33 70%, transparent 100%)`,
+          background: `radial-gradient(circle at 35% 30%, ${color}, ${color}55 68%, ${color}22 100%)`,
           boxShadow: isActive
-            ? `0 0 ${size * 0.9}px ${color}aa, 0 0 ${size * 0.3}px ${color}`
-            : `0 0 ${size * 0.5}px ${color}66`,
+            ? `inset 3px 0 9px rgba(255,255,255,.22), inset -9px -6px 18px rgba(0,0,0,.72), 0 0 ${size * 0.9}px ${color}aa, 0 0 ${size * 0.3}px ${color}`
+            : `inset 3px 0 9px rgba(255,255,255,.16), inset -9px -6px 18px rgba(0,0,0,.72), 0 0 ${size * 0.5}px ${color}66`,
         }}
-      />
+      >
+        {planet.image && (
+          <img
+            className="starMapPlanetTexture"
+            src={planet.image}
+            alt=""
+            draggable="false"
+            decoding="async"
+          />
+        )}
+      </div>
       <span className={`starMapPlanetLabel3d${isActive ? ' active' : ''}`}>
         <i className="starMapLabelBracket">[</i>
         {planet.name}

@@ -461,14 +461,49 @@
 }
 
 .starMapPlanetSphere {
+  position: relative;
+  overflow: hidden;
   border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.34);
   filter: brightness(1);
   transform: translate(-50%, -50%);
-  transition: box-shadow 0.2s ease, filter 0.2s ease;
+  transition: box-shadow 0.3s ease, filter 0.3s ease, border-color 0.3s ease;
+  isolation: isolate;
+}
+
+.starMapPlanetTexture {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  filter: saturate(1.2) contrast(1.08) brightness(0.88);
+  transform: scale(1.03);
+}
+
+.starMapPlanetSphere.hasTexture .starMapPlanetTexture {
+  filter: saturate(1.2) contrast(1.08) brightness(0.88);
+}
+
+.starMapPlanetSphere::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: '';
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 33% 25%, rgba(255, 255, 255, 0.42), transparent 24%),
+    radial-gradient(circle at 38% 34%, transparent 34%, rgba(0, 0, 0, 0.16) 62%, rgba(0, 0, 0, 0.76) 100%);
+  box-shadow: inset 3px 0 8px rgba(255, 255, 255, 0.12), inset -8px -5px 14px rgba(0, 0, 0, 0.56);
+  pointer-events: none;
 }
 
 .starMapPlanetSphere.active {
   filter: brightness(1.25);
+  border-color: rgba(255, 255, 255, 0.82);
 }
 
 .starMapPlanetLabel3d {

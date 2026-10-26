@@ -50,6 +50,10 @@ public class S3StorageService {
     return uploadMedia("home-slides/" + slideId, file);
   }
 
+  public String uploadTimelineMedia(String timelineId, MultipartFile file) {
+    return uploadMedia("timelines/" + timelineId, file);
+  }
+
   public String uploadSagaMedia(String sagaId, MultipartFile file) {
     return uploadMedia("sagas/" + sagaId, file);
   }

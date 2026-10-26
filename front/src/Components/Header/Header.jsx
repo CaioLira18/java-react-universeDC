@@ -11,6 +11,8 @@ const NAV_LINKS = [
   { to: '/sagas', label: 'Sagas' },
   { to: '/groups', label: 'Equipes' },
   { to: '/planets', label: 'Planetas' },
+  { to: '/timeline', label: 'Linha do tempo' },
+  { to: '/about', label: 'Sobre' },
 ]
 
 const getStoredUser = () => {

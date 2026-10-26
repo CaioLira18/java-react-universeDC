@@ -131,6 +131,24 @@ const RESOURCES = {
       { name: 'size', label: 'Tamanho no mapa', type: 'number' },
     ],
   },
+  timelines: {
+    label: 'Linha do tempo',
+    singular: 'marco da timeline',
+    path: '/timelines',
+    listPath: '/timelines/admin',
+    titleField: 'title',
+    imageField: 'image',
+    fields: [
+      { name: 'year', label: 'Ano', type: 'text', required: true },
+      { name: 'era', label: 'Era', type: 'text', required: true },
+      { name: 'title', label: 'Título', type: 'text', required: true },
+      { name: 'description', label: 'Descrição', type: 'textarea' },
+      { name: 'imageAlt', label: 'Texto alternativo da imagem', type: 'text' },
+      { name: 'accent', label: 'Cor do destaque (blue, yellow ou red)', type: 'text', defaultValue: 'yellow' },
+      { name: 'displayOrder', label: 'Ordem de exibição', type: 'number', defaultValue: 0 },
+      { name: 'active', label: 'Publicado', type: 'checkbox', defaultValue: true },
+    ],
+  },
 };
 
 const emptyForm = (fields) =>
@@ -923,6 +941,26 @@ const DC_GROUP_PRESETS = [
   },
 ]
 
+const STARFIRE_HOME_SLIDE_PRESET = {
+  title: 'Starfire',
+  subtitle: 'Conheça a Starfire',
+  description: 'Princesa guerreira de Tamaran, Koriand’r encontrou uma nova família entre os Jovens Titãs. Com coragem, compaixão e seus poderes estelares, ela protege seus amigos e a Terra.',
+  buttonText: 'Conheça mais',
+  buttonLink: '/characters',
+  displayOrder: '0',
+  active: true,
+}
+
+const JUSTICE_LEAGUE_WAR_HOME_SLIDE_PRESET = {
+  title: 'Liga da Justiça: War',
+  subtitle: 'Uma aliança contra Darkseid',
+  description: 'Quando uma invasão ameaça a Terra, Batman, Superman, Mulher-Maravilha e outros heróis precisam unir forças. A batalha contra Darkseid marca o início de uma nova Liga da Justiça.',
+  buttonText: 'Ver filme',
+  buttonLink: '/catalog?category=movie',
+  displayOrder: '1',
+  active: true,
+}
+
 const normalizeCharacterName = (name) => String(name || '')
   .normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '')
@@ -983,6 +1021,8 @@ const uploadCatalogMedia = (resourceKey, itemId, file) =>
   uploadMedia(`/${resourceKey}/${itemId}/media`, file)
 const uploadHomeSlideMedia = (slideId, file) =>
   uploadMedia(`/home-slides/${slideId}/media`, file)
+const uploadTimelineMedia = (timelineId, file) =>
+  uploadMedia(`/timelines/${timelineId}/media`, file)
 
 const uploadGameCharacterMedia = (gameId, characterId, file) =>
   uploadMedia(`/games/${gameId}/characters/${characterId}/media`, file)
@@ -1172,6 +1212,20 @@ export const Admin = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const fillStarfireHomeSlidePreset = () => {
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...STARFIRE_HOME_SLIDE_PRESET })
+    setBannerMediaFile(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const fillJusticeLeagueWarHomeSlidePreset = () => {
+    setEditing(null)
+    setForm({ ...emptyForm(resource.fields), ...JUSTICE_LEAGUE_WAR_HOME_SLIDE_PRESET })
+    setBannerMediaFile(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const fillMoviePreset = () => {
     const preset = DCAMU_MOVIE_PRESETS[selectedMoviePreset]
     setEditing(null)
@@ -1255,8 +1309,8 @@ export const Admin = () => {
       notify('error', 'Selecione a imagem de fundo do personagem.')
       return
     }
-    if (['games', 'movies', 'series', 'homeSlides', 'sagas', 'groups'].includes(resourceKey) && !editing && !bannerMediaFile) {
-      notify('error', resourceKey === 'homeSlides' ? 'Selecione a imagem do destaque.' : 'Selecione o banner estático.')
+    if (['games', 'movies', 'series', 'homeSlides', 'sagas', 'groups', 'timelines'].includes(resourceKey) && !editing && !bannerMediaFile) {
+      notify('error', resourceKey === 'homeSlides' ? 'Selecione a imagem do destaque.' : resourceKey === 'timelines' ? 'Selecione a imagem do marco.' : 'Selecione o banner estático.')
       return
     }
     if (resourceKey === 'sagas' && sagaComics.some((comic) => (
@@ -1328,6 +1382,8 @@ export const Admin = () => {
                 characters: selectedCharacterIds.map((id) => ({ id })),
                 banner: editing.banner,
               }
+          : resourceKey === 'timelines'
+            ? { ...editing, ...clean, image: editing.image }
           : resourceKey === 'planets'
             ? {
                 ...editing,
@@ -1392,6 +1448,14 @@ export const Admin = () => {
         savedItem = await request('PUT', `${resource.path}/${savedItem.id}`, {
           ...savedItem,
           banner: url,
+        })
+      }
+
+      if (resourceKey === 'timelines' && bannerMediaFile) {
+        const { url } = await uploadTimelineMedia(savedItem.id, bannerMediaFile)
+        savedItem = await request('PUT', `/timelines/${savedItem.id}`, {
+          ...savedItem,
+          image: url,
         })
       }
 
@@ -1680,6 +1744,25 @@ export const Admin = () => {
             </div>
           )}
 
+          {resourceKey === 'homeSlides' && !editing && (
+            <div className="admin__preset-actions">
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillStarfireHomeSlidePreset}
+              >
+                Preencher destaque da Starfire
+              </button>
+              <button
+                type="button"
+                className="admin__btn admin__btn--preset"
+                onClick={fillJusticeLeagueWarHomeSlidePreset}
+              >
+                Preencher destaque de Liga da Justiça: War
+              </button>
+            </div>
+          )}
+
           {resourceKey === 'movies' && !editing && (
             <div className="admin__preset-actions">
               <label className="admin__field admin__movie-preset">
@@ -1900,6 +1983,9 @@ export const Admin = () => {
                     : editing?.image
                       ? 'Imagem atual mantida se nenhum arquivo for escolhido'
                       : 'Nenhuma imagem principal selecionada'}
+                </span>
+                <span className="admin__file-name">
+                  Para uma textura mais nítida no mapa, prefira uma imagem quadrada em alta resolução (idealmente 1024 × 1024 px ou maior).
                 </span>
               </label>
               <h3 className="admin__game-link-title">Galeria do planeta</h3>
@@ -2242,14 +2328,16 @@ export const Admin = () => {
             </>
           )}
 
-          {(resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'groups') && (
+          {(resourceKey === 'homeSlides' || resourceKey === 'sagas' || resourceKey === 'groups' || resourceKey === 'timelines') && (
             <label className="admin__field">
               <span className="admin__label">
                 {resourceKey === 'homeSlides'
                   ? 'Imagem de fundo'
                   : resourceKey === 'groups'
                     ? 'Banner da equipe'
-                    : 'Banner da saga'}
+                    : resourceKey === 'sagas'
+                      ? 'Banner da saga'
+                      : 'Imagem do marco'}
                 {!editing && ' *'}
               </span>
               <input
@@ -2263,7 +2351,7 @@ export const Admin = () => {
                 {bannerMediaFile
                   ? `${bannerMediaFile.name} (${(bannerMediaFile.size / (1024 * 1024)).toFixed(1)} MB)`
                   : editing?.[resource.imageField]
-                    ? `${resourceKey === 'homeSlides' ? 'Imagem' : 'Banner'} atual mantido se nenhum arquivo for escolhido`
+                  ? `${resourceKey === 'homeSlides' ? 'Imagem' : resourceKey === 'timelines' ? 'Imagem' : 'Banner'} atual mantido se nenhum arquivo for escolhido`
                     : 'Obrigatória no cadastro — limite de 25 MB'}
               </span>
             </label>
