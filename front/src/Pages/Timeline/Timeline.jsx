@@ -130,6 +130,7 @@ export const Timeline = () => {
   const [events, setEvents] = useState(EVENTS)
   const [activeIndex, setActiveIndex] = useState(0)
   const [visibleCount, setVisibleCount] = useState(3)
+  const [status, setStatus] = useState('loading')
 
   useEffect(() => {
     fetch(`${API_URL}/timelines`)
@@ -140,10 +141,13 @@ export const Timeline = () => {
       .then((timeline) => {
         if (timeline.length > 0) {
           setEvents(timeline)
-          setActiveIndex(0)
         }
+        setStatus('ready')
       })
-      .catch((error) => console.error('Não foi possível carregar a timeline cadastrada.', error))
+      .catch((error) => {
+        console.error('Não foi possível carregar a timeline cadastrada.', error)
+        setStatus('fallback')
+      })
   }, [])
 
   useEffect(() => {
@@ -162,6 +166,10 @@ export const Timeline = () => {
 
   const showPrevious = () => setActiveIndex((current) => Math.max(current - 1, 0))
   const showNext = () => setActiveIndex((current) => Math.min(current + 1, lastIndex))
+  const handleCarouselKeyDown = (event) => {
+    if (event.key === 'ArrowLeft') showPrevious()
+    if (event.key === 'ArrowRight') showNext()
+  }
 
   return (
     <main className="timeline">
@@ -181,7 +189,11 @@ export const Timeline = () => {
           <h2 id="timeline-heading">Uma história maior que qualquer herói</h2>
         </div>
 
-        <div className="timeline__carousel">
+        <div
+          className="timeline__carousel"
+          onKeyDown={handleCarouselKeyDown}
+          aria-label="Carrossel da linha do tempo"
+        >
           <button
             type="button"
             className="timeline__arrow timeline__arrow--previous"
@@ -191,11 +203,7 @@ export const Timeline = () => {
           >
             <span aria-hidden="true">‹</span>
           </button>
-          <div
-            className="timeline__viewport"
-            aria-live="polite"
-            aria-label={`Marco ${activeIndex + 1} de ${events.length}`}
-          >
+          <div className="timeline__viewport" aria-live="polite">
             <div
               className="timeline__events"
               style={{ '--timeline-index': activeIndex }}
@@ -235,6 +243,11 @@ export const Timeline = () => {
             <span aria-hidden="true">›</span>
           </button>
         </div>
+        {status === 'fallback' && (
+          <p className="timeline__status">
+            A API está indisponível. Exibindo a linha do tempo padrão.
+          </p>
+        )}
         <div className="timeline__pagination" aria-label="Navegação da timeline">
           {events.slice(0, lastIndex + 1).map((event, index) => (
             <button

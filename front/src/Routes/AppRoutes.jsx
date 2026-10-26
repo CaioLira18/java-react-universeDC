@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import { Home } from '../Pages/Home/Home'
 import { Header } from '../Components/Header/Header'
 import { Character } from '../Pages/Character/Character'
@@ -19,6 +19,18 @@ import GroupDetail from '../Pages/Groups/GroupDetail'
 import AboutProject from '../Pages/AboutProject/AboutProject'
 import Timeline from '../Pages/Timeline/Timeline'
 import TimelineDetail from '../Pages/Timeline/TimelineDetail'
+import { AUTH_KEY } from '../auth'
+
+const AdminRoute = ({ children }) => {
+  let user = null
+  try {
+    user = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null')
+  } catch (error) {
+    console.error('Não foi possível ler a sessão para proteger o painel.', error)
+  }
+
+  return user?.role === 'ADMIN' ? children : <Navigate to="/login" replace state={{ from: '/admin' }} />
+}
 
 export const AppRoutes = () => {
   const { pathname } = useLocation()
@@ -39,7 +51,7 @@ export const AppRoutes = () => {
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/timeline/:id" element={<TimelineDetail />} />
         <Route path="/planets" element={<StarMap />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         <Route path="/movies/:id" element={<Movie />} />
         <Route path="/series/:id" element={<SeriesDetail />} />
         <Route path="/games/:id" element={<GameDetail />} />

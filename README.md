@@ -1,5 +1,45 @@
 # java-react-universeDC
 
+## Executando localmente
+
+Requisitos: Java 21, Node.js 22, PostgreSQL e um bucket S3.
+
+1. Copie `dc/.env.example` para `dc/.env` e preencha o banco e a AWS.
+2. No backend, execute `.\mvnw.cmd spring-boot:run`.
+3. No frontend, copie `front/.env.example` para `front/.env` e execute `npm install` e `npm run dev`.
+
+O frontend usa `VITE_API_URL` para localizar a API. Em produção, o health check do backend fica em
+`/actuator/health`.
+
+### Imagens da timeline
+
+Os marcos ficam disponíveis no CRUD **Linha do tempo** do painel administrativo. O upload das imagens
+é enviado para `timelines/{timelineId}/` no S3. A página pública usa `GET /timelines` e os detalhes
+usam `GET /timelines/{id}`.
+
+### Deploy
+
+O projeto possui Dockerfiles para `dc` e `front` e uma pipeline em `.github/workflows/ci.yml`.
+Para publicar na AWS ainda é necessário escolher a arquitetura (por exemplo, ECS/Fargate ou
+Elastic Beanstalk para a API, S3 + CloudFront para o frontend), criar os recursos e configurar os
+segredos no ambiente de execução. Nenhuma credencial AWS deve ser commitada no repositório.
+
+Para a arquitetura econômica escolhida, o diretório [`deploy/aws/`](./deploy/aws/) contém Terraform
+para criar os buckets privados, CloudFront, ECR, EC2, IAM Role da instância e OIDC do GitHub.
+Execute `terraform init`, `terraform validate`, `terraform plan` e `terraform apply` nesse diretório
+usando credenciais locais da AWS; nenhum segredo é salvo no Git.
+
+Depois da criação, o workflow `.github/workflows/deploy-frontend.yml` publica o frontend no S3 e
+invalida o CloudFront usando OIDC, sem access key no GitHub. Os outputs do Terraform preenchem
+`AWS_DEPLOY_ROLE_ARN`, `AWS_REGION`, `FRONTEND_BUCKET` e `CLOUDFRONT_DISTRIBUTION_ID`; configure
+também `VITE_API_URL` com o DNS público da EC2 durante o primeiro smoke test.
+
+O backend pode ser executado na EC2 usando a imagem definida em `deploy/ec2/docker-compose.yml`.
+A instância recebe uma IAM Role com acesso ao ECR, SSM e ao bucket privado de mídia. Mantenha
+`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` e `JWT_SECRET` somente no `.env` da EC2, nunca no GitHub
+ou no repositório. O workflow `.github/workflows/deploy-backend.yml` cria a imagem, envia ao ECR
+e atualiza a EC2 pelo SSM. Para ele, configure também `ECR_REPOSITORY_URL` e `EC2_INSTANCE_ID`.
+
 ## Upload de mídia por usuário no S3
 
 As configurações do backend ficam em `dc/.env`. O arquivo é carregado ao iniciar a API e está ignorado pelo Git para evitar o envio de credenciais. O `dc/.env.example` mostra os nomes das variáveis sem conter segredos.

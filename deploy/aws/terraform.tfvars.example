@@ -1,0 +1,12 @@
+aws_region       = "us-east-1"
+project_name     = "dc-universe"
+environment      = "production"
+github_repository = "CaioLira18/java-react-universeDC"
+
+# Optional. Leave empty to generate globally unique names.
+frontend_bucket_name = ""
+database_bucket_name = ""
+
+# Use your public IP in CIDR notation if SSH is needed, for example "203.0.113.10/32".
+# Leave empty and use SSM Session Manager instead.
+ec2_ssh_cidr = ""
