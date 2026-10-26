@@ -36,6 +36,11 @@ public class TimelineController {
     return ResponseEntity.ok(timelineService.findAll());
   }
 
+  @GetMapping("/{id}")
+  public ResponseEntity<Timeline> findById(@PathVariable String id) {
+    return ResponseEntity.ok(timelineService.findByIdForPublic(id));
+  }
+
   @PostMapping
   public ResponseEntity<Timeline> create(@RequestBody Timeline timeline) {
     return ResponseEntity.status(HttpStatus.CREATED).body(timelineService.create(timeline));

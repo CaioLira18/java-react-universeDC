@@ -36,7 +36,7 @@ public class SecurityConfig {
             .requestMatchers("/users/me", "/users/me/media").authenticated()
             .requestMatchers("/users/login", "/users/register", "/users/*/media").permitAll()
             .requestMatchers(HttpMethod.GET, "/home-slides").permitAll()
-            .requestMatchers(HttpMethod.GET, "/timelines").permitAll()
+            .requestMatchers(HttpMethod.GET, "/timelines", "/timelines/*").permitAll()
             .requestMatchers(HttpMethod.GET, "/sagas/admin").authenticated()
             .requestMatchers(HttpMethod.GET, "/groups/admin").authenticated()
             .requestMatchers(HttpMethod.GET, "/sagas", "/sagas/*").permitAll()
@@ -50,7 +50,7 @@ public class SecurityConfig {
                 "/character-appearances/**",
                 "/games/**",
                 "/character-game-appearances/**").permitAll()
-            .anyRequest().authenticated())
+            .anyRequest().hasRole("ADMIN"))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import './Timeline.css'
+import { API_URL } from '../../config'
 
 const EVENTS = [
   {
@@ -124,8 +126,6 @@ const EVENTS = [
   },
 ]
 
-const API_URL = 'http://localhost:8080'
-
 export const Timeline = () => {
   const [events, setEvents] = useState(EVENTS)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -205,7 +205,7 @@ export const Timeline = () => {
                   <div className="timeline__marker" aria-hidden="true">
                     <span>{String(index + 1).padStart(2, '0')}</span>
                   </div>
-                  <div className="timeline__card">
+                  <Link className="timeline__card" to={`/timeline/${event.id || index}`}>
                     <img
                       className="timeline__image"
                       src={event.image}
@@ -219,7 +219,8 @@ export const Timeline = () => {
                     <p className="timeline__era">{event.era}</p>
                     <h3>{event.title}</h3>
                     <p className="timeline__description">{event.description}</p>
-                  </div>
+                    <span className="timeline__details">Ver detalhes →</span>
+                  </Link>
                 </article>
               ))}
             </div>

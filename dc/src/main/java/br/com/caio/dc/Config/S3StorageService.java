@@ -109,6 +109,15 @@ public class S3StorageService {
       throw new IllegalArgumentException("File cannot be empty");
     }
 
+    String contentType = file.getContentType();
+    if (contentType == null || !contentType.startsWith("image/")) {
+      throw new IllegalArgumentException("Only image files are allowed");
+    }
+
+    if (file.getSize() > 25L * 1024 * 1024) {
+      throw new IllegalArgumentException("Image cannot be larger than 25 MB");
+    }
+
     if (bucketName == null || bucketName.isBlank()) {
       throw new IllegalStateException("AWS S3 bucket name is not configured");
     }
@@ -121,7 +130,7 @@ public class S3StorageService {
       PutObjectRequest request = PutObjectRequest.builder()
           .bucket(bucketName)
           .key(objectKey)
-          .contentType(file.getContentType() == null ? "application/octet-stream" : file.getContentType())
+          .contentType(contentType)
           .build();
 
       s3Client.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));

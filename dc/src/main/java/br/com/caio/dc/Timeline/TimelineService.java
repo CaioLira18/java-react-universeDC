@@ -26,6 +26,14 @@ public class TimelineService {
     return timelineRepository.findAllByOrderByDisplayOrderAsc();
   }
 
+  public Timeline findByIdForPublic(String id) {
+    Timeline timeline = findById(id);
+    if (!Boolean.TRUE.equals(timeline.getActive())) {
+      throw new NoSuchElementException("Timeline not found with id: " + id);
+    }
+    return timeline;
+  }
+
   public Timeline create(Timeline timeline) {
     return timelineRepository.save(timeline);
   }

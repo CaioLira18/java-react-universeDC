@@ -18,6 +18,7 @@ import GroupsPage from '../Pages/Groups/GroupsPage'
 import GroupDetail from '../Pages/Groups/GroupDetail'
 import AboutProject from '../Pages/AboutProject/AboutProject'
 import Timeline from '../Pages/Timeline/Timeline'
+import TimelineDetail from '../Pages/Timeline/TimelineDetail'
 
 export const AppRoutes = () => {
   const { pathname } = useLocation()
@@ -36,6 +37,7 @@ export const AppRoutes = () => {
         <Route path="/groups/:id" element={<GroupDetail />} />
         <Route path="/about" element={<AboutProject />} />
         <Route path="/timeline" element={<Timeline />} />
+        <Route path="/timeline/:id" element={<TimelineDetail />} />
         <Route path="/planets" element={<StarMap />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/movies/:id" element={<Movie />} />

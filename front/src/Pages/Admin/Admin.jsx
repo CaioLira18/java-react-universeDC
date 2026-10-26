@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import './Admin.css'
 import { AUTH_KEY } from '../../auth'
-
-const API_URL = 'http://localhost:8080';
+import { API_URL } from '../../config'
 
 /*
   Para cadastrar um campo novo, basta adicionar uma linha em "fields".

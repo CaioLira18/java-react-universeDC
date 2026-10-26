@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AUTH_KEY, notifyAuthChanged } from '../../auth'
 import './Login.css'
-
-const API_URL = 'http://localhost:8080';
+import { API_URL } from '../../config'
 
 export const Login = () => {
 
