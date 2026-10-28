@@ -35,6 +35,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/users/me", "/users/me/media").authenticated()
             .requestMatchers("/users/login", "/users/register", "/users/*/media").permitAll()
+            .requestMatchers("/actuator/health").permitAll()
             .requestMatchers(HttpMethod.GET, "/home-slides").permitAll()
             .requestMatchers(HttpMethod.GET, "/timelines", "/timelines/*").permitAll()
             .requestMatchers(HttpMethod.GET, "/sagas/admin").authenticated()
