@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import './GameSection.css'
 
 const HOME_GAME_LIMIT = 5
-const API_URL = 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 export const GameSection = () => {
   const [games, setGames] = useState([])

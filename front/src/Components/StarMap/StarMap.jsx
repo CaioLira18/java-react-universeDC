@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import './StarMap.css'
 
-const API_URL = 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 // escala as coordenadas do banco (livres, ex.: -20 a 20) pra pixels na cena CSS 3D
 const SCALE = 34;

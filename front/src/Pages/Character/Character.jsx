@@ -9,7 +9,7 @@ export const Character = () => {
   const [error, setError] = useState(false);
   const appearanceSectionRef = useRef(null)
   const gameSectionRef = useRef(null)
-  const API_URL = 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   useEffect(() => {
     setError(false);

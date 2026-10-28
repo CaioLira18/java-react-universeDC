@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AUTH_KEY, notifyAuthChanged } from '../../auth'
 import './UserPage.css'
 
-const API_URL = 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const readAuth = () => {
   try {

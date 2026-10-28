@@ -13,7 +13,7 @@ export const Home = () => {
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [transitionFromSlide, setTransitionFromSlide] = useState(null)
   const previousSlideRef = useRef(null)
-  const API_URL = 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   useEffect(() => {
     let cancelled = false

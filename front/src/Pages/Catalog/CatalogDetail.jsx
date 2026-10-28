@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import './CatalogDetail.css'
 
-const API_URL = 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const DETAIL_TYPES = {
   series: { endpoint: 'series', label: 'Série', imageField: 'serieLogo' },

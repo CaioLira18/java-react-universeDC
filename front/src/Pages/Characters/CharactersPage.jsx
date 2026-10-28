@@ -4,7 +4,7 @@ import './CharactersPage.css'
 
 // ajuste se a rota da página de detalhe for diferente (ex.: '/characters')
 const DETAIL_ROUTE = '/characters';
-const API_URL = 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 export const CharactersPage = () => {
 

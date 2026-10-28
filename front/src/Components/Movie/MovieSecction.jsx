@@ -7,7 +7,7 @@ const HOME_MOVIE_LIMIT = 10
 export const MovieSecction = () => {
 
   const [movies, setMovies] = useState([]);
-  const API_URL = 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   useEffect(() => {
     fetch(`${API_URL}/movies`)

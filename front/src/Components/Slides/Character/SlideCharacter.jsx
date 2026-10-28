@@ -8,7 +8,7 @@ export const SlideCharacter = () => {
   const [characters, setCharacters] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const navigate = useNavigate();
-  const API_URL = 'http://localhost:8080';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   useEffect(() => {
     fetch(`${API_URL}/characters`)
