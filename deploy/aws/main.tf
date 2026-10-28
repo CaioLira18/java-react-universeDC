@@ -4,17 +4,6 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-}
-
 data "aws_ssm_parameter" "ubuntu_ami" {
   name = "/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id"
 }
@@ -28,6 +17,37 @@ locals {
   frontend_bucket = var.frontend_bucket_name != "" ? var.frontend_bucket_name : "${var.project_name}-frontend-${local.suffix}"
   media_bucket    = var.database_bucket_name != "" ? var.database_bucket_name : "${var.project_name}-media-${local.suffix}"
   ecr_repository  = "${var.project_name}-api"
+}
+
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+}
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+}
+
+resource "aws_subnet" "public" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[0]
+  map_public_ip_on_launch = true
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  route_table_id = aws_route_table.public.id
+  subnet_id      = aws_subnet.public.id
 }
 
 resource "aws_s3_bucket" "frontend" {
@@ -255,7 +275,7 @@ resource "aws_iam_instance_profile" "ec2" {
 resource "aws_security_group" "api" {
   name        = "${var.project_name}-api"
   description = "Public API access for the single EC2 deployment."
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     description = "Spring Boot API"
@@ -288,7 +308,7 @@ resource "aws_security_group" "api" {
 resource "aws_instance" "api" {
   ami                         = data.aws_ssm_parameter.ubuntu_ami.value
   instance_type               = var.ec2_instance_type
-  subnet_id                   = data.aws_subnets.default.ids[0]
+  subnet_id                   = aws_subnet.public.id
   vpc_security_group_ids      = [aws_security_group.api.id]
   iam_instance_profile        = aws_iam_instance_profile.ec2.name
   associate_public_ip_address = true

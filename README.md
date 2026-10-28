@@ -44,7 +44,11 @@ e atualiza a EC2 pelo SSM. Para ele, configure também `ECR_REPOSITORY_URL` e `E
 
 As configurações do backend ficam em `dc/.env`. O arquivo é carregado ao iniciar a API e está ignorado pelo Git para evitar o envio de credenciais. O `dc/.env.example` mostra os nomes das variáveis sem conter segredos.
 
-Preencha `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` com as credenciais do PostgreSQL, além de `AWS_S3_BUCKET`, `AWS_S3_REGION`, `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY`. `AWS_S3_ENDPOINT` só é necessário para um serviço compatível com S3 que use endpoint próprio.
+Preencha `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` com as credenciais do PostgreSQL, além de
+`AWS_S3_BUCKET` e `AWS_S3_REGION`. Para AWS S3, deixe `AWS_S3_ENDPOINT` vazio: o SDK usa o
+endpoint regional automaticamente. `AWS_S3_ENDPOINT` só deve ser preenchido para um serviço
+compatível com S3 que use endpoint próprio. Em EC2, prefira a IAM Role e deixe
+`AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` vazios.
 
 A cada upload, o arquivo será salvo em:
 

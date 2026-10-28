@@ -44,8 +44,9 @@ tests and set `VITE_API_URL` to `http://<ec2-public-dns>:8080`.
 
 ## Important notes
 
-- The configuration uses the default VPC and its first available subnet to keep the
-  setup inexpensive. It is not a multi-AZ high-availability architecture.
+- The configuration creates one small public VPC and subnet to avoid depending on a
+  default VPC existing in the selected region. It is not a multi-AZ high-availability
+  architecture.
 - The EC2 instance is managed through SSM, so an SSH key is not required.
 - Terraform state contains resource identifiers and must be kept private. For a team,
   migrate the state to an encrypted, locked S3 backend after the first successful
