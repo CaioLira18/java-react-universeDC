@@ -1,9 +1,0 @@
-services:
-  api:
-    image: ${ECR_IMAGE}
-    container_name: dc-api
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env
