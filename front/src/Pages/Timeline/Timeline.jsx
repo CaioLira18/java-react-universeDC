@@ -3,6 +3,24 @@ import { Link } from 'react-router-dom'
 import './Timeline.css'
 import { API_URL } from '../../config'
 
+const createTimelineFallback = (event) => {
+  const label = encodeURIComponent(`${event.year}  ${event.title}`)
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+      <rect width="900" height="500" fill="#151a32"/>
+      <path d="M0 410L220 170L390 330L570 110L900 410V500H0Z" fill="#242c52"/>
+      <text x="50%" y="43%" fill="#ffd400" font-family="Arial,sans-serif" font-size="44" font-weight="700" text-anchor="middle">${label}</text>
+      <text x="50%" y="58%" fill="#fff6dc" font-family="Arial,sans-serif" font-size="22" text-anchor="middle">DC UNIVERSE</text>
+    </svg>
+  `)}`
+}
+
+const getTimelineImage = (event) => (
+  typeof event.image === 'string' && event.image.trim()
+    ? event.image.trim()
+    : createTimelineFallback(event)
+)
+
 const EVENTS = [
   {
     year: '1934',
@@ -216,11 +234,12 @@ export const Timeline = () => {
                   <Link className="timeline__card" to={`/timeline/${event.id || index}`}>
                     <img
                       className="timeline__image"
-                      src={event.image}
-                      alt={event.imageAlt}
+                      src={getTimelineImage(event)}
+                      alt={event.imageAlt || event.title}
                       loading="lazy"
                       onError={(imageEvent) => {
-                        imageEvent.currentTarget.src = 'https://placehold.co/900x500/151a32/fff6dc?text=DC+UNIVERSE'
+                        imageEvent.currentTarget.onerror = null
+                        imageEvent.currentTarget.src = createTimelineFallback(event)
                       }}
                     />
                     <p className="timeline__year">{event.year}</p>
