@@ -19,6 +19,249 @@ usam `GET /timelines/{id}`.
 
 ### Deploy
 
+O deploy econômico usa:
+
+- Amazon S3 + CloudFront para o frontend;
+- uma instância EC2 com Docker para a API;
+- Amazon ECR para armazenar a imagem Docker;
+- Neon PostgreSQL para o banco;
+- S3 separado para as imagens dos CRUDs;
+- CloudFront Function para remover o prefixo `/api` antes de encaminhar as requisições para a API.
+
+Nenhum segredo deve ser commitado. Não use access keys no código, no GitHub ou na
+imagem Docker. Na EC2, use a IAM Role da instância para acessar o ECR e o bucket de
+mídia. O arquivo `terraform.tfvars`, o state do Terraform e os arquivos `.env` ficam
+ignorados pelo Git.
+
+#### 1. Provisionar a infraestrutura
+
+O Terraform fica em [`deploy/aws/`](./deploy/aws/). O processo pode ser executado pelo
+AWS CloudShell, que já possui uma sessão autenticada na conta:
+
+```bash
+cd ~
+git clone https://github.com/CaioLira18/java-react-universeDC.git
+cd java-react-universeDC/deploy/aws
+cp terraform.tfvars.example terraform.tfvars
+nano terraform.tfvars
+```
+
+Confirme pelo menos:
+
+```hcl
+aws_region        = "us-east-1"
+project_name      = "dc-universe"
+environment       = "production"
+github_repository = "CaioLira18/java-react-universeDC"
+ec2_ssh_cidr      = ""
+```
+
+Inicialize e valide:
+
+```bash
+terraform init
+terraform fmt
+terraform validate
+terraform plan -var-file="terraform.tfvars"
+```
+
+Se o plano estiver correto:
+
+```bash
+terraform apply -var-file="terraform.tfvars"
+```
+
+O Terraform cria uma VPC pública pequena, EC2, ECR, buckets, CloudFront, Security
+Group, IAM Roles e integração OIDC. Se a conta não possuir uma Default VPC, isso não
+impede o deploy, pois a configuração cria sua própria VPC.
+
+Guarde os outputs:
+
+```bash
+terraform output
+```
+
+Os valores importantes são `frontend_bucket`, `media_bucket`,
+`cloudfront_distribution_id`, `cloudfront_domain_name`, `ecr_repository_url` e
+`ec2_instance_id`.
+
+#### 2. Configurar a API na EC2
+
+Acesse a instância pelo **EC2 > Instances > Connect > Session Manager**. Crie o
+arquivo `/opt/dc-api/.env`:
+
+```bash
+sudo mkdir -p /opt/dc-api
+sudo nano /opt/dc-api/.env
+sudo chmod 600 /opt/dc-api/.env
+```
+
+Use os valores reais do Neon e dos outputs do Terraform:
+
+```env
+ECR_IMAGE=URL_DO_OUTPUT_ECR/dc-universe-api:latest
+DB_URL=jdbc:postgresql://SEU_HOST_NEON/neondb?sslmode=require
+DB_USERNAME=SEU_USUARIO_NEON
+DB_PASSWORD=SUA_SENHA_NEON
+AWS_S3_BUCKET=BUCKET_DE_MEDIA
+AWS_S3_REGION=us-east-1
+AWS_S3_ENDPOINT=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+JWT_SECRET=UMA_CHAVE_ALEATORIA_LONGA
+```
+
+Gere o segredo JWT no CloudShell:
+
+```bash
+openssl rand -base64 64
+```
+
+Para AWS S3, `AWS_S3_ENDPOINT`, `AWS_ACCESS_KEY_ID` e
+`AWS_SECRET_ACCESS_KEY` devem permanecer vazios quando a EC2 estiver usando IAM
+Role. O bucket de mídia é diferente do bucket que contém os arquivos do frontend.
+
+#### 3. Construir e enviar a imagem da API
+
+No CloudShell, na raiz do projeto:
+
+```bash
+cd ~/java-react-universeDC
+git pull
+ECR="URL_DO_OUTPUT_ECR"
+IMAGE="$ECR:latest"
+aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin \
+  "$(echo "$ECR" | cut -d/ -f1)"
+docker build -t "$IMAGE" ./dc
+docker push "$IMAGE"
+```
+
+Se a alteração estiver apenas no computador local, faça commit e `git push` antes
+de executar o build no CloudShell, ou envie o projeto manualmente.
+
+#### 4. Iniciar ou atualizar o container da API
+
+Pelo Session Manager, na EC2:
+
+```bash
+sudo docker pull URL_DO_OUTPUT_ECR:latest
+sudo docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}\t{{.Status}}"
+sudo docker rm --force dc-api 2>/dev/null || true
+sudo docker run --detach \
+  --restart unless-stopped \
+  --name dc-api \
+  --env-file /opt/dc-api/.env \
+  --publish 8080:8080 \
+  URL_DO_OUTPUT_ECR:latest
+```
+
+Verifique:
+
+```bash
+sudo docker ps
+sudo docker logs --tail 100 dc-api
+curl -i http://localhost:8080/actuator/health
+```
+
+O health check esperado é `HTTP/1.1 200` com `{"status":"UP"}`. Se a porta 8080
+já estiver ocupada, remova o container antigo que aparece em `docker ps` antes de
+executar o novo `docker run`.
+
+#### 5. Publicar o frontend no S3
+
+No CloudShell, dentro de `front/`, configure a URL pública usada pelo frontend:
+
+```bash
+cd ~/java-react-universeDC/front
+export VITE_API_URL="https://SEU_DOMINIO_CLOUDFRONT/api"
+npm ci
+npm run build
+aws s3 sync ./dist s3://BUCKET_DO_FRONTEND --delete --region us-east-1
+```
+
+O bucket deve conter `index.html` e `assets/` diretamente na raiz; não envie a
+pasta `dist` como uma subpasta.
+
+Se preferir usar o DNS público da EC2 durante o primeiro teste, a URL pode ser
+`http://DNS_PUBLICO_DA_EC2:8080`, mas uma API HTTP acessada por um frontend HTTPS
+pode ser bloqueada pelo navegador por mixed content. Para produção, use HTTPS na API.
+
+#### 6. Configurar o comportamento `/api/*` no CloudFront
+
+Crie uma origem apontando para o DNS público da EC2 na porta 8080, com protocolo
+**HTTP only**, e um comportamento:
+
+```text
+Path pattern: /api/*
+Origin: EC2
+Viewer protocol policy: Redirect HTTP to HTTPS
+```
+
+Associe uma CloudFront Function no evento **Viewer request** para remover `/api`:
+
+```javascript
+function handler(event) {
+    var request = event.request;
+
+    if (request.uri.startsWith('/api/')) {
+        request.uri = request.uri.substring(4);
+    }
+
+    return request;
+}
+```
+
+Publique a função. Alterações em **Development** não entram em produção até clicar
+em **Publish**. Depois crie uma invalidação:
+
+```text
+/*
+```
+
+#### 7. Configurar CORS e testar
+
+Adicione o domínio final do CloudFront às origens permitidas no backend, publique
+uma nova imagem da API e reinicie o container. Teste:
+
+```text
+https://SEU_DOMINIO_CLOUDFRONT/actuator/health
+https://SEU_DOMINIO_CLOUDFRONT/api/users/register
+```
+
+O frontend deve chamar `/api/users/register`; a função remove o prefixo antes de
+enviar `/users/register` para o Spring Boot. Verifique no DevTools do navegador se
+a requisição está indo para o CloudFront e se o comportamento `/api/*` está sendo
+usado.
+
+#### 8. Deploy manual sem GitHub Actions
+
+O GitHub Actions é opcional. Para publicar manualmente:
+
+1. Faça `npm run build` no frontend.
+2. Envie `front/dist` com `aws s3 sync`.
+3. Faça a imagem Docker da API com `docker build`.
+4. Envie a imagem com `docker push`.
+5. Reinicie o container na EC2.
+6. Invalide o CloudFront com `/*`.
+
+Nunca copie `.env` para o bucket frontend, ECR ou repositório.
+
+#### 9. Remover a infraestrutura sem apagar as imagens
+
+Antes de `terraform destroy`, retire o bucket de mídia do state para preservá-lo:
+
+```bash
+terraform state rm aws_s3_bucket.media
+terraform state rm aws_s3_bucket_public_access_block.media
+terraform state rm aws_s3_bucket_versioning.media
+terraform plan -destroy -var-file="terraform.tfvars"
+terraform destroy -var-file="terraform.tfvars"
+```
+
+Revise o plano antes de confirmar. O bucket de mídia e seus objetos não devem
+aparecer como recursos a destruir.
+
 ## Upload de mídia por usuário no S3
 
 As configurações do backend ficam em `dc/.env`. O arquivo é carregado ao iniciar a API e está ignorado pelo Git para evitar o envio de credenciais. O `dc/.env.example` mostra os nomes das variáveis sem conter segredos.
