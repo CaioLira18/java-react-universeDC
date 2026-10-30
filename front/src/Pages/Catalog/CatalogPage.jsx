@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import './CatalogPage.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+const PAGE_SIZE = 24
+const SEARCH_DEBOUNCE_MS = 300
 
 const CATEGORIES = [
   { id: 'all', label: 'Todos' },
@@ -11,20 +13,33 @@ const CATEGORIES = [
   { id: 'game', label: 'Jogos' },
 ]
 
-const getImage = (item, type) => {
-  if (type === 'movie') return item.verticalImage
-  if (type === 'series') return item.serieLogo
-  return item.gameLogo
+const TYPE_LABEL = { movie: 'Filme', series: 'Série', game: 'Jogo' }
+const TYPE_ROUTE = { movie: 'movies', series: 'series', game: 'games' }
+
+const parseCategory = (value) =>
+  CATEGORIES.some((item) => item.id === value) ? value : 'all'
+
+// gera [0, 'gap-3', 4, 5, 6, 'gap-19', 20] a partir da página atual (0-based)
+const buildPageList = (current, total) => {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i)
+  const sorted = [...new Set([0, total - 1, current - 1, current, current + 1])]
+    .filter((p) => p >= 0 && p < total)
+    .sort((a, b) => a - b)
+  const result = []
+  sorted.forEach((p, i) => {
+    if (i > 0 && p - sorted[i - 1] > 1) result.push(`gap-${p}`)
+    result.push(p)
+  })
+  return result
 }
 
-const CatalogCard = ({ item, type }) => {
-  const image = getImage(item, type)
-  const content = (
-    <>
-      {image ? (
+const CatalogCard = ({ item }) => (
+  <li className={`catalog__item catalog__item--${item.type}`}>
+    <Link to={`/${TYPE_ROUTE[item.type]}/${item.id}`} className="catalog__card">
+      {item.image ? (
         <img
           className="catalog__image"
-          src={image}
+          src={item.image}
           alt=""
           loading="lazy"
           onError={(event) => {
@@ -37,79 +52,95 @@ const CatalogCard = ({ item, type }) => {
         </span>
       )}
       <span className="catalog__name">{item.title}</span>
-      <span className="catalog__type">
-        {type === 'movie' ? 'Filme' : type === 'series' ? 'Série' : 'Jogo'}
-      </span>
-    </>
-  )
-
-  return (
-    <li className={`catalog__item catalog__item--${type}`}>
-      <Link to={`/${type === 'movie' ? 'movies' : type === 'series' ? 'series' : 'games'}/${item.id}`} className="catalog__card">
-        {content}
-      </Link>
-    </li>
-  )
-}
+      <span className="catalog__type">{TYPE_LABEL[item.type]}</span>
+    </Link>
+  </li>
+)
 
 export const CatalogPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [catalog, setCatalog] = useState([])
-  const [status, setStatus] = useState('loading')
-  const requestedCategory = searchParams.get('category')
-  const [category, setCategory] = useState(
-    CATEGORIES.some((item) => item.id === requestedCategory) ? requestedCategory : 'all'
-  )
+  const [items, setItems] = useState([])
+  const [status, setStatus] = useState('loading') // loading | ready | error
+  const [fetching, setFetching] = useState(false) // trocando de página/filtro com dados já na tela
+  const [category, setCategory] = useState(parseCategory(searchParams.get('category')))
   const [search, setSearch] = useState(searchParams.get('search') || '')
+  const [debouncedSearch, setDebouncedSearch] = useState((searchParams.get('search') || '').trim())
+  const [page, setPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
+  const hasLoadedOnce = useRef(false)
 
+  // mantém categoria/busca em sincronia quando a URL muda (ex.: busca vinda do menu)
   useEffect(() => {
     setSearch(searchParams.get('search') || '')
-    const nextCategory = searchParams.get('category')
-    setCategory(CATEGORIES.some((item) => item.id === nextCategory) ? nextCategory : 'all')
+    setCategory(parseCategory(searchParams.get('category')))
+    setPage(0)
   }, [searchParams])
 
+  // debounce da busca: só consulta a API depois que a pessoa para de digitar
   useEffect(() => {
-    const loadCatalog = async () => {
-      try {
-        const endpoints = [
-          ['movie', '/movies'],
-          ['series', '/series'],
-          ['game', '/games'],
-        ]
-        const results = await Promise.all(
-          endpoints.map(async ([type, path]) => {
-            const response = await fetch(`${API_URL}${path}`)
-            if (!response.ok) throw new Error(`Erro ${response.status} ao carregar ${path}`)
-            const items = await response.json()
-            return items.map((item) => ({ ...item, type }))
-          })
-        )
-        setCatalog(results.flat())
+    const id = setTimeout(() => {
+      setDebouncedSearch(search.trim())
+      setPage(0)
+    }, SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(id)
+  }, [search])
+
+  // busca a página atual no backend
+  useEffect(() => {
+    const controller = new AbortController()
+    if (hasLoadedOnce.current) setFetching(true)
+
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(PAGE_SIZE),
+      search: debouncedSearch,
+      category,
+    })
+
+    fetch(`${API_URL}/catalog/page?${params}`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Erro ${response.status} ao carregar o catálogo`)
+        return response.json()
+      })
+      .then((data) => {
+        const content = data.content ?? []
+        const total = data.totalElements ?? content.length
+        setItems(content)
+        setTotalElements(total)
+        setTotalPages(data.totalPages ?? Math.ceil(total / PAGE_SIZE))
         setStatus('ready')
-      } catch (error) {
+        setFetching(false)
+        hasLoadedOnce.current = true
+      })
+      .catch((error) => {
+        if (error.name === 'AbortError') return // substituída por uma requisição mais nova
         console.error('Não foi possível carregar o catálogo.', error)
         setStatus('error')
-      }
-    }
+        setFetching(false)
+      })
 
-    loadCatalog()
-  }, [])
+    return () => controller.abort()
+  }, [page, category, debouncedSearch])
 
-  const filteredCatalog = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase('pt-BR')
-    return catalog
-      .filter((item) => category === 'all' || item.type === category)
-      .filter((item) => String(item.title || '').toLocaleLowerCase('pt-BR').includes(query))
-      .sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'pt-BR'))
-  }, [catalog, category, search])
+  const goToPage = (p) => {
+    if (p < 0 || p >= totalPages || p === page) return
+    setPage(p)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const pageList = buildPageList(page, totalPages)
 
   return (
     <main className="catalog">
       <header className="catalog__header">
         <h1 className="catalog__title">Filmes, séries e jogos</h1>
         {status === 'ready' && (
-          <p className="catalog__count">
-            {filteredCatalog.length} de {catalog.length} títulos
+          <p className="catalog__count" aria-live="polite">
+            {debouncedSearch
+              ? `${totalElements} ${totalElements === 1 ? 'encontrado' : 'encontrados'}`
+              : `${totalElements} títulos`}
+            {totalPages > 1 && ` · página ${page + 1} de ${totalPages}`}
           </p>
         )}
         <label className="catalog__search-label">
@@ -131,6 +162,7 @@ export const CatalogPage = () => {
               aria-pressed={category === item.id}
               onClick={() => {
                 setCategory(item.id)
+                setPage(0)
                 const nextParams = {}
                 if (item.id !== 'all') nextParams.category = item.id
                 if (search.trim()) nextParams.search = search.trim()
@@ -157,20 +189,67 @@ export const CatalogPage = () => {
         </p>
       )}
 
-      {status === 'ready' && filteredCatalog.length === 0 && (
+      {status === 'ready' && items.length === 0 && (
         <p className="catalog__message">
-          {catalog.length === 0
-            ? 'Nenhum título cadastrado ainda.'
-            : `Nenhum título encontrado para "${search}".`}
+          {debouncedSearch
+            ? `Nenhum título encontrado para "${debouncedSearch}".`
+            : 'Nenhum título cadastrado ainda.'}
         </p>
       )}
 
-      {status === 'ready' && filteredCatalog.length > 0 && (
-        <ul className="catalog__grid">
-          {filteredCatalog.map((item) => (
-            <CatalogCard key={`${item.type}-${item.id}`} item={item} type={item.type} />
-          ))}
-        </ul>
+      {status === 'ready' && items.length > 0 && (
+        <>
+          <ul
+            className={`catalog__grid${fetching ? ' catalog__grid--fetching' : ''}`}
+            aria-busy={fetching}
+          >
+            {items.map((item) => (
+              <CatalogCard key={`${item.type}-${item.id}`} item={item} />
+            ))}
+          </ul>
+
+          {totalPages > 1 && (
+            <nav className="catalog__pager" aria-label="Paginação">
+              <button
+                type="button"
+                className="catalog__pager-btn catalog__pager-btn--nav"
+                onClick={() => goToPage(page - 1)}
+                disabled={page === 0}
+              >
+                ‹ Anterior
+              </button>
+
+              <ul className="catalog__pager-pages">
+                {pageList.map((p) =>
+                  typeof p === 'string' ? (
+                    <li key={p} className="catalog__pager-gap" aria-hidden="true">…</li>
+                  ) : (
+                    <li key={p}>
+                      <button
+                        type="button"
+                        className={`catalog__pager-btn${p === page ? ' is-current' : ''}`}
+                        onClick={() => goToPage(p)}
+                        aria-label={`Página ${p + 1}`}
+                        aria-current={p === page ? 'page' : undefined}
+                      >
+                        {p + 1}
+                      </button>
+                    </li>
+                  )
+                )}
+              </ul>
+
+              <button
+                type="button"
+                className="catalog__pager-btn catalog__pager-btn--nav"
+                onClick={() => goToPage(page + 1)}
+                disabled={page >= totalPages - 1}
+              >
+                Próxima ›
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </main>
   )

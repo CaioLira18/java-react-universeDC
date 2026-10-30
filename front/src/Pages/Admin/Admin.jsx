@@ -161,315 +161,6 @@ const newSagaComic = () => ({
   file: null,
 })
 
-const CHARACTER_PRESETS = {
-  superman: {
-    name: 'Superman',
-    true_name: 'Clark Kent (Kal-El)',
-    description: 'Último filho de Krypton, criado em Smallville e protetor de Metrópolis.',
-    powers: 'Superforça, voo, supervelocidade, visão de calor, visão de raio X e invulnerabilidade.',
-    planet: 'Krypton',
-    first_appearance: 'Action Comics #1',
-    first_appearance_year: '1938',
-  },
-  batman: {
-    name: 'Batman',
-    true_name: 'Bruce Wayne',
-    description: 'Vigilante de Gotham City que combate o crime usando inteligência, preparo físico e tecnologia.',
-    powers: 'Sem superpoderes; mestre em artes marciais, estratégia, investigação e uso de equipamentos.',
-    planet: 'Terra',
-    first_appearance: 'Detective Comics #27',
-    first_appearance_year: '1939',
-  },
-  beastBoy: {
-    name: 'Mutano',
-    true_name: 'Garfield Logan',
-    description: 'Herói e integrante dos Jovens Titãs, conhecido por seu humor e espírito de equipe.',
-    powers: 'Pode se transformar em diferentes animais e assumir as habilidades físicas deles.',
-    planet: 'Terra',
-    first_appearance: 'Doom Patrol #99',
-    first_appearance_year: '1965',
-  },
-  aquaman: {
-    name: 'Aquaman',
-    true_name: 'Arthur Curry',
-    description: 'Rei da Atlântida e protetor dos oceanos, ligado tanto ao mundo submarino quanto à superfície.',
-    powers: 'Respiração subaquática, força e resistência ampliadas, natação em alta velocidade e comunicação com a vida marinha.',
-    planet: 'Terra',
-    first_appearance: 'More Fun Comics #73',
-    first_appearance_year: '1941',
-  },
-  mera: {
-    name: 'Mera',
-    true_name: 'Mera',
-    description: 'Guerreira de Xebel, rainha da Atlântida e aliada de Aquaman.',
-    powers: 'Hidrocinésia: controla e molda a água, além de possuir força e resistência sobre-humanas.',
-    planet: 'Xebel',
-    first_appearance: 'Aquaman #11',
-    first_appearance_year: '1963',
-  },
-  flash: {
-    name: 'Flash',
-    true_name: 'Barry Allen',
-    description: 'Cientista forense de Central City que usa seus poderes para proteger pessoas e combater o crime.',
-    powers: 'Supervelocidade, reflexos ampliados e conexão com a Força de Aceleração.',
-    planet: 'Terra',
-    first_appearance: 'Showcase #4',
-    first_appearance_year: '1956',
-  },
-  wonderWoman: {
-    name: 'Mulher-Maravilha',
-    true_name: 'Diana de Themyscira',
-    description: 'Princesa amazona e embaixadora de Themyscira, dedicada à justiça e à paz.',
-    powers: 'Força, velocidade e resistência sobre-humanas; grande habilidade de combate e uso do laço da verdade.',
-    planet: 'Terra',
-    first_appearance: 'All Star Comics #8',
-    first_appearance_year: '1941',
-  },
-  greenLantern: {
-    name: 'Lanterna Verde',
-    true_name: 'Hal Jordan',
-    description: 'Piloto terrestre escolhido para integrar a Tropa dos Lanternas Verdes.',
-    powers: 'Anel de poder que cria construções de energia e permite voo e proteção, alimentado pela força de vontade.',
-    planet: 'Terra',
-    first_appearance: 'Showcase #22',
-    first_appearance_year: '1959',
-  },
-  cyborg: {
-    name: 'Ciborgue',
-    true_name: 'Victor Stone',
-    description: 'Herói cuja vida mudou após um acidente que o deixou integrado a tecnologia avançada.',
-    powers: 'Força ampliada, sistemas tecnológicos integrados, interface com computadores e armamentos cibernéticos.',
-    planet: 'Terra',
-    first_appearance: 'DC Comics Presents #26',
-    first_appearance_year: '1980',
-  },
-  raven: {
-    name: 'Ravena',
-    true_name: 'Rachel Roth',
-    description: 'Empata reservada e integrante dos Jovens Titãs, que busca controlar sua herança mística.',
-    powers: 'Empatia, telecinese, projeção astral e magia.',
-    planet: 'Terra',
-    first_appearance: 'DC Comics Presents #26',
-    first_appearance_year: '1980',
-  },
-  starfire: {
-    name: 'Estelar',
-    true_name: "Koriand'r",
-    description: 'Princesa de Tamaran e integrante dos Jovens Titãs, conhecida por sua coragem e energia.',
-    powers: 'Voo, força sobre-humana e rajadas de energia estelar.',
-    planet: 'Tamaran',
-    first_appearance: 'DC Comics Presents #26',
-    first_appearance_year: '1980',
-  },
-  greenArrow: {
-    name: 'Arqueiro Verde',
-    true_name: 'Oliver Queen',
-    description: 'Herói de Star City que usa suas habilidades de arqueiro para defender sua comunidade.',
-    powers: 'Sem superpoderes; arqueiro de elite, estrategista e combatente experiente.',
-    planet: 'Terra',
-    first_appearance: 'More Fun Comics #73',
-    first_appearance_year: '1941',
-  },
-  nightwing: {
-    name: 'Asa Noturna',
-    true_name: 'Dick Grayson',
-    description: 'Herói de Blüdhaven, antigo parceiro de Batman e líder experiente dos Jovens Titãs.',
-    powers: 'Sem superpoderes; acrobata excepcional, estrategista e especialista em artes marciais.',
-    planet: 'Terra',
-    first_appearance: 'Tales of the Teen Titans #44',
-    first_appearance_year: '1984',
-  },
-  joker: {
-    name: 'Coringa',
-    true_name: 'Desconhecido',
-    description: 'Criminoso imprevisível de Gotham City e um dos adversários mais conhecidos de Batman.',
-    powers: 'Sem superpoderes; especialista em crimes elaborados, manipulação e uso de toxinas.',
-    planet: 'Terra',
-    first_appearance: 'Batman #1',
-    first_appearance_year: '1940',
-  },
-  johnConstantine: {
-    name: 'John Constantine',
-    true_name: 'John Constantine',
-    description: 'Detetive do oculto e mago inglês que enfrenta ameaças sobrenaturais usando conhecimento, astúcia e métodos pouco convencionais.',
-    powers: 'Conhecimento avançado de ocultismo, rituais e exorcismo; habilidade em investigação, ilusionismo e manipulação.',
-    planet: 'Terra',
-    first_appearance: 'The Saga of the Swamp Thing #37',
-    first_appearance_year: '1985',
-  },
-  etrigan: {
-    name: 'Etrigan',
-    true_name: 'Jason Blood',
-    description: 'Demônio ligado por Merlin ao cavaleiro Jason Blood, alternando entre a vida humana e uma poderosa forma demoníaca.',
-    powers: 'Força e resistência sobre-humanas, fogo infernal, longevidade e conhecimento místico.',
-    planet: 'Inferno',
-    first_appearance: 'The Demon #1',
-    first_appearance_year: '1972',
-  },
-  swampThing: {
-    name: 'Monstro do Pântano',
-    true_name: 'Alec Holland',
-    description: 'Guardião do Verde, força elemental conectada à vida vegetal e protetor do equilíbrio natural.',
-    powers: 'Controle e regeneração de matéria vegetal, conexão com o Verde, mudança de forma e consciência distribuída pela vegetação.',
-    planet: 'Terra',
-    first_appearance: 'House of Secrets #92',
-    first_appearance_year: '1971',
-  },
-  deadman: {
-    name: 'Desafiador',
-    true_name: 'Boston Brand',
-    description: 'Artista de circo assassinado que retorna como espírito e ajuda os vivos enquanto busca justiça.',
-    powers: 'Como espírito, pode possuir temporariamente pessoas vivas e atravessar objetos.',
-    planet: 'Terra',
-    first_appearance: 'Strange Adventures #205',
-    first_appearance_year: '1967',
-  },
-  zatanna: {
-    name: 'Zatanna',
-    true_name: 'Zatanna Zatara',
-    description: 'Mágica de palco e poderosa feiticeira que protege o mundo de ameaças místicas.',
-    powers: 'Magia conjurada principalmente ao pronunciar palavras ao contrário; grande conhecimento de artes arcanas.',
-    planet: 'Terra',
-    first_appearance: 'Hawkman #4',
-    first_appearance_year: '1964',
-  },
-  doctorFate: {
-    name: 'Doutor Destino',
-    true_name: 'Kent Nelson',
-    description: 'Um dos principais usuários de magia da Terra, ligado ao elmo de Nabu e à antiga Ordem dos Senhores da Ordem.',
-    powers: 'Magia poderosa, voo, proteção mística, teletransporte e conhecimento arcano concedidos pelo elmo de Nabu.',
-    planet: 'Terra',
-    first_appearance: 'More Fun Comics #55',
-    first_appearance_year: '1940',
-  },
-  madameXanadu: {
-    name: 'Madame Xanadu',
-    true_name: 'Nimue Inwudu',
-    description: 'Vidente e conselheira mística que auxilia heróis em conflitos envolvendo magia e forças sobrenaturais.',
-    powers: 'Clarividência, leitura de tarô, longevidade e conhecimento de magia e ocultismo.',
-    planet: 'Terra',
-    first_appearance: 'Doorway to Nightmare #1',
-    first_appearance_year: '1978',
-  },
-  frankenstein: {
-    name: 'Frankenstein',
-    true_name: 'Frankenstein',
-    description: 'Criatura reanimada de grande longevidade que atua como guerreiro e investigador de ameaças sobrenaturais.',
-    powers: 'Força e resistência sobre-humanas, longevidade e experiência em combate.',
-    planet: 'Terra',
-    first_appearance: 'Frankenstein #1',
-    first_appearance_year: '1973',
-  },
-  detectiveChimp: {
-    name: 'Detetive Chimp',
-    true_name: 'Bobo T. Chimpanzee',
-    description: 'Chimpanzé inteligente e detetive excepcional, frequentemente envolvido em mistérios e casos sobrenaturais.',
-    powers: 'Inteligência extraordinária, habilidades de investigação e domínio de diversos idiomas.',
-    planet: 'Terra',
-    first_appearance: 'The Adventures of Rex the Wonder Dog #4',
-    first_appearance_year: '1952',
-  },
-}
-
-const DCAMU_MOVIE_PRESETS = [
-  {
-    title: 'Justice League: The Flashpoint Paradox',
-    year: '2013',
-    duration: '81 min',
-    description: 'Flash altera o passado ao tentar salvar sua família e desperta uma realidade devastada por uma guerra entre Atlântida e Themyscira.',
-  },
-  {
-    title: 'Justice League: War',
-    year: '2014',
-    duration: '79 min',
-    description: 'Uma invasão alienígena reúne Batman, Superman, Mulher-Maravilha, Flash, Lanterna Verde, Shazam e Ciborgue na formação da Liga da Justiça.',
-  },
-  {
-    title: 'Son of Batman',
-    year: '2014',
-    duration: '74 min',
-    description: 'Batman descobre a existência de Damian Wayne e precisa lidar com o filho enquanto enfrenta uma disputa ligada à Liga dos Assassinos.',
-  },
-  {
-    title: 'Justice League: Throne of Atlantis',
-    year: '2015',
-    duration: '72 min',
-    description: 'A Liga da Justiça enfrenta uma ameaça vinda de Atlântida enquanto Arthur Curry descobre sua ligação com o reino submarino.',
-  },
-  {
-    title: 'Batman vs. Robin',
-    year: '2015',
-    duration: '80 min',
-    description: 'O conflito entre Batman e Damian aumenta quando Robin se aproxima de uma sociedade secreta que atua nas sombras de Gotham.',
-  },
-  {
-    title: 'Batman: Bad Blood',
-    year: '2016',
-    duration: '72 min',
-    description: 'Batwoman desaparece após um confronto, levando Batman e seus aliados a investigar uma conspiração que ameaça Gotham.',
-  },
-  {
-    title: 'Justice League vs. Teen Titans',
-    year: '2016',
-    duration: '78 min',
-    description: 'Damian se junta aos Jovens Titãs, que precisam enfrentar uma força sobrenatural capaz de colocar a Liga da Justiça sob controle.',
-  },
-  {
-    title: 'Justice League Dark',
-    year: '2017',
-    duration: '75 min',
-    description: 'Batman se une a John Constantine, Zatanna e outros especialistas em magia para investigar ataques de origem sobrenatural.',
-  },
-  {
-    title: 'Teen Titans: The Judas Contract',
-    year: '2017',
-    duration: '84 min',
-    description: 'Os Jovens Titãs recebem uma nova integrante enquanto enfrentam um plano de Exterminador que ameaça a equipe.',
-  },
-  {
-    title: 'Suicide Squad: Hell to Pay',
-    year: '2018',
-    duration: '86 min',
-    description: 'Amanda Waller envia o Esquadrão Suicida em uma missão perigosa para recuperar um objeto místico disputado por vários inimigos.',
-  },
-  {
-    title: 'The Death of Superman',
-    year: '2018',
-    duration: '81 min',
-    description: 'A chegada de Apocalypse desencadeia uma batalha de proporções inéditas e coloca Superman diante de seu maior sacrifício.',
-  },
-  {
-    title: 'Constantine: City of Demons',
-    year: '2018',
-    duration: '90 min',
-    description: 'John Constantine busca salvar a filha de um velho amigo e enfrenta forças demoníacas em uma jornada marcada por magia e consequências pessoais.',
-  },
-  {
-    title: 'Reign of the Supermen',
-    year: '2019',
-    duration: '87 min',
-    description: 'Após a ausência de Superman, novos heróis surgem para ocupar seu lugar enquanto Lois Lane procura descobrir o que realmente aconteceu.',
-  },
-  {
-    title: 'Batman: Hush',
-    year: '2019',
-    duration: '82 min',
-    description: 'Um inimigo misterioso manipula aliados e adversários de Batman, colocando em risco sua identidade e seus relacionamentos.',
-  },
-  {
-    title: 'Wonder Woman: Bloodlines',
-    year: '2019',
-    duration: '83 min',
-    description: 'Mulher-Maravilha enfrenta uma organização criminosa e criaturas mitológicas enquanto tenta proteger uma jovem em perigo.',
-  },
-  {
-    title: 'Justice League Dark: Apokolips War',
-    year: '2020',
-    duration: '90 min',
-    description: 'Após uma derrota devastadora diante de Darkseid, os heróis sobreviventes tentam organizar uma última resistência para salvar a Terra.',
-  },
-]
-
 const SAGA_PRESETS = {
   new52: {
     name: 'New 52',
@@ -598,348 +289,6 @@ const NEW52_COMICS = [
   },
 ]
 
-const DC_SERIES_PRESETS = [
-  {
-    title: 'Smallville',
-    description: 'Acompanha a juventude de Clark Kent em Smallville, sua descoberta dos poderes e o caminho que o levará a se tornar Superman.',
-  },
-  {
-    title: 'Arrow',
-    description: 'Após anos desaparecido, Oliver Queen retorna a Starling City e assume a missão de proteger a cidade como um arqueiro vigilante.',
-  },
-  {
-    title: 'The Flash',
-    description: 'Depois de um acidente no acelerador de partículas, o investigador Barry Allen ganha supervelocidade e passa a proteger Central City.',
-  },
-  {
-    title: 'Supergirl',
-    description: 'Kara Danvers decide usar seus poderes kryptonianos para defender National City e encontrar seu próprio lugar como heroína.',
-  },
-  {
-    title: 'DC’s Legends of Tomorrow',
-    description: 'Um grupo improvável de heróis e fora da lei viaja pelo tempo para impedir ameaças que podem alterar a história.',
-  },
-  {
-    title: 'Gotham',
-    description: 'Antes da ascensão de Batman, o jovem detetive James Gordon enfrenta o crime e acompanha o surgimento de figuras marcantes de Gotham.',
-  },
-  {
-    title: 'Titans',
-    description: 'Dick Grayson reúne jovens heróis como Rachel Roth, Kory Anders e Gar Logan para enfrentar ameaças e construir uma nova equipe.',
-  },
-  {
-    title: 'Jovens Titãs (2003)',
-    description: 'Robin, Estelar, Ciborgue, Ravena e Mutano formam uma equipe de jovens heróis que protege Jump City e enfrenta vilões enquanto aprendem a trabalhar juntos.',
-  },
-  {
-    title: 'Os Jovens Titãs em Ação! (2013)',
-    description: 'Em uma versão cômica e mais leve, Robin, Estelar, Ciborgue, Ravena e Mutano vivem aventuras e situações cotidianas na Torre dos Titãs.',
-  },
-  {
-    title: 'Doom Patrol',
-    description: 'Um grupo de pessoas marginalizadas, transformadas por acidentes extraordinários, encontra uma família e enfrenta perigos surreais.',
-  },
-  {
-    title: 'Superman & Lois',
-    description: 'Clark Kent e Lois Lane equilibram a vida familiar em Smallville com os desafios de proteger o mundo como Superman.',
-  },
-  {
-    title: 'Peacemaker',
-    description: 'Christopher Smith, o Pacificador, é recrutado para missões secretas que colocam à prova sua visão distorcida de justiça.',
-  },
-  {
-    title: 'Harley Quinn',
-    description: 'Depois de romper com o Coringa, Harley Quinn busca seu espaço no submundo de Gotham ao lado de uma equipe de aliados excêntricos.',
-  },
-  {
-    title: 'Young Justice',
-    description: 'Jovens heróis como Robin, Superboy, Miss Martian e Aqualad formam uma equipe secreta e assumem missões próprias.',
-  },
-  {
-    title: 'Batman: The Animated Series',
-    description: 'Batman combate o crime em Gotham em uma série animada reconhecida por sua atmosfera noir e por reinterpretar personagens clássicos.',
-  },
-  {
-    title: 'Justice League Unlimited',
-    description: 'A Liga da Justiça amplia sua equipe e reúne heróis de todo o universo DC para enfrentar ameaças globais e cósmicas.',
-  },
-]
-
-const DC_GAME_PRESETS = [
-  {
-    title: 'Batman: Arkham Asylum',
-    description: 'Batman precisa deter o Coringa após ele assumir o controle do Asilo Arkham e libertar diversos criminosos de Gotham.',
-  },
-  {
-    title: 'Batman: Arkham City',
-    description: 'Batman investiga uma enorme prisão a céu aberto construída dentro de Gotham e descobre um plano que ameaça seus habitantes.',
-  },
-  {
-    title: 'Batman: Arkham Origins',
-    description: 'Uma aventura ambientada nos primeiros anos de Batman, quando uma recompensa atrai assassinos perigosos para Gotham na véspera de Natal.',
-  },
-  {
-    title: 'Batman: Arkham Knight',
-    description: 'Batman enfrenta o Espantalho e uma nova ameaça que mobiliza Gotham, enquanto tenta proteger a cidade durante uma noite decisiva.',
-  },
-  {
-    title: 'Injustice: Gods Among Us',
-    description: 'Em uma realidade alternativa, Superman estabelece um regime mundial e antigos aliados se dividem entre apoiá-lo ou resistir.',
-  },
-  {
-    title: 'Injustice 2',
-    description: 'Heróis e vilões se enfrentam em um mundo ainda abalado pelo regime de Superman, enquanto uma nova ameaça se aproxima da Terra.',
-  },
-  {
-    title: 'LEGO Batman: The Videogame',
-    description: 'Batman e Robin enfrentam vilões de Gotham em uma aventura de ação e quebra-cabeças construída no universo LEGO.',
-  },
-  {
-    title: 'LEGO Batman 2: DC Super Heroes',
-    description: 'Batman e Robin se unem a Superman e outros heróis da DC para impedir os planos de Lex Luthor e do Coringa.',
-  },
-  {
-    title: 'LEGO Batman 3: Beyond Gotham',
-    description: 'Batman e diversos heróis da DC viajam pelo espaço para enfrentar Brainiac e proteger os Lanternas e seus mundos.',
-  },
-  {
-    title: 'DC Universe Online',
-    description: 'Um RPG online ambientado no universo DC em que jogadores criam seus próprios heróis ou vilões e participam de aventuras ao lado de personagens conhecidos.',
-  },
-  {
-    title: 'Batman: The Telltale Series',
-    description: 'Uma aventura narrativa que acompanha Bruce Wayne e Batman diante de escolhas difíceis que afetam Gotham e seus aliados.',
-  },
-  {
-    title: 'Gotham Knights',
-    description: 'Após a morte de Bruce Wayne, Batgirl, Asa Noturna, Capuz Vermelho e Robin protegem Gotham e investigam a Corte das Corujas.',
-  },
-  {
-    title: 'Suicide Squad: Kill the Justice League',
-    description: 'Arlequina, Pistoleiro, Tubarão-Rei e Capitão Bumerangue recebem a missão de enfrentar membros da Liga da Justiça sob controle de Brainiac.',
-  },
-]
-
-const DC_PLANET_PRESETS = [
-  {
-    name: 'Terra',
-    description: 'Mundo natal da maioria dos heróis da Liga da Justiça e centro de inúmeras ameaças cósmicas.',
-    sector: 'Setor 2814',
-    color: '#4da6ff',
-    notableResidents: 'Superman, Batman, Mulher-Maravilha, Flash, Lanterna Verde',
-    positionX: '0',
-    positionY: '0',
-    positionZ: '0',
-    size: '1.3',
-  },
-  {
-    name: 'Marte',
-    description: 'Mundo natal dos marcianos, devastado por uma guerra que deixou poucos sobreviventes.',
-    sector: 'Setor 2814',
-    color: '#d95745',
-    notableResidents: 'Caçador de Marte (J’onn J’onzz), marcianos verdes e brancos',
-    positionX: '3',
-    positionY: '4',
-    positionZ: '-4',
-    size: '0.95',
-  },
-  {
-    name: 'Tamaran',
-    description: 'Mundo de alta gravidade conhecido por sua cultura guerreira e pelos habitantes de pele alaranjada.',
-    sector: 'Sistema Vega',
-    color: '#ff9c43',
-    notableResidents: 'Estelar (Koriand’r), Komand’r, tamaraneanos',
-    positionX: '-22',
-    positionY: '8',
-    positionZ: '-14',
-    size: '1.1',
-  },
-  {
-    name: 'Xebel',
-    description: 'Reino extradimensional ligado à Atlântida, de onde Mera veio antes de se tornar uma de suas principais líderes.',
-    sector: 'Dimensão de Xebel',
-    color: '#42c9c4',
-    notableResidents: 'Mera, Nereus, xebelianos',
-    positionX: '23',
-    positionY: '3',
-    positionZ: '-11',
-    size: '0.9',
-  },
-  {
-    name: 'Rann',
-    description: 'Planeta avançado que mantém uma ligação histórica com a Terra por meio do cientista e aventureiro Adam Strange.',
-    sector: 'Sistema Alpha Centauri',
-    color: '#71a7ff',
-    notableResidents: 'Adam Strange, Alanna, rannianos',
-    positionX: '-26',
-    positionY: '-4',
-    positionZ: '-24',
-    size: '1.05',
-  },
-  {
-    name: 'Daxam',
-    description: 'Mundo habitado por descendentes de kryptonianos; seus habitantes compartilham poderes semelhantes sob um sol amarelo, mas são vulneráveis ao chumbo.',
-    sector: 'Setor 1760',
-    color: '#e6a64a',
-    notableResidents: 'Mon-El, daxamitas',
-    positionX: '25',
-    positionY: '10',
-    positionZ: '-26',
-    size: '1.0',
-  },
-  {
-    name: 'Colu',
-    description: 'Planeta conhecido por sua população altamente inteligente e por avanços extraordinários em ciência e tecnologia.',
-    sector: 'Setor 2810',
-    color: '#72d696',
-    notableResidents: 'Brainiac, Brainiac 5, coluanos',
-    positionX: '-1',
-    positionY: '18',
-    positionZ: '-32',
-    size: '0.95',
-  },
-  {
-    name: 'Korugar',
-    description: 'Planeta natal de Sinestro, cuja história está ligada à Tropa dos Lanternas Verdes e à criação da Tropa Sinestro.',
-    sector: 'Setor 1417',
-    color: '#e24c43',
-    notableResidents: 'Sinestro, Soranik Natu, korugarianos',
-    positionX: '29',
-    positionY: '-10',
-    positionZ: '-8',
-    size: '1.0',
-  },
-  {
-    name: 'Qward',
-    description: 'Mundo antimatéria e lar dos Armeiros de Qward, inimigos históricos dos Lanternas Verdes.',
-    sector: 'Universo de antimatéria',
-    color: '#d8c64a',
-    notableResidents: 'Armeiros de Qward, Anti-Monitor',
-    positionX: '-31',
-    positionY: '5',
-    positionZ: '-12',
-    size: '1.0',
-  },
-  {
-    name: 'Warworld',
-    description: 'Planeta artificial transformado em uma fortaleza e arena de combate, conhecido por seus governantes conquistadores.',
-    sector: 'Espaço profundo',
-    color: '#b95d48',
-    notableResidents: 'Mongul, gladiadores e povos conquistados',
-    positionX: '0',
-    positionY: '-18',
-    positionZ: '-32',
-    size: '1.5',
-  },
-  {
-    name: 'Gemworld',
-    description: 'Mundo mágico dividido em reinos associados a pedras preciosas e conectado às aventuras de Amethyst.',
-    sector: 'Dimensão mágica',
-    color: '#bd78e8',
-    notableResidents: 'Amethyst, Lorde Opal, habitantes dos reinos-gema',
-    positionX: '30',
-    positionY: '14',
-    positionZ: '-18',
-    size: '0.9',
-  },
-  {
-    name: 'Ysmault',
-    description: 'Mundo-prisão devastado que se tornou o refúgio e centro de poder da Tropa dos Lanternas Vermelhos.',
-    sector: 'Setor 666',
-    color: '#f04437',
-    notableResidents: 'Atrocitus, Lanternas Vermelhos',
-    positionX: '-28',
-    positionY: '-13',
-    positionZ: '-30',
-    size: '0.9',
-  },
-  {
-    name: 'Czarnia',
-    description: 'Planeta natal dos czarnianos, destruído após a ação de um de seus habitantes mais perigosos.',
-    sector: 'Setor 2813',
-    color: '#b7c7d9',
-    notableResidents: 'Lobo, czarnianos',
-    positionX: '3',
-    positionY: '24',
-    positionZ: '-24',
-    size: '0.85',
-  },
-  {
-    name: 'Htrae (Mundo Bizarro)',
-    description: 'Planeta de forma cúbica associado ao universo Bizarro, onde muitas coisas acontecem ao contrário.',
-    sector: 'Universo Bizarro',
-    color: '#c7a5e8',
-    notableResidents: 'Bizarro, habitantes Bizarro',
-    positionX: '34',
-    positionY: '-19',
-    positionZ: '-32',
-    size: '0.85',
-  },
-]
-
-const DC_GROUP_PRESETS = [
-  {
-    name: 'Liga da Justiça',
-    description: 'A principal aliança de heróis da Terra, reunida para proteger o planeta de ameaças que nenhum integrante conseguiria enfrentar sozinho.',
-    groupType: 'Equipe de super-heróis',
-    universe: 'Universo DC',
-    base: 'Sala de Justiça / Torre de Vigilância',
-    foundedYear: '1960',
-    firstAppearance: 'The Brave and the Bold #28',
-    displayOrder: '1',
-    active: true,
-    memberAliases: [
-      ['Superman', 'Clark Kent'],
-      ['Batman', 'Bruce Wayne'],
-      ['Mulher-Maravilha', 'Wonder Woman', 'Diana'],
-      ['Flash', 'Barry Allen'],
-      ['Lanterna Verde', 'Green Lantern', 'Hal Jordan'],
-      ['Aquaman', 'Arthur Curry'],
-      ['Ciborgue', 'Cyborg', 'Victor Stone'],
-    ],
-  },
-  {
-    name: 'Jovens Titãs',
-    description: 'Equipe de jovens heróis que une diferentes gerações e poderes para proteger o mundo, crescer como indivíduos e provar seu valor ao lado dos grandes heróis.',
-    groupType: 'Equipe de jovens super-heróis',
-    universe: 'Universo DC',
-    base: 'Torre dos Titãs',
-    foundedYear: '1964',
-    firstAppearance: 'The Brave and the Bold #54',
-    displayOrder: '2',
-    active: true,
-    memberAliases: [
-      ['Robin', 'Dick Grayson'],
-      ['Mutano', 'Beast Boy', 'Garfield Logan'],
-      ['Ravena', 'Raven', 'Rachel Roth'],
-      ['Estelar', 'Starfire', 'Koriand’r', "Koriand'r"],
-      ['Ciborgue', 'Cyborg', 'Victor Stone'],
-    ],
-  },
-  {
-    name: 'Liga da Justiça Sombria',
-    description: 'Grupo especializado em ameaças mágicas e sobrenaturais, reunindo especialistas e seres extraordinários para defender a realidade de perigos ocultos.',
-    groupType: 'Equipe de heróis sobrenaturais',
-    universe: 'Universo DC',
-    base: 'Casa dos Mistérios',
-    foundedYear: '2011',
-    firstAppearance: 'Justice League Dark #1',
-    displayOrder: '3',
-    active: true,
-    memberAliases: [
-      ['John Constantine', 'Constantine'],
-      ['Etrigan', 'Jason Blood'],
-      ['Zatanna', 'Zatanna Zatara'],
-      ['Desafiador', 'Deadman', 'Boston Brand'],
-      ['Monstro do Pântano', 'Swamp Thing', 'Alec Holland'],
-      ['Madame Xanadu', 'Nimue Inwudu'],
-      ['Doutor Destino', 'Doctor Fate', 'Kent Nelson'],
-      ['Frankenstein', 'Victor Frankenstein'],
-      ['Detetive Chimp', 'Detective Chimp', 'Bobo T. Chimpanzee'],
-    ],
-  },
-]
-
 const STARFIRE_HOME_SLIDE_PRESET = {
   title: 'Starfire',
   subtitle: 'Conheça a Starfire',
@@ -1036,6 +385,71 @@ const uploadAppearanceMedia = (characterId, contentId, file) => {
   return uploadMedia(`/character-appearances/media?${query}`, file)
 }
 
+/* Lista pesquisável com checkbox (multiple) ou radio (seleção única) */
+const SearchableList = ({
+  label,
+  options,
+  selected,
+  onChange,
+  multiple = false,
+  placeholder = 'Pesquisar...',
+  emptyText = 'Nenhum resultado.',
+  name,
+}) => {
+  const [term, setTerm] = useState('')
+  const normalizedTerm = normalizeCharacterName(term)
+  const visible = normalizedTerm
+    ? options.filter((option) => normalizeCharacterName(option.label).includes(normalizedTerm))
+    : options
+  const selectedList = multiple ? selected : (selected ? [selected] : [])
+
+  const toggle = (value) => {
+    if (!multiple) return onChange(value)
+    onChange(selected.includes(value)
+      ? selected.filter((item) => item !== value)
+      : [...selected, value])
+  }
+
+  return (
+    <div className="admin__field">
+      <span className="admin__label">{label}</span>
+      <input
+        type="search"
+        className="admin__picker-search"
+        value={term}
+        placeholder={placeholder}
+        aria-label={`Pesquisar: ${label}`}
+        onChange={(event) => setTerm(event.target.value)}
+      />
+      <ul className="admin__picker-list" role={multiple ? 'group' : 'radiogroup'} aria-label={label}>
+        {visible.length === 0 && <li className="admin__picker-empty">{emptyText}</li>}
+        {visible.map((option) => {
+          const value = String(option.value)
+          const checked = selectedList.map(String).includes(value)
+          return (
+            <li key={value}>
+              <label className={`admin__picker-item${checked ? ' checked' : ''}`}>
+                <input
+                  type={multiple ? 'checkbox' : 'radio'}
+                  name={multiple ? undefined : name}
+                  checked={checked}
+                  onChange={() => toggle(option.value)}
+                />
+                <span>{option.label}</span>
+              </label>
+            </li>
+          )
+        })}
+      </ul>
+      {multiple && (
+        <span className="admin__file-name">
+          {selected.length > 0 ? `${selected.length} selecionado(s).` : 'Nenhum selecionado.'}
+        </span>
+      )}
+    </div>
+  )
+}
+
 export const Admin = () => {
 
   const [resourceKey, setResourceKey] = useState('characters');
@@ -1067,12 +481,6 @@ export const Admin = () => {
   const [planetPrimaryImageFile, setPlanetPrimaryImageFile] = useState(null)
   const [characterBackgroundFile, setCharacterBackgroundFile] = useState(null)
   const [characterVerticalFile, setCharacterVerticalFile] = useState(null)
-  const [selectedCharacterPreset, setSelectedCharacterPreset] = useState('superman')
-  const [selectedMoviePreset, setSelectedMoviePreset] = useState(0)
-  const [selectedSeriesPreset, setSelectedSeriesPreset] = useState(0)
-  const [selectedGamePreset, setSelectedGamePreset] = useState(0)
-  const [selectedPlanetPreset, setSelectedPlanetPreset] = useState(0)
-  const [selectedGroupPreset, setSelectedGroupPreset] = useState(0)
   const [linkingGame, setLinkingGame] = useState(false)
   const [appearanceType, setAppearanceType] = useState('movie')
   const [selectedContentId, setSelectedContentId] = useState('')
@@ -1203,14 +611,6 @@ export const Admin = () => {
   const handleChange = (name, value) =>
     setForm((prev) => ({ ...prev, [name]: value }));
 
-  const fillCharacterPreset = () => {
-    setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...CHARACTER_PRESETS[selectedCharacterPreset] })
-    setCharacterBackgroundFile(null)
-    setCharacterVerticalFile(null)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   const fillStarfireHomeSlidePreset = () => {
     setEditing(null)
     setForm({ ...emptyForm(resource.fields), ...STARFIRE_HOME_SLIDE_PRESET })
@@ -1222,74 +622,6 @@ export const Admin = () => {
     setEditing(null)
     setForm({ ...emptyForm(resource.fields), ...JUSTICE_LEAGUE_WAR_HOME_SLIDE_PRESET })
     setBannerMediaFile(null)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const fillMoviePreset = () => {
-    const preset = DCAMU_MOVIE_PRESETS[selectedMoviePreset]
-    setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...preset })
-    setMovieMediaFile(null)
-    setBannerMediaFile(null)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const fillSeriesPreset = () => {
-    const preset = DC_SERIES_PRESETS[selectedSeriesPreset]
-    setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...preset })
-    setSeriesMediaFile(null)
-    setBannerMediaFile(null)
-    setGalleryMediaFiles([])
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const fillGamePreset = () => {
-    const preset = DC_GAME_PRESETS[selectedGamePreset]
-    setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...preset })
-    setGameMediaFile(null)
-    setBannerMediaFile(null)
-    setGalleryMediaFiles([])
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const fillPlanetPreset = () => {
-    const preset = DC_PLANET_PRESETS[selectedPlanetPreset]
-    setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...preset })
-    setPlanetPrimaryImageFile(null)
-    setGalleryMediaFiles([])
-    setGalleryImagesToRemove([])
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const fillGroupPreset = () => {
-    const { memberAliases, ...preset } = DC_GROUP_PRESETS[selectedGroupPreset]
-    const matches = memberAliases.map((aliases) => {
-      const normalizedAliases = aliases.map(normalizeCharacterName)
-      return {
-        name: aliases[0],
-        character: availableCharacters.find((character) => (
-          normalizedAliases.includes(normalizeCharacterName(character.name))
-          || normalizedAliases.includes(normalizeCharacterName(character.true_name))
-        )),
-      }
-    })
-
-    setEditing(null)
-    setForm({ ...emptyForm(resource.fields), ...preset })
-    setSelectedCharacterIds(matches
-      .flatMap(({ character }) => character ? [character.id] : []))
-    setBannerMediaFile(null)
-    const missingMembers = matches
-      .filter(({ character }) => !character)
-      .map(({ name }) => name)
-    if (missingMembers.length > 0) {
-      notify('error', `Não encontrei estes personagens cadastrados; você pode selecioná-los manualmente: ${missingMembers.join(', ')}.`)
-    } else {
-      notify('ok', 'Dados da equipe e integrantes disponíveis preenchidos. Envie o banner e revise antes de salvar.')
-    }
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -1720,29 +1052,6 @@ export const Admin = () => {
             {editing ? `Editar ${resource.singular}` : `Novo ${resource.singular}`}
           </h2>
 
-          {resourceKey === 'characters' && !editing && (
-            <div className="admin__preset-actions">
-              <label className="admin__field admin__character-preset">
-                <span className="admin__label">Modelo de personagem</span>
-                <select
-                  value={selectedCharacterPreset}
-                  onChange={(event) => setSelectedCharacterPreset(event.target.value)}
-                >
-                  {Object.entries(CHARACTER_PRESETS).map(([key, preset]) => (
-                    <option key={key} value={key}>{preset.name}</option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                className="admin__btn admin__btn--preset"
-                onClick={fillCharacterPreset}
-              >
-                Preencher dados
-              </button>
-            </div>
-          )}
-
           {resourceKey === 'homeSlides' && !editing && (
             <div className="admin__preset-actions">
               <button
@@ -1758,102 +1067,6 @@ export const Admin = () => {
                 onClick={fillJusticeLeagueWarHomeSlidePreset}
               >
                 Preencher destaque de Liga da Justiça: War
-              </button>
-            </div>
-          )}
-
-          {resourceKey === 'movies' && !editing && (
-            <div className="admin__preset-actions">
-              <label className="admin__field admin__movie-preset">
-                <span className="admin__label">Filmes do DCAMU</span>
-                <select
-                  value={selectedMoviePreset}
-                  onChange={(event) => setSelectedMoviePreset(Number(event.target.value))}
-                >
-                  {DCAMU_MOVIE_PRESETS.map((movie, index) => (
-                    <option key={movie.title} value={index}>
-                      {movie.year} — {movie.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                className="admin__btn admin__btn--preset"
-                onClick={fillMoviePreset}
-              >
-                Preencher dados do filme
-              </button>
-            </div>
-          )}
-
-          {resourceKey === 'series' && !editing && (
-            <div className="admin__preset-actions">
-              <label className="admin__field admin__series-preset">
-                <span className="admin__label">Séries principais da DC</span>
-                <select
-                  value={selectedSeriesPreset}
-                  onChange={(event) => setSelectedSeriesPreset(Number(event.target.value))}
-                >
-                  {DC_SERIES_PRESETS.map((seriesPreset, index) => (
-                    <option key={seriesPreset.title} value={index}>
-                      {seriesPreset.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                className="admin__btn admin__btn--preset"
-                onClick={fillSeriesPreset}
-              >
-                Preencher dados da série
-              </button>
-            </div>
-          )}
-
-          {resourceKey === 'games' && !editing && (
-            <div className="admin__preset-actions">
-              <label className="admin__field admin__game-preset">
-                <span className="admin__label">Jogos principais da DC</span>
-                <select
-                  value={selectedGamePreset}
-                  onChange={(event) => setSelectedGamePreset(Number(event.target.value))}
-                >
-                  {DC_GAME_PRESETS.map((game, index) => (
-                    <option key={game.title} value={index}>{game.title}</option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                className="admin__btn admin__btn--preset"
-                onClick={fillGamePreset}
-              >
-                Preencher dados do jogo
-              </button>
-            </div>
-          )}
-
-          {resourceKey === 'planets' && !editing && (
-            <div className="admin__preset-actions">
-              <label className="admin__field admin__planet-preset">
-                <span className="admin__label">Outros planetas importantes da DC</span>
-                <select
-                  value={selectedPlanetPreset}
-                  onChange={(event) => setSelectedPlanetPreset(Number(event.target.value))}
-                >
-                  {DC_PLANET_PRESETS.map((planet, index) => (
-                    <option key={planet.name} value={index}>{planet.name}</option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                className="admin__btn admin__btn--preset"
-                onClick={fillPlanetPreset}
-              >
-                Preencher dados do planeta
               </button>
             </div>
           )}
@@ -1880,29 +1093,6 @@ export const Admin = () => {
                 onClick={() => fillSagaPreset('goldenAge')}
               >
                 Preencher dados da Era de Ouro
-              </button>
-            </div>
-          )}
-
-          {resourceKey === 'groups' && !editing && (
-            <div className="admin__preset-actions">
-              <label className="admin__field admin__group-preset">
-                <span className="admin__label">Equipes principais da DC</span>
-                <select
-                  value={selectedGroupPreset}
-                  onChange={(event) => setSelectedGroupPreset(Number(event.target.value))}
-                >
-                  {DC_GROUP_PRESETS.map((group, index) => (
-                    <option key={group.name} value={index}>{group.name}</option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                className="admin__btn admin__btn--preset"
-                onClick={fillGroupPreset}
-              >
-                Preencher dados da equipe
               </button>
             </div>
           )}
@@ -1937,26 +1127,14 @@ export const Admin = () => {
           ))}
 
           {resourceKey === 'groups' && (
-            <label className="admin__field">
-              <span className="admin__label">Personagens da equipe</span>
-              <select
-                multiple
-                size={Math.min(Math.max(availableCharacters.length, 4), 8)}
-                value={selectedCharacterIds}
-                onChange={(event) => setSelectedCharacterIds(
-                  Array.from(event.target.selectedOptions, (option) => option.value)
-                )}
-                aria-describedby="group-character-help"
-              >
-                {availableCharacters.map((character) => (
-                  <option key={character.id} value={character.id}>{character.name}</option>
-                ))}
-              </select>
-              <span className="admin__file-name" id="group-character-help">
-                Selecione um ou mais personagens. Use Ctrl (Windows) ou Cmd (Mac) para múltiplas seleções no computador.
-                {selectedCharacterIds.length > 0 && ` ${selectedCharacterIds.length} selecionado(s).`}
-              </span>
-            </label>
+            <SearchableList
+              multiple
+              label="Personagens da equipe"
+              placeholder="Pesquisar personagem..."
+              options={availableCharacters.map((character) => ({ value: character.id, label: character.name }))}
+              selected={selectedCharacterIds}
+              onChange={setSelectedCharacterIds}
+            />
           )}
 
           {resourceKey === 'planets' && (
@@ -2381,18 +1559,14 @@ export const Admin = () => {
               )}
 
               <div className="admin__game-link-form">
-                <label className="admin__field">
-                  <span className="admin__label">Jogo</span>
-                  <select
-                    value={selectedGameId}
-                    onChange={(event) => setSelectedGameId(event.target.value)}
-                  >
-                    <option value="" disabled>Selecione um jogo</option>
-                    {availableGames.map((game) => (
-                      <option key={game.id} value={game.id}>{game.title}</option>
-                    ))}
-                  </select>
-                </label>
+                <SearchableList
+                  name="game-link"
+                  label="Jogo"
+                  placeholder="Pesquisar jogo..."
+                  options={availableGames.map((game) => ({ value: game.id, label: game.title }))}
+                  selected={selectedGameId}
+                  onChange={setSelectedGameId}
+                />
                 <label className="admin__field">
                   <span className="admin__label">Imagem do personagem nesse jogo (URL opcional)</span>
                   <input
@@ -2467,18 +1641,14 @@ export const Admin = () => {
                     <option value="series">Série</option>
                   </select>
                 </label>
-                <label className="admin__field">
-                  <span className="admin__label">Filme ou série</span>
-                  <select
-                    value={selectedContentId}
-                    onChange={(event) => setSelectedContentId(event.target.value)}
-                  >
-                    <option value="" disabled>Selecione um título</option>
-                    {contentOptions.map((content) => (
-                      <option key={content.id} value={content.id}>{content.title}</option>
-                    ))}
-                  </select>
-                </label>
+                <SearchableList
+                  name="content-link"
+                  label="Filme ou série"
+                  placeholder="Pesquisar filme ou série..."
+                  options={contentOptions.map((content) => ({ value: content.id, label: content.title }))}
+                  selected={selectedContentId}
+                  onChange={setSelectedContentId}
+                />
                 <label className="admin__field">
                   <span className="admin__label">Imagem do personagem neste conteúdo</span>
                   <input

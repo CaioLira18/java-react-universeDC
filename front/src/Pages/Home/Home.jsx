@@ -133,11 +133,14 @@ export const Home = () => {
         <div className="characterSection">
           <CharacterSection />
         </div>
-        <MovieSecction />
-        <GameSection />
+        <div className="movieSection">
+          <MovieSecction />
+        </div>
+        <div className="gameSection">
+          <GameSection />
+        </div>
       </div>
 
-      <div className="space"></div>
     </div>
   )
 }

@@ -104,7 +104,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 44px 32px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 8px;
   list-style: none;
@@ -223,6 +223,78 @@
   clip-path: inset(50%);
 }
 
+.catalog__grid--fetching {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.catalog__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px 20px;
+  max-width: 1400px;
+  margin: 64px auto 0;
+}
+
+.catalog__pager-pages {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.catalog__pager-btn {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-comic);
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--hero-yellow);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.catalog__pager-btn:hover:not(:disabled):not(.is-current) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--hero-red);
+}
+
+.catalog__pager-btn:focus-visible {
+  outline: 3px solid var(--hero-yellow);
+  outline-offset: 3px;
+}
+
+.catalog__pager-btn.is-current {
+  background: var(--hero-yellow);
+  box-shadow: 4px 4px 0 var(--hero-red);
+  cursor: default;
+  transform: skewX(-6deg);
+}
+
+.catalog__pager-btn:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.catalog__pager-gap {
+  padding: 0 4px;
+  font-family: var(--font-comic);
+  font-size: 22px;
+  color: var(--paper);
+}
+
 @keyframes catalogPulse {
   from { opacity: 0.55; }
   to { opacity: 1; }
@@ -233,9 +305,13 @@
   .catalog__title { padding: 8px 18px; }
   .catalog__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px 20px; }
   .catalog__name { font-size: 17px; }
+  .catalog__pager-btn--nav { flex: 1 1 40%; }
+  .catalog__pager-pages { order: -1; flex-basis: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .catalog__card { transition: none; }
+  .catalog__card,
+  .catalog__pager-btn,
+  .catalog__grid--fetching { transition: none; }
   .catalog__skeleton { animation: none; }
 }

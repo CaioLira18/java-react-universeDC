@@ -2,6 +2,7 @@ package br.com.caio.dc.Character;
 
 import java.util.List;
 
+import br.com.caio.dc.Config.PageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +29,16 @@ public class CharacterController {
   @GetMapping
   public ResponseEntity<List<Character>> findAll() {
     return ResponseEntity.ok(characterService.findAll());
+  }
+
+  // GET /characters/page?page=0&size=24&search=bat
+  // Listagem paginada e leve (id, name, background). A rota literal tem prioridade sobre /{id}.
+  @GetMapping("/page")
+  public ResponseEntity<PageResponse<CharacterSummary>> findPage(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "18") int size,
+      @RequestParam(defaultValue = "") String search) {
+    return ResponseEntity.ok(characterService.findPage(page, size, search));
   }
 
   @GetMapping("/{id}")

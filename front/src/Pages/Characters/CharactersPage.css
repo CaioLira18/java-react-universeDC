@@ -50,22 +50,102 @@
   color: rgba(255, 246, 220, 0.8);
 }
 
-.charlist__search {
-  width: min(100%, 380px);
-  box-sizing: border-box;
-  padding: 12px 16px;
+/* ---------- Busca ---------- */
+.charlist__searchbox {
+  display: flex;
+  align-items: stretch;
+  width: min(100%, 460px);
+  margin-top: 6px;
   background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 16px;
   border: 3px solid var(--ink);
-  border-radius: 0;
-  box-shadow: 4px 4px 0 var(--ink);
+  /* sombra amarela: a borda preta some no fundo escuro, então ela dá o contorno */
+  box-shadow: 5px 5px 0 var(--hero-yellow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.charlist__search:focus {
+.charlist__searchbox:focus-within {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--hero-blue);
+  outline: 3px solid var(--hero-yellow);
+  outline-offset: 3px;
+}
+
+.charlist__search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 54px;
+  background: var(--hero-yellow);
+  color: var(--ink);
+  border-right: 3px solid var(--ink);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.charlist__searchbox:focus-within .charlist__search-icon {
+  background: var(--hero-red);
+  color: #fff;
+}
+
+.charlist__search {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 14px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 500;
+  border: none;
+  border-radius: 0;
+  outline: none;
+}
+
+.charlist__search::placeholder {
+  color: rgba(10, 12, 28, 0.55);
+  font-weight: 400;
+}
+
+/* esconde o "x" nativo; usamos o nosso */
+.charlist__search::-webkit-search-cancel-button,
+.charlist__search::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.charlist__search-clear {
+  align-self: center;
+  margin: 0 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--ink);
+  color: var(--hero-yellow);
+  font-family: var(--font-comic);
+  font-size: 24px;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  transform: skewX(-8deg);
+  transition: background 0.12s ease;
+}
+
+.charlist__search-clear:hover { background: var(--hero-red); color: #fff; }
+
+.charlist__search-clear:focus-visible {
   outline: 3px solid var(--hero-blue);
-  outline-offset: 0;
+  outline-offset: 2px;
+}
+
+/* dica do atalho "/" */
+.charlist__search-hint {
+  align-self: center;
+  margin: 0 12px;
+  padding: 1px 9px;
+  font-family: var(--font-comic);
+  font-size: 18px;
+  color: rgba(10, 12, 28, 0.6);
+  border: 2px solid rgba(10, 12, 28, 0.35);
+  border-radius: 4px;
 }
 
 /* ---------- Grade ---------- */
@@ -73,7 +153,7 @@
   list-style: none;
   margin: 0 auto;
   padding: 0 8px;
-  max-width: 1200px;
+  max-width: 1400px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 44px 32px;
@@ -158,13 +238,93 @@
   box-shadow: 6px 6px 0 var(--hero-red);
 }
 
+/* ---------- Paginação ---------- */
+.charlist__grid--fetching {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.charlist__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px 20px;
+  max-width: 1400px;
+  margin: 64px auto 0;
+}
+
+.charlist__pager-pages {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.charlist__pager-btn {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-comic);
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--hero-yellow);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.charlist__pager-btn:hover:not(:disabled):not(.is-current) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--hero-red);
+}
+
+.charlist__pager-btn:focus-visible {
+  outline: 3px solid var(--hero-blue);
+  outline-offset: 3px;
+}
+
+.charlist__pager-btn.is-current {
+  background: var(--hero-yellow);
+  box-shadow: 4px 4px 0 var(--hero-red);
+  cursor: default;
+  transform: skewX(-6deg);
+}
+
+.charlist__pager-btn:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.charlist__pager-gap {
+  padding: 0 4px;
+  font-family: var(--font-comic);
+  font-size: 22px;
+  color: var(--paper);
+}
+
 @media (max-width: 480px) {
   .charlist { padding-top: 100px; }
   .charlist__grid { grid-template-columns: repeat(2, 1fr); gap: 36px 20px; }
   .charlist__name { font-size: 17px; }
+  .charlist__search-hint { display: none; }
+  .charlist__pager-btn--nav { flex: 1 1 40%; }
+  .charlist__pager-pages { order: -1; flex-basis: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .charlist__card { transition: none; }
+  .charlist__card,
+  .charlist__searchbox,
+  .charlist__search-icon,
+  .charlist__pager-btn,
+  .charlist__grid--fetching { transition: none; }
   .charlist__card--skeleton { animation: none; }
 }

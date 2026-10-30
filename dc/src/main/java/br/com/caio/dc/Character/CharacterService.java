@@ -3,12 +3,20 @@ package br.com.caio.dc.Character;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import br.com.caio.dc.Config.PageResponse;
+
 import br.com.caio.dc.Config.S3StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CharacterService {
+
+  private static final int MAX_PAGE_SIZE = 50;
 
   private final CharacterRepository characterRepository;
   private final S3StorageService s3StorageService;
@@ -20,6 +28,20 @@ public class CharacterService {
 
   public List<Character> findAll() {
     return characterRepository.findAll();
+  }
+
+  public PageResponse<CharacterSummary> findPage(int page, int size, String search) {
+    int safePage = Math.max(page, 0);
+    int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+    // ordena por nome sem diferenciar maiúsculas de minúsculas
+    Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by(Sort.Order.asc("name").ignoreCase()));
+
+    String term = search == null ? "" : search.trim();
+    Page<CharacterSummary> result = term.isEmpty()
+        ? characterRepository.findAllBy(pageable)
+        : characterRepository.findByNameContainingIgnoreCase(term, pageable);
+
+    return PageResponse.from(result);
   }
 
   public Character findById(String id) {

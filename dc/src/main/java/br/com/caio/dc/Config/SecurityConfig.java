@@ -50,7 +50,8 @@ public class SecurityConfig {
                 "/planets/**",
                 "/character-appearances/**",
                 "/games/**",
-                "/character-game-appearances/**").permitAll()
+                "/character-game-appearances/**",
+                "/catalog/**").permitAll()
             .anyRequest().hasRole("ADMIN"))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
