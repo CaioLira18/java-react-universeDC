@@ -1,4 +1,6 @@
-﻿# Universo DC
+<img src="https://images8.alphacoders.com/974/974682.jpg" alt="Universo DC">
+
+# Universo DC
 
 Aplicação full-stack para catalogar e explorar o universo DC com Java + React, autenticação JWT, upload de arquivos para Amazon S3, painel administrativo e deploy em infraestrutura AWS com CloudFront, EC2 e ECR.
 
