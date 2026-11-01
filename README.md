@@ -1,142 +1,331 @@
-# Universo DC
+﻿# Universo DC
 
-Enciclopédia do universo DC feita com **Java + React**: personagens, filmes, séries, jogos, planetas, equipes de heróis, sagas e linha do tempo, com painel administrativo, contas de usuário e upload de mídia para o Amazon S3. A aplicação está publicada na AWS, com o banco de dados no Neon.
+Aplicação full-stack para catalogar e explorar o universo DC com Java + React, autenticação JWT, upload de arquivos para Amazon S3, painel administrativo e deploy em infraestrutura AWS com CloudFront, EC2 e ECR.
 
-## Tecnologias
+## Visão geral
+
+O projeto reúne uma API REST em Spring Boot e um frontend em React/Vite para disponibilizar:
+
+- catálogo público de personagens, filmes, séries, jogos, grupos, planetas, sagas e linha do tempo;
+- páginas de detalhe com imagens, galeria e contextos da narrativa;
+- autenticação e perfil de usuário;
+- painel administrativo para gerenciar conteúdos e mídias;
+- upload de arquivos para o Amazon S3;
+- deploy automatizado via GitHub Actions.
+
+## Stack tecnológica
 
 | Camada | Tecnologias |
 | --- | --- |
-| Frontend | React, Vite, Node.js 22 |
-| Backend | Java 21, Spring Boot, Spring Data JPA/Hibernate, autenticação JWT |
-| Banco de dados | PostgreSQL (Neon em produção) |
+| Frontend | React 19, Vite, JavaScript, Node.js 22 |
+| Backend | Java 21, Spring Boot 3, Spring Security, Spring Data JPA |
+| Banco | PostgreSQL (Neon em produção, Postgres em CI) |
 | Armazenamento de mídia | Amazon S3 |
-| Infraestrutura | AWS (CloudFront, S3, EC2, ECR, IAM), Docker, Terraform |
+| Infraestrutura | AWS: S3, CloudFront, EC2, ECR, IAM, Systems Manager |
+| CI/CD | GitHub Actions |
+| Containerização | Docker |
 
-## Funcionalidades
+## Funcionalidades principais
 
-- **Catálogo público:** personagens, filmes, séries, jogos, planetas, equipes e sagas, cada um com listagem e página de detalhes.
-- **Personagens com aparições:** cada personagem pode ser ligado a filmes, séries e jogos, com uma imagem específica para cada aparição, exibida na página do personagem.
-- **Equipes de heróis:** grupos como a Liga da Justiça e os Jovens Titãs, com os personagens que os integram.
-- **Sagas e HQs:** sagas como New 52 e Era de Ouro, com as HQs em ordem de leitura, cada uma com ano, descrição e capa.
-- **Linha do tempo e destaques:** marcos do universo DC e slides de destaque da página inicial, ordenáveis e publicáveis.
-- **Galerias de imagens:** filmes, séries, jogos e planetas têm banner e galeria.
-- **Contas de usuário:** cadastro e login com JWT. Cada usuário tem uma pasta própria no S3 para as suas mídias.
-- **Painel administrativo:** CRUD completo de todos os conteúdos, com upload de imagens direto para o S3. As operações de escrita exigem autenticação.
+- Catálogo completo do universo DC com listagem e paginação por entidade.
+- Personagens com aparições em filmes, séries e jogos.
+- Galerias de imagens, banners e mídias por item de conteúdo.
+- Grupos e equipes com associação de personagens.
+- Sagas com HQs e organização cronológica.
+- Linha do tempo e destaques da home.
+- Sistema de autenticação com JWT para usuários e admin.
+- Upload e organização de mídias por bucket S3, por recurso e por usuário.
+- Painel administrativo para criar, editar e remover conteúdos protegidos.
+- Health check da API para deploy seguro em EC2.
 
-## Arquitetura
+## Arquitetura da solução
 
 ```mermaid
 flowchart LR
     U[Usuário] --> CF[CloudFront]
-    CF -- "/*" --> S3F[(S3 frontend)]
-    CF -- "/api/*" --> EC2[EC2 + Docker<br/>API Spring Boot]
-    EC2 --> NEON[(Neon PostgreSQL)]
-    EC2 --> S3M[(S3 mídia)]
-    ECR[(ECR)] -. imagem Docker .-> EC2
+    CF -->|HTTPS /| S3[(Bucket Frontend)]
+    CF -->|/api/*| EC2[EC2 + Docker + Spring Boot]
+    EC2 --> DB[(PostgreSQL / Neon)]
+    EC2 --> S3MEDIA[(Bucket de mídia AWS S3)]
+    GH[GitHub Actions] --> ECR[(ECR)]
+    ECR --> EC2
 ```
 
-O frontend e a API ficam atrás do mesmo domínio do CloudFront, o que evita problemas de CORS e de conteúdo misto (HTTP dentro de página HTTPS).
+O fluxo principal é:
 
-## Como foi feito o deploy
+- frontend estático entregue pelo CloudFront;
+- API Java em EC2;
+- banco de dados em PostgreSQL;
+- upload de imagens e arquivos em bucket S3 separado;
+- GitHub Actions publica a imagem e faz deploy automatizado.
 
-O objetivo foi um deploy **econômico**, sem servidores gerenciados caros, mas com infraestrutura reproduzível e sem segredos no código.
-
-**Frontend: S3 + CloudFront.** O build do React é um conjunto de arquivos estáticos publicado em um bucket S3 privado. O CloudFront entrega o conteúdo por HTTPS e com cache global, e é o único com acesso ao bucket.
-
-**API: EC2 + Docker + ECR.** O backend é empacotado em uma imagem Docker (`dc/Dockerfile`), enviada para o Amazon ECR e executada em uma instância EC2 com reinício automático. O health check é `/actuator/health`.
-
-**Um único domínio para tudo.** O CloudFront encaminha `/api/*` para a EC2 e o restante para o S3 do frontend. Uma CloudFront Function remove o prefixo `/api` antes de repassar a requisição, então a API continua com as rotas originais (`/characters`, `/users/login`, etc.) e o frontend só precisa chamar `/api/...`.
-
-**Banco de dados: Neon PostgreSQL.** O banco é serverless e gerenciado, sem uma instância de banco para operar. A API conecta por JDBC com SSL.
-
-**Mídia em um bucket separado.** As imagens enviadas pelo painel e pelos usuários ficam em um bucket S3 próprio, distinto do bucket do frontend, e organizadas por recurso (veja abaixo). Assim dá para recriar a infraestrutura sem perder as imagens.
-
-**Sem chaves de acesso.**
-- A EC2 acessa o ECR e o bucket de mídia por uma **IAM Role** da instância, então não existe access key no código, na imagem Docker ou no GitHub.
-- A integração com o GitHub usa **OIDC**, o que permite pipelines sem credenciais fixas.
-- Segredos (banco, `JWT_SECRET`) devem ficar no AWS Systems Manager Parameter Store como um parâmetro `SecureString`. O workflow informa o nome do parâmetro (`SSM_ENV_PARAMETER`) e a EC2 o baixa durante o deploy. O arquivo `.env` local continua útil apenas para desenvolvimento.
-
-**Infraestrutura como código.** A infraestrutura AWS deve ser mantida em Terraform, incluindo EC2, ECR, buckets, CloudFront, Security Group, IAM Roles, OIDC do GitHub e o parâmetro seguro do SSM.
-
-### Deploy de produção
-
-Os workflows usam secrets do repositório em **Settings → Secrets and variables → Actions → Repository secrets**. Eles não usam GitHub Environment, portanto não adicione `environment: production` aos jobs.
-
-Secrets necessários:
-
-- `AWS_DEPLOY_ROLE_ARN`
-- `AWS_REGION`
-- `FRONTEND_BUCKET`
-- `CLOUDFRONT_DISTRIBUTION_ID`
-- `VITE_API_URL`
-- `ECR_REPOSITORY_URL`
-- `EC2_INSTANCE_ID`
-- `SSM_ENV_PARAMETER` (nome do parâmetro `SecureString` com o `.env` da API)
-
-`AWS_DEPLOY_ROLE_ARN` deve apontar para uma role exclusiva do GitHub Actions, por exemplo:
-
-```text
-arn:aws:iam::156041418997:role/github-actions-deploy-role
-```
-
-Essa role precisa confiar no provider OIDC `token.actions.githubusercontent.com`, com audiência `sts.amazonaws.com` e sujeito restrito a `repo:CaioLira18/java-react-universeDC:ref:refs/heads/main`. Ela deve ter permissões para publicar no ECR, sincronizar o bucket do frontend, invalidar a distribuição CloudFront e executar comandos SSM na EC2. A role da EC2 (`dc-universe-ec2-role`) é diferente e não deve ser usada em `AWS_DEPLOY_ROLE_ARN`.
-
-O backend é publicado com a tag imutável do SHA do commit. A EC2 mantém a imagem anterior para rollback: se o health check de `/actuator/health` falhar, o container anterior é restaurado. A role da EC2 precisa de `ecr:GetAuthorizationToken`, permissões de pull no repositório ECR e `ssm:GetParameter`/`ssm:DescribeParameters` para o parâmetro de produção.
-
-O deploy automático ocorre em pushes para `main` quando há alterações em `front/**` ou `dc/**`. Para rollback manual, execute o workflow **Deploy backend to EC2** em **Actions → Run workflow** e informe a tag SHA de uma imagem existente no ECR.
-
-Antes do primeiro deploy, confirme:
-
-1. A EC2 está registrada no Systems Manager e aceita comandos pelo SSM.
-2. O parâmetro `/dc/production/env` existe como `SecureString`.
-3. A role da EC2 pode ler esse parâmetro e baixar imagens do ECR.
-4. O CloudFront encaminha `/api/*` para a EC2 e remove o prefixo `/api`.
-5. `VITE_API_URL` está definido como `https://d1hr7n8x1j89do.cloudfront.net/api` (ou o domínio público equivalente).
-
-## Organização das mídias no S3
-
-Cada recurso tem sua pasta, e cada usuário tem uma pasta exclusiva com o seu id:
-
-| Recurso | Pasta no S3 |
-| --- | --- |
-| Usuários | `users/{userId}/` |
-| Personagens | `characters/{nome-do-personagem}/` |
-| Aparições em filmes e séries | `movies/{movieId}/{characterId}/` e `series/{seriesId}/{characterId}/` |
-| Filmes e séries | `movies/{movieId}/` e `series/{seriesId}/` |
-| Jogos e personagens em jogos | `games/{gameId}/` e `games/{gameId}/Personagens/{characterId}/` |
-| Planetas | `planets/{planetId}/` |
-| Equipes | `groups/{groupId}/` |
-| Sagas e HQs | `sagas/{sagaId}/` e `sagas/{sagaId}/comics/{comicId}/` |
-| Destaques da Home | `home-slides/{slideId}/` |
-| Linha do tempo | `timelines/{timelineId}/` |
-
-Os uploads aceitam arquivos de até 25 MB e são feitos por endpoints autenticados que recebem o arquivo em um campo multipart `file`.
-
-## Executando localmente
-
-Requisitos: Java 21, Node.js 22, PostgreSQL e um bucket S3.
-
-1. Copie `dc/.env.example` para `dc/.env` e preencha o banco e a AWS.
-2. No backend (`dc/`), execute `./mvnw spring-boot:run` (no Windows, `.\mvnw.cmd spring-boot:run`).
-3. No frontend (`front/`), copie `front/.env.example` para `front/.env` e execute:
-   ```bash
-   npm install
-   npm run dev
-   ```
-
-O frontend usa a variável `VITE_API_URL` para localizar a API.
-
-## Estrutura do repositório
+## Estrutura de pastas
 
 ```text
 .
-├── dc/                  # API Spring Boot
-├── front/               # Aplicação React/Vite
-├── deploy/aws/          # Terraform da infraestrutura
-├── .github/workflows/   # CI/CD
-└── README.md
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       ├── deploy-backend.yml
+│       └── deploy-frontend.yml
+├── .vscode/
+├── dc/
+│   ├── src/
+│   ├── .env.example
+│   ├── Dockerfile
+│   ├── HELP.md
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   ├── pom.xml
+│   └── .mvn/
+├── front/
+│   ├── src/
+│   ├── public/
+│   ├── .env.example
+│   ├── .env.production
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── vite.config.js
+│   └── README.md
+├── .gitignore
+├── LICENSE
+├── README.md
+└── .gitattributes
 ```
+
+## URLs da API e controllers
+
+A API expõe as rotas abaixo no backend. Em produção, a URL pública do backend é normalmente acessada via CloudFront como `https://<dominio-cloudfront>/api`.
+
+Base local de desenvolvimento:
+
+- `http://localhost:8080`
+
+Base em produção:
+
+- `https://<cloudfront-domain>/api`
+
+### Endpoints principais
+
+| Controller | Base path | Descrição |
+| --- | --- | --- |
+| `UsersController` | `/users` | autenticação, cadastro, perfil e upload de mídia do usuário |
+| `CharacterController` | `/characters` | personagens e filtros |
+| `CharacterAppearanceController` | `/character-appearances` | aparições de personagens em mídias |
+| `MovieController` | `/movies` | filmes |
+| `SeriesController` | `/series` | séries |
+| `GameController` | `/games` | jogos |
+| `CharacterGameAppearanceController` | `/character-game-appearances` | aparições em jogos |
+| `PlanetController` | `/planets` | planetas |
+| `GroupController` | `/groups` | grupos e equipes |
+| `SagaController` | `/sagas` | sagas e histórias |
+| `TimelineController` | `/timelines` | linha do tempo |
+| `HomeSlideController` | `/home-slides` | destaques da home |
+| `CatalogController` | `/catalog` | catálogo centralizado |
+
+### Exemplos de rotas
+
+- `POST /api/users/register`
+- `POST /api/users/login`
+- `GET /api/users/me`
+- `GET /api/characters`
+- `GET /api/characters/{id}`
+- `GET /api/movies`
+- `GET /api/series`
+- `GET /api/games`
+- `GET /api/planets`
+- `GET /api/groups`
+- `GET /api/sagas`
+- `GET /api/timelines`
+- `GET /api/home-slides`
+- `GET /api/catalog/page`
+
+Observação importante:
+
+- rotas públicas são acessíveis sem token;
+- operações administrativas, perfil do usuário e uploads sensíveis dependem de autenticação JWT;
+- a configuração de segurança está em `dc/src/main/java/br/com/caio/dc/Config/SecurityConfig.java`.
+
+## Organização dos buckets de mídia
+
+A aplicação usa buckets S3 separados para manter o frontend e as mídias em isolamento.
+
+### Estrutura sugerida
+
+| Tipo | Caminho no S3 |
+| --- | --- |
+| Frontend | `dc-frontend-prod/` |
+| Mídias | `dc-media-prod/` |
+| Usuários | `users/{userId}/` |
+| Personagens | `characters/{characterName}/` |
+| Filmes | `movies/{movieId}/` |
+| Séries | `series/{seriesId}/` |
+| Jogos | `games/{gameId}/` |
+| Planetas | `planets/{planetId}/` |
+| Grupos | `groups/{groupId}/` |
+| Sagas | `sagas/{sagaId}/` |
+| HQs dentro de saga | `sagas/{sagaId}/comics/{comicId}/` |
+| Home slides | `home-slides/{slideId}/` |
+| Timeline | `timelines/{timelineId}/` |
+
+Arquitetura recomendada:
+
+- bucket de frontend: apenas conteúdo estático;
+- bucket de mídia: uploads do painel e usuários;
+- CloudFront diante do frontend e, opcionalmente, do conteúdo público em origin S3;
+- organização por recurso para facilitar versionamento, backup e governança.
+
+## Deploy na AWS
+
+### Arquitetura de produção
+
+- Frontend: S3 + CloudFront
+- Backend: EC2 + Docker + ECR
+- Banco: PostgreSQL (Neon em produção)
+- Variáveis de ambiente e segredos: AWS Systems Manager Parameter Store
+- CI/CD: GitHub Actions com OIDC para AWS
+
+### Fluxo de deploy
+
+1. O push para `main` dispara os workflows definidos em `.github/workflows/`.
+2. O CI valida frontend e backend.
+3. Se houve mudança em `front/**`, o workflow `deploy-frontend.yml` faz build do React e sincroniza o bucket S3.
+4. Se houve mudança em `dc/**`, o workflow `deploy-backend.yml` faz build da imagem Docker, publica no ECR e atualiza a instância EC2 via SSM.
+5. O CloudFront invalida cache para refletir as mudanças do frontend.
+
+### Configuração de produção
+
+As variáveis/segredos esperadas pelos workflows são, em geral:
+
+- `AWS_REGION`
+- `AWS_DEPLOY_ROLE_ARN`
+- `FRONTEND_BUCKET`
+- `CLOUDFRONT_DISTRIBUTION_ID`
+- `ECR_REPOSITORY_URL`
+- `EC2_INSTANCE_ID`
+- `SSM_ENV_PARAMETER`
+- `VITE_API_URL`
+
+Esses valores devem ser configurados em:
+
+- GitHub: `Settings > Secrets and variables > Actions > Repository secrets`
+
+Importante:
+
+- nunca comitar chaves de acesso AWS;
+- preferir IAM role com OIDC e SSM para segredos sensíveis;
+- `VITE_API_URL` deve apontar para o endpoint da API pública, normalmente `https://<cloudfront>/api`.
+
+## Workflows no GitHub
+
+### 1) `ci.yml`
+
+Responsável pela validação contínua.
+
+- Trigger: `push` para `main` e `pull_request`
+- Valida:
+  - instalação e build do frontend;
+  - lint do frontend;
+  - testes do backend em Java;
+  - banco PostgreSQL em container para execução dos testes.
+
+### 2) `deploy-frontend.yml`
+
+Responsável pelo deploy do frontend.
+
+- Trigger: `workflow_dispatch` e `push` em `main` quando há alteração em `front/**`
+- Etapas:
+  - checkout do código;
+  - configuração do Node.js;
+  - build do Vite;
+  - sincronização com o bucket S3;
+  - invalidação do CloudFront.
+
+### 3) `deploy-backend.yml`
+
+Responsável pelo deploy do backend.
+
+- Trigger: `workflow_dispatch` e `push` em `main` quando há alteração em `dc/**`
+- Etapas:
+  - autenticação AWS via OIDC;
+  - login no ECR;
+  - build e push da imagem Docker;
+  - envio de comando via SSM para a EC2;
+  - pull da imagem, execução do container e health check em `/actuator/health`;
+  - rollback automático para a imagem anterior em falha.
+
+## Variáveis de ambiente
+
+### Backend (`dc/.env`)
+
+Essenciais:
+
+```env
+DB_URL=jdbc:postgresql://host:5432/dc
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+JWT_SECRET=seu_jwt_secret
+JWT_EXPIRATION=86400000
+AWS_S3_BUCKET=dc-media-prod
+AWS_S3_REGION=us-east-1
+AWS_S3_ENDPOINT=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+JPA_DDL_AUTO=validate
+CORS_ALLOWED_ORIGINS=http://localhost:5173,https://<dominio>
+```
+
+### Frontend (`front/.env`)
+
+```env
+VITE_API_URL=http://localhost:8080
+```
+
+No projeto, o frontend lê essa variável em `front/src/config.js` e usa `API_URL` para todas as chamadas da API.
+
+## Executando localmente
+
+### Requisitos
+
+- Java 21
+- Node.js 22
+- PostgreSQL local ou acessível
+- AWS CLI configurado se usar S3 localmente
+
+### Backend
+
+```bash
+cd dc
+chmod +x mvnw
+./mvnw spring-boot:run
+```
+
+### Frontend
+
+```bash
+cd front
+npm install
+npm run dev
+```
+
+A API fica em `http://localhost:8080` e o frontend em `http://localhost:5173` por padrão.
+
+## Checklist de deploy
+
+Antes da primeira publicação em produção, confirme:
+
+- EC2 registrada no AWS Systems Manager;
+- bucket S3 do frontend criado;
+- CloudFront configurado com distribuição pública;
+- bucket S3 de mídia criado;
+- role de deploy com OIDC habilitado;
+- ECR repository ativo;
+- parameter store com `.env` sensível protegido;
+- `VITE_API_URL` apontando para o backend público;
+- health check `/actuator/health` respondendo corretamente.
 
 ## Licença
 
-Distribuído sob a licença MIT. Veja o arquivo `LICENSE`.
+Este projeto está disponível sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
