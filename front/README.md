@@ -60,7 +60,9 @@ O objetivo foi um deploy **econômico**, sem servidores gerenciados caros, mas c
 
 ### Deploy de produção
 
-Os workflows exigem estes secrets no repositório:
+Os workflows usam secrets do repositório em **Settings → Secrets and variables → Actions → Repository secrets**. Eles não usam GitHub Environment, portanto não adicione `environment: production` aos jobs.
+
+Secrets necessários:
 
 - `AWS_DEPLOY_ROLE_ARN`
 - `AWS_REGION`
@@ -71,7 +73,25 @@ Os workflows exigem estes secrets no repositório:
 - `EC2_INSTANCE_ID`
 - `SSM_ENV_PARAMETER` (nome do parâmetro `SecureString` com o `.env` da API)
 
+`AWS_DEPLOY_ROLE_ARN` deve apontar para uma role exclusiva do GitHub Actions, por exemplo:
+
+```text
+arn:aws:iam::156041418997:role/github-actions-deploy-role
+```
+
+Essa role precisa confiar no provider OIDC `token.actions.githubusercontent.com`, com audiência `sts.amazonaws.com` e sujeito restrito a `repo:CaioLira18/java-react-universeDC:ref:refs/heads/main`. Ela deve ter permissões para publicar no ECR, sincronizar o bucket do frontend, invalidar a distribuição CloudFront e executar comandos SSM na EC2. A role da EC2 (`dc-universe-ec2-role`) é diferente e não deve ser usada em `AWS_DEPLOY_ROLE_ARN`.
+
 O backend é publicado com a tag imutável do SHA do commit. A EC2 mantém a imagem anterior para rollback: se o health check de `/actuator/health` falhar, o container anterior é restaurado. A role da EC2 precisa de `ecr:GetAuthorizationToken`, permissões de pull no repositório ECR e `ssm:GetParameter`/`ssm:DescribeParameters` para o parâmetro de produção.
+
+O deploy automático ocorre em pushes para `main` quando há alterações em `front/**` ou `dc/**`. Para rollback manual, execute o workflow **Deploy backend to EC2** em **Actions → Run workflow** e informe a tag SHA de uma imagem existente no ECR.
+
+Antes do primeiro deploy, confirme:
+
+1. A EC2 está registrada no Systems Manager e aceita comandos pelo SSM.
+2. O parâmetro `/dc/production/env` existe como `SecureString`.
+3. A role da EC2 pode ler esse parâmetro e baixar imagens do ECR.
+4. O CloudFront encaminha `/api/*` para a EC2 e remove o prefixo `/api`.
+5. `VITE_API_URL` está definido como `https://d1hr7n8x1j89do.cloudfront.net/api` (ou o domínio público equivalente).
 
 ## Organização das mídias no S3
 
