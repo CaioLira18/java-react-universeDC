@@ -2,12 +2,21 @@ name: Deploy backend to EC2
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Existing ECR image tag to deploy (use a commit SHA to roll back)
+        required: true
+        type: string
   push:
     branches: [main]
     paths:
       - 'dc/**'
       - 'deploy/ec2/**'
       - '.github/workflows/deploy-backend.yml'
+
+concurrency:
+  group: production-backend
+  cancel-in-progress: false
 
 permissions:
   id-token: write
@@ -17,7 +26,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      IMAGE_URI: ${{ secrets.ECR_REPOSITORY_URL }}:${{ github.sha }}
+      IMAGE_URI: ${{ secrets.ECR_REPOSITORY_URL }}:${{ github.event_name == 'workflow_dispatch' && inputs.image_tag || github.sha }}
 
     steps:
       - uses: actions/checkout@v4
@@ -32,28 +41,38 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push API image
+        if: github.event_name == 'push'
         working-directory: dc
         run: |
           docker build --tag "$IMAGE_URI" .
           docker push "$IMAGE_URI"
-          docker tag "$IMAGE_URI" "${{ secrets.ECR_REPOSITORY_URL }}:latest"
-          docker push "${{ secrets.ECR_REPOSITORY_URL }}:latest"
 
       - name: Update EC2 through SSM
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
           ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+          SSM_ENV_PARAMETER: ${{ secrets.SSM_ENV_PARAMETER }}
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
-            --parameters "{\"commands\":[
-              \"aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URL\",
-              \"docker pull $IMAGE_URI\",
-              \"docker rm --force dc-api || true\",
-              \"docker run --detach --restart unless-stopped --name dc-api --env-file /opt/dc-api/.env --publish 8080:8080 $IMAGE_URI\"
-            ]}" \
+            --parameters "commands=[
+              \"set -eu\",
+              \"IMAGE_URI='$IMAGE_URI'\",
+              \"ENV_FILE=/opt/dc-api/.env\",
+              \"if [ -n '$SSM_ENV_PARAMETER' ]; then aws ssm get-parameter --name '$SSM_ENV_PARAMETER' --with-decryption --query Parameter.Value --output text > \\\$ENV_FILE; fi\",
+              \"aws ecr get-login-password --region '$AWS_REGION' | docker login --username AWS --password-stdin '$ECR_REPOSITORY_URL'\",
+              \"docker pull \\\$IMAGE_URI\",
+              \"PREVIOUS_IMAGE=\\\$(docker inspect --format='{{.Config.Image}}' dc-api 2>/dev/null || true)\",
+              \"docker rm --force dc-api 2>/dev/null || true\",
+              \"docker run --detach --restart unless-stopped --name dc-api --env-file \\\$ENV_FILE --publish 8080:8080 \\\$IMAGE_URI\",
+              \"for i in \\\$(seq 1 36); do if curl --fail --silent http://127.0.0.1:8080/actuator/health > /dev/null; then exit 0; fi; sleep 5; done\",
+              \"docker logs --tail 100 dc-api || true\",
+              \"docker rm --force dc-api 2>/dev/null || true\",
+              \"if [ -n \\\$PREVIOUS_IMAGE ]; then docker run --detach --restart unless-stopped --name dc-api --env-file \\\$ENV_FILE --publish 8080:8080 \\\$PREVIOUS_IMAGE; fi\",
+              \"exit 1\"
+            ]" \
             --query "Command.CommandId" \
             --output text)
 

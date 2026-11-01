@@ -1,0 +1,180 @@
+.notFound {
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 140px 24px 60px;
+  overflow: hidden;
+  isolation: isolate;
+  font-family: var(--font-body, 'Barlow', system-ui, sans-serif);
+  color: var(--paper, #fff6dc);
+  background-color: #0a0c1c;
+}
+
+/* raios de quadrinho saindo de trás da personagem */
+.notFound::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: -1;
+  background-image: url("https://4kwallpapers.com/images/wallpapers/stars-in-sky-dark-3840x2160-15485.jpg");
+  background-size: cover;
+  object-fit: cover;
+  opacity: 0.2;
+}
+
+.notFound__inner {
+  width: min(100%, 1080px);
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 32px;
+}
+
+.notFound__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.notFound__bubble {
+  position: relative;
+  margin: 0 0 28px;
+  padding: 10px 22px;
+  background: var(--paper, #fff6dc);
+  color: var(--ink, #0a0c1c);
+  font-family: var(--font-comic, 'Bangers', 'Impact', sans-serif);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  border: 3px solid var(--ink, #0a0c1c);
+  border-radius: 24px;
+  box-shadow: 4px 4px 0 var(--ink, #0a0c1c);
+  transform: rotate(-3deg);
+}
+
+.notFound__bubble::after {
+  content: '';
+  position: absolute;
+  left: 34px;
+  bottom: -18px;
+  width: 22px;
+  height: 22px;
+  background: var(--paper, #fff6dc);
+  border-right: 3px solid var(--ink, #0a0c1c);
+  border-bottom: 3px solid var(--ink, #0a0c1c);
+  transform: skewX(30deg) rotate(45deg);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.notFound__code {
+  margin: 0;
+  font-family: var(--font-comic, 'Bangers', 'Impact', sans-serif);
+  font-weight: 400;
+  font-size: clamp(110px, 20vw, 220px);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  color: var(--hero-yellow, #ffd400);
+  -webkit-text-stroke: 3px var(--ink, #0a0c1c);
+  paint-order: stroke fill;
+  text-shadow: 6px 6px 0 var(--hero-red, #e8212e), 10px 10px 0 var(--ink, #0a0c1c);
+  transform: skewY(-3deg);
+  animation: notFoundSlam 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.notFound__title {
+  margin: 28px 0 0;
+  font-family: var(--font-comic, 'Bangers', 'Impact', sans-serif);
+  font-weight: 400;
+  font-size: clamp(30px, 4.4vw, 48px);
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+  color: var(--paper, #fff6dc);
+  text-shadow: 3px 3px 0 var(--ink, #0a0c1c);
+}
+
+.notFound__description {
+  margin: 14px 0 30px;
+  max-width: 40ch;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.notFound__cta {
+  display: inline-block;
+  padding: 12px 30px;
+  background: var(--hero-red, #e8212e);
+  color: #fff;
+  font-family: var(--font-comic, 'Bangers', 'Impact', sans-serif);
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  border: 3px solid var(--ink, #0a0c1c);
+  box-shadow: 6px 6px 0 var(--ink, #0a0c1c);
+  transform: skewX(-8deg);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.notFound__cta:hover {
+  background: var(--hero-blue, #0a6cf0);
+  transform: skewX(-8deg) translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--ink, #0a0c1c);
+}
+
+.notFound__cta:active {
+  transform: skewX(-8deg) translate(4px, 4px);
+  box-shadow: 2px 2px 0 var(--ink, #0a0c1c);
+}
+
+.notFound__cta:focus-visible {
+  outline: 3px solid var(--hero-yellow, #ffd400);
+  outline-offset: 4px;
+}
+
+.notFound__figure {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.notFound__image {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  max-height: 70vh;
+  object-fit: contain;
+  filter: drop-shadow(8px 8px 0 var(--ink, #0a0c1c)) drop-shadow(0 0 40px rgba(10, 108, 240, 0.45));
+  animation: notFoundFloat 4s ease-in-out infinite;
+}
+
+@keyframes notFoundSlam {
+  from { opacity: 0; transform: skewY(-3deg) scale(1.8) translateY(-30px); }
+  to   { opacity: 1; transform: skewY(-3deg); }
+}
+
+@keyframes notFoundFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notFound__code,
+  .notFound__image { animation: none; }
+  .notFound__cta { transition: none; }
+}
+
+@media (max-width: 800px) {
+  .notFound { padding: 110px 18px 48px; }
+  .notFound__inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .notFound__text { align-items: center; }
+  .notFound__figure { order: -1; }
+  .notFound__image { max-width: 260px; max-height: 40vh; }
+  .notFound__bubble { font-size: 19px; }
+  .notFound__description { font-size: 16px; }
+}

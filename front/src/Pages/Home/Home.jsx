@@ -65,10 +65,6 @@ export const Home = () => {
   return (
     <div className="home">
 
-      <div className="backgroundImage">
-        <img src="https://wallpapercave.com/wp/wp3979958.jpg" alt="" />
-      </div>
-
       {activeSlide ? (
         <header className="hero hero--featured" aria-roledescription="carrossel">
           {transitionFromSlide && (
@@ -140,7 +136,6 @@ export const Home = () => {
           <GameSection />
         </div>
       </div>
-
     </div>
   )
 }

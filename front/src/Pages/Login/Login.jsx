@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { AUTH_KEY, notifyAuthChanged } from '../../auth'
+import { saveAuth } from '../../api'
 import './Login.css'
 import { API_URL } from '../../config'
 
@@ -39,8 +39,7 @@ export const Login = () => {
       }
 
       const data = await res.json(); // { token, email, name, role }
-      localStorage.setItem(AUTH_KEY, JSON.stringify(data));
-      notifyAuthChanged();
+      saveAuth(data)
       navigate('/');
     } catch (err) {
       console.error(err);

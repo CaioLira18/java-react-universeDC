@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import './Admin.css'
 import { AUTH_KEY } from '../../auth'
 import { API_URL } from '../../config'
+import { apiRequest } from '../../api'
 
 /*
   Para cadastrar um campo novo, basta adicionar uma linha em "fields".
@@ -323,7 +324,7 @@ const request = async (method, path, body) => {
     console.error('Não foi possível ler a sessão para a chamada administrativa.', error)
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await apiRequest(path, {
     method,
     headers: {
       ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -348,7 +349,7 @@ const uploadMedia = async (path, file) => {
 
   const formData = new FormData()
   formData.append('file', file)
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await apiRequest(path, {
     method: 'POST',
     headers: {
       ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}),

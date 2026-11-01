@@ -30,7 +30,7 @@
 
 .game__section-all {
   padding: 8px 18px;
-  color: var(--paper, #fff6dc);
+  color: var(--paper, #e7dcff);
   background: var(--hero-blue, #0a6cf0);
   border: 3px solid var(--ink, #0a0c1c);
   box-shadow: 4px 4px 0 var(--ink, #0a0c1c);

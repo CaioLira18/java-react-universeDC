@@ -20,6 +20,7 @@ import AboutProject from '../Pages/AboutProject/AboutProject'
 import Timeline from '../Pages/Timeline/Timeline'
 import TimelineDetail from '../Pages/Timeline/TimelineDetail'
 import { AUTH_KEY } from '../auth'
+import NotFound from '../Pages/NotFound/NotFound'
 
 const AdminRoute = ({ children }) => {
   let user = null
@@ -58,6 +59,7 @@ export const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<UserPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       {pathname !== '/planets' && (
         <footer className="site-footer">

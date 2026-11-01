@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AUTH_KEY, notifyAuthChanged } from '../../auth'
+import { AUTH_KEY } from '../../auth'
+import { apiRequest, saveAuth } from '../../api'
 import './UserPage.css'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const readAuth = () => {
   try {
@@ -36,7 +35,7 @@ export const UserPage = () => {
     let cancelled = false
     const loadProfile = async () => {
       try {
-        const response = await fetch(`${API_URL}/users/me`, {
+        const response = await apiRequest('/users/me', {
           headers: { Authorization: `Bearer ${auth.token}` },
         })
         if (!response.ok) {
@@ -77,9 +76,8 @@ export const UserPage = () => {
   }, [imagePreview])
 
   const updateAuth = (updatedAuth) => {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(updatedAuth))
+    saveAuth(updatedAuth)
     setAuth(updatedAuth)
-    notifyAuthChanged()
   }
 
   const handleSubmit = async (event) => {
@@ -102,7 +100,7 @@ export const UserPage = () => {
     let profileWasSaved = false
 
     try {
-      const response = await fetch(`${API_URL}/users/me`, {
+      const response = await apiRequest('/users/me', {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${auth.token}`,
@@ -128,7 +126,7 @@ export const UserPage = () => {
       if (selectedImage) {
         const uploadData = new FormData()
         uploadData.append('file', selectedImage)
-        const uploadResponse = await fetch(`${API_URL}/users/me/media`, {
+        const uploadResponse = await apiRequest('/users/me/media', {
           method: 'POST',
           headers: { Authorization: `Bearer ${savedAuth.token}` },
           body: uploadData,
@@ -145,7 +143,7 @@ export const UserPage = () => {
         setImagePreview('')
       }
 
-      const profileResponse = await fetch(`${API_URL}/users/me`, {
+      const profileResponse = await apiRequest('/users/me', {
         headers: { Authorization: `Bearer ${savedAuth.token}` },
       })
       if (!profileResponse.ok) {

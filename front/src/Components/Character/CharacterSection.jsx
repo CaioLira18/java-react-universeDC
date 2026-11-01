@@ -11,16 +11,26 @@ export const CharacterSection = () => {
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
   useEffect(() => {
-    fetch(`${API_URL}/characters`)
-      .then(r => r.json())
+    const controller = new AbortController();
+
+    fetch(`${API_URL}/characters/page?page=0&size=${HOME_CHARACTER_LIMIT}`, {
+      signal: controller.signal,
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(`Erro ${r.status}`);
+        return r.json();
+      })
       .then(data => {
-        setCharacters(data);
+        setCharacters(data.content);
         setStatus('ready');
       })
       .catch(err => {
+        if (err.name === 'AbortError') return;
         console.error(err);
         setStatus('error');
       });
+
+    return () => controller.abort();
   }, []);
 
   return (
@@ -47,7 +57,7 @@ export const CharacterSection = () => {
 
       {status === 'ready' && (
         <div className="character__section-cards" aria-label="Carrossel de personagens">
-          {characters.slice(0, HOME_CHARACTER_LIMIT).map((character) => (
+          {characters.map((character) => (
             <Link to={`/characters/${character.id}`} key={character.id} className="character__card">
               <img
                 src={character.background}

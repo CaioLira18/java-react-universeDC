@@ -54,9 +54,24 @@ O objetivo foi um deploy **econômico**, sem servidores gerenciados caros, mas c
 **Sem chaves de acesso.**
 - A EC2 acessa o ECR e o bucket de mídia por uma **IAM Role** da instância, então não existe access key no código, na imagem Docker ou no GitHub.
 - A integração com o GitHub usa **OIDC**, o que permite pipelines sem credenciais fixas.
-- Segredos (banco, `JWT_SECRET`) ficam apenas em um arquivo `.env` na EC2. Arquivos `.env`, `terraform.tfvars` e o state do Terraform são ignorados pelo Git.
+- Segredos (banco, `JWT_SECRET`) devem ficar no AWS Systems Manager Parameter Store como um parâmetro `SecureString`. O workflow informa o nome do parâmetro (`SSM_ENV_PARAMETER`) e a EC2 o baixa durante o deploy. O arquivo `.env` local continua útil apenas para desenvolvimento.
 
-**Infraestrutura como código.** Tudo isso é criado com Terraform em [`deploy/aws/`](./deploy/aws/): uma VPC pública pequena, EC2, ECR, os buckets, a distribuição CloudFront, o Security Group, as IAM Roles e o OIDC do GitHub.
+**Infraestrutura como código.** A infraestrutura AWS deve ser mantida em Terraform, incluindo EC2, ECR, buckets, CloudFront, Security Group, IAM Roles, OIDC do GitHub e o parâmetro seguro do SSM.
+
+### Deploy de produção
+
+Os workflows exigem estes secrets no repositório:
+
+- `AWS_DEPLOY_ROLE_ARN`
+- `AWS_REGION`
+- `FRONTEND_BUCKET`
+- `CLOUDFRONT_DISTRIBUTION_ID`
+- `VITE_API_URL`
+- `ECR_REPOSITORY_URL`
+- `EC2_INSTANCE_ID`
+- `SSM_ENV_PARAMETER` (nome do parâmetro `SecureString` com o `.env` da API)
+
+O backend é publicado com a tag imutável do SHA do commit. A EC2 mantém a imagem anterior para rollback: se o health check de `/actuator/health` falhar, o container anterior é restaurado. A role da EC2 precisa de `ecr:GetAuthorizationToken`, permissões de pull no repositório ECR e `ssm:GetParameter`/`ssm:DescribeParameters` para o parâmetro de produção.
 
 ## Organização das mídias no S3
 
