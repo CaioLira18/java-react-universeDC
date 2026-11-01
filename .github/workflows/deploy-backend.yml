@@ -45,6 +45,7 @@ jobs:
         if: github.event_name == 'push'
         working-directory: dc
         run: |
+          chmod +x mvnw
           docker build --tag "$IMAGE_URI" .
           docker push "$IMAGE_URI"
 
