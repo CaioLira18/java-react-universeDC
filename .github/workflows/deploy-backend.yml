@@ -24,6 +24,7 @@ permissions:
 
 jobs:
   deploy:
+    environment: production
     runs-on: ubuntu-latest
     env:
       IMAGE_URI: ${{ secrets.ECR_REPOSITORY_URL }}:${{ github.event_name == 'workflow_dispatch' && inputs.image_tag || github.sha }}
