@@ -46,6 +46,7 @@ jobs:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       JWT_SECRET: ci-test-secret-key-with-at-least-32-characters
+      JPA_DDL_AUTO: create-drop
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
