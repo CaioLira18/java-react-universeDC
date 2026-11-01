@@ -31,4 +31,5 @@ public class Series extends Content {
   @CollectionTable(name = "series_images", joinColumns = @JoinColumn(name = "series_id"))
   @Column(name = "image_url", length = 2048)
   private List<String> images = new ArrayList<>();
+  
 }
