@@ -26,12 +26,20 @@ O projeto reúne uma API REST em Spring Boot e um frontend em React/Vite para di
 
 <table>
   <tr>
+    <td width="50%"><img src="fotos/10%20-%20catalogo.png" alt="Tela de catálogo"></td>
     <td width="50%"><img src="fotos/2.png" alt="Listagem de personagens com paginação"></td>
-    <td width="50%"><img src="fotos/3.png" alt="Página de detalhe de um personagem"></td>
   </tr>
   <tr>
+    <td align="center"><em>Catálogo</em></td>
     <td align="center"><em>Listagem com paginação</em></td>
-    <td align="center"><em>Detalhe do personagem, com aparições em filmes, séries e jogos</em></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="fotos/3.png" alt="Detalhe do personagem, parte 1"></td>
+    <td width="50%"><img src="fotos/3.1.png" alt="Detalhe do personagem, parte 2"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Detalhe do personagem (1/2)</em></td>
+    <td align="center"><em>Detalhe do personagem (2/2): aparições em filmes, séries e jogos</em></td>
   </tr>
   <tr>
     <td width="50%"><img src="fotos/4.png" alt="Linha do tempo do universo DC"></td>
@@ -43,12 +51,20 @@ O projeto reúne uma API REST em Spring Boot e um frontend em React/Vite para di
   </tr>
 </table>
 
-### Autenticação
+### Autenticação e perfil
 
-<p align="center">
-  <img src="fotos/6.png" alt="Tela de login e perfil do usuário" width="80%">
-</p>
-<p align="center"><em>Login e perfil do usuário</em></p>
+<table>
+  <tr>
+    <td width="33%"><img src="fotos/6.png" alt="Autenticação e perfil, parte 1"></td>
+    <td width="33%"><img src="fotos/6.1.png" alt="Autenticação e perfil, parte 2"></td>
+    <td width="33%"><img src="fotos/6.2.png" alt="Autenticação e perfil, parte 3"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>1/3</em></td>
+    <td align="center"><em>2/3</em></td>
+    <td align="center"><em>3/3</em></td>
+  </tr>
+</table>
 
 ### Painel administrativo
 
