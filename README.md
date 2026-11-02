@@ -15,6 +15,54 @@ O projeto reúne uma API REST em Spring Boot e um frontend em React/Vite para di
 - upload de arquivos para o Amazon S3;
 - deploy automatizado via GitHub Actions.
 
+## Preview
+
+<p align="center">
+  <img src="fotos/1.png" alt="Página inicial do Universo DC" width="100%">
+</p>
+<p align="center"><em>Página inicial</em></p>
+
+### Catálogo
+
+<table>
+  <tr>
+    <td width="50%"><img src="fotos/2.png" alt="Listagem de personagens com paginação"></td>
+    <td width="50%"><img src="fotos/3.png" alt="Página de detalhe de um personagem"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Listagem com paginação</em></td>
+    <td align="center"><em>Detalhe do personagem, com aparições em filmes, séries e jogos</em></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="fotos/4.png" alt="Linha do tempo do universo DC"></td>
+    <td width="50%"><img src="fotos/5.png" alt="Página de sagas e HQs"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Linha do tempo</em></td>
+    <td align="center"><em>Sagas e HQs</em></td>
+  </tr>
+</table>
+
+### Autenticação
+
+<p align="center">
+  <img src="fotos/6.png" alt="Tela de login e perfil do usuário" width="80%">
+</p>
+<p align="center"><em>Login e perfil do usuário</em></p>
+
+### Painel administrativo
+
+<table>
+  <tr>
+    <td width="50%"><img src="fotos/7.png" alt="Painel de controle: cadastro e lista de personagens"></td>
+    <td width="50%"><img src="fotos/8.png" alt="Painel de controle: cadastro de sagas ou equipes"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Cadastro e listagem paginada de personagens</em></td>
+    <td align="center"><em>Gerenciamento de sagas e equipes, com upload de mídia para o S3</em></td>
+  </tr>
+</table>
+
 ## Stack tecnológica
 
 | Camada | Tecnologias |
@@ -37,7 +85,7 @@ O projeto reúne uma API REST em Spring Boot e um frontend em React/Vite para di
 - Linha do tempo e destaques da home.
 - Sistema de autenticação com JWT para usuários e admin.
 - Upload e organização de mídias por bucket S3, por recurso e por usuário.
-- Painel administrativo para criar, editar e remover conteúdos protegidos.
+- Painel administrativo para criar, editar e remover conteúdos protegidos, com listagem paginada e busca por nome.
 - Health check da API para deploy seguro em EC2.
 
 ## Arquitetura da solução
@@ -221,6 +269,11 @@ Importante:
 - `VITE_API_URL` deve apontar para o endpoint da API pública, normalmente `https://<cloudfront>/api`.
 
 ## Workflows no GitHub
+
+<p align="center">
+  <img src="fotos/9.png" alt="Execuções do GitHub Actions" width="90%">
+</p>
+<p align="center"><em>Pipelines de CI/CD no GitHub Actions</em></p>
 
 ### 1) `ci.yml`
 
